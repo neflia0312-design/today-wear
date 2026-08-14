@@ -172,6 +172,64 @@ button{border:0}
 .custom-cat-row button{padding:11px 13px;border-radius:14px;background:#4a4540;color:#fff}
 .card-edit{position:absolute;left:16px;top:16px;padding:7px 9px;border-radius:999px;background:rgba(255,255,255,.78);backdrop-filter:blur(8px);font-size:10px;font-weight:700;color:#5f5852;box-shadow:0 3px 10px rgba(0,0,0,.05)}
 
+
+/* v1.8: 分类弹层独立滚动，禁止误滑底层页面 */
+.modal.show{display:flex;overscroll-behavior:none;touch-action:none}
+.sheet{
+  max-height:min(88vh,760px);
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  touch-action:pan-y;
+}
+body.modal-locked{
+  overflow:hidden !important;
+  position:fixed;
+  width:100%;
+  left:0;
+  right:0;
+}
+.move-option{
+  position:relative;
+  user-select:none;
+  -webkit-user-select:none;
+  touch-action:manipulation;
+}
+.move-option::after{
+  content:"双击改名";
+  display:block;
+  font-size:8px;
+  opacity:.42;
+  margin-top:3px;
+  font-weight:600;
+}
+.move-option.active::after{opacity:.7}
+.rename-panel{
+  display:none;
+  margin-top:12px;
+  padding:12px;
+  border-radius:18px;
+  background:#f8f4f1;
+  border:1px solid var(--line);
+}
+.rename-panel.show{display:block}
+.rename-panel .rename-title{font-size:11px;color:var(--muted);margin-bottom:8px}
+.rename-row{display:flex;gap:8px}
+.rename-row input{
+  flex:1;
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:14px;
+  padding:11px 12px;
+}
+.rename-row button{
+  padding:11px 13px;
+  border-radius:14px;
+  background:#4a4540;
+  color:#fff;
+  font-weight:700;
+}
+
 @media(min-width:700px){body{padding:20px 0}.app{min-height:calc(100vh - 40px);border-radius:36px;overflow:hidden;box-shadow:0 20px 80px rgba(74,64,58,.16)}.nav{bottom:20px}.modal{align-items:center}.sheet{border-radius:30px;max-height:80vh}}
 </style>
 </head>
@@ -179,7 +237,7 @@ button{border:0}
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v1.7 FREE</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v1.8 FREE</small></div>
       <button class="iconbtn" onclick="toast('基础版设置已保留')">⋯</button>
     </div>
   </header>
@@ -352,8 +410,15 @@ button{border:0}
     <div class="sheetgrab"></div>
     <button class="closex" onclick="closeMoveCategory()">×</button>
     <h2>移动到分类</h2>
-    <div class="note">选择一个已有分类，或新建你自己的细分类。修改后主页会立即同步。</div>
+    <div class="note">轻点＝移动到该分类；双击分类名称＝直接改名。弹层内可独立上下滑动，不会再带动底层页面。</div>
     <div class="move-sheet-list" id="moveCategoryList"></div>
+    <div class="rename-panel" id="renamePanel">
+      <div class="rename-title" id="renameTitle">修改分类名称</div>
+      <div class="rename-row">
+        <input id="renameCategoryInput" placeholder="输入新的分类名称">
+        <button onclick="confirmRenameCategory()">确认改名</button>
+      </div>
+    </div>
     <div class="custom-cat-row">
       <input id="newCategoryInput" placeholder="例如：背心 / 吊带背心 / 针织背心 / 蕾丝上衣">
       <button onclick="createAndMoveCategory()">新建并移动</button>
@@ -536,7 +601,11 @@ function confirmBatchImport(){
 }
 
 
+
 let moveTargetId=null;
+let renameSourceCategory=null;
+let modalScrollY=0;
+let categoryTapTimer={};
 
 function allCategories(){
   const base=["上衣","背心","吊带背心","针织背心","蕾丝上衣","T恤","衬衫","针织衫","卫衣","外套","裙装","半裙","连衣裙","裤装","牛仔裤","短裤","内衣","鞋子","包袋","配饰"];
@@ -544,19 +613,74 @@ function allCategories(){
   return [...new Set([...base,...own])];
 }
 
+function lockBackgroundScroll(){
+  modalScrollY=window.scrollY||0;
+  document.body.classList.add("modal-locked");
+  document.body.style.top=`-${modalScrollY}px`;
+}
+function unlockBackgroundScroll(){
+  document.body.classList.remove("modal-locked");
+  document.body.style.top="";
+  window.scrollTo(0,modalScrollY);
+}
+
+function categoryButtonHTML(c,current){
+  const safe=esc(c);
+  return `<button class="move-option ${c===current?"active":""}"
+    onclick="handleCategoryTap(event,'${safe}')"
+    ondblclick="handleCategoryDoubleClick(event,'${safe}')"
+    ontouchend="handleCategoryTouchEnd(event,'${safe}')">${safe}</button>`;
+}
+
 function openMoveCategory(id){
   moveTargetId=id;
+  renameSourceCategory=null;
   const item=items().find(x=>x.id===id);
   if(!item)return;
   const list=document.getElementById("moveCategoryList");
-  list.innerHTML=allCategories().map(c=>`<button class="move-option ${c===item.category?"active":""}" onclick="moveItemToCategory('${esc(c)}')">${esc(c)}</button>`).join("");
+  list.innerHTML=allCategories().map(c=>categoryButtonHTML(c,item.category)).join("");
   document.getElementById("newCategoryInput").value="";
+  document.getElementById("renamePanel").classList.remove("show");
   document.getElementById("categoryModal").classList.add("show");
+  lockBackgroundScroll();
 }
 
 function closeMoveCategory(){
   document.getElementById("categoryModal").classList.remove("show");
+  document.getElementById("renamePanel").classList.remove("show");
+  renameSourceCategory=null;
   moveTargetId=null;
+  unlockBackgroundScroll();
+}
+
+function handleCategoryTap(e,category){
+  // 轻点延迟执行，给双击留出判断时间
+  e.preventDefault();
+  clearTimeout(categoryTapTimer[category]);
+  categoryTapTimer[category]=setTimeout(()=>moveItemToCategory(category),260);
+}
+function handleCategoryDoubleClick(e,category){
+  e.preventDefault();
+  e.stopPropagation();
+  clearTimeout(categoryTapTimer[category]);
+  openRenameCategory(category);
+}
+
+// iPhone Safari 对 dblclick 不稳定：用两次触摸模拟“双击”
+let lastTouchCategory=null;
+let lastTouchAt=0;
+function handleCategoryTouchEnd(e,category){
+  const now=Date.now();
+  if(lastTouchCategory===category && now-lastTouchAt<360){
+    e.preventDefault();
+    clearTimeout(categoryTapTimer[category]);
+    openRenameCategory(category);
+    lastTouchCategory=null;
+    lastTouchAt=0;
+  }else{
+    lastTouchCategory=category;
+    lastTouchAt=now;
+  }
 }
 
 function moveItemToCategory(category){
@@ -571,11 +695,62 @@ function moveItemToCategory(category){
   toast(`已移动到「${category}」`);
 }
 
+function openRenameCategory(category){
+  renameSourceCategory=category;
+  document.getElementById("renamePanel").classList.add("show");
+  document.getElementById("renameTitle").textContent=`将「${category}」改名为`;
+  const input=document.getElementById("renameCategoryInput");
+  input.value=category;
+  setTimeout(()=>{
+    input.focus();
+    input.setSelectionRange(0,input.value.length);
+    document.getElementById("renamePanel").scrollIntoView({behavior:"smooth",block:"nearest"});
+  },80);
+}
+
+function confirmRenameCategory(){
+  if(!renameSourceCategory)return;
+  const next=document.getElementById("renameCategoryInput").value.trim();
+  if(!next){toast("请输入新的分类名称");return}
+  if(next===renameSourceCategory){toast("分类名称没有变化");return}
+
+  const data=items();
+  let changed=0;
+  data.forEach(x=>{
+    if(x.category===renameSourceCategory){
+      x.category=next;
+      changed++;
+    }
+  });
+  saveItems(data);
+
+  if(activeCategory===renameSourceCategory) activeCategory=next;
+  const target=moveTargetId ? data.find(x=>x.id===moveTargetId) : null;
+  const current=target?.category||next;
+  document.getElementById("moveCategoryList").innerHTML=
+    allCategories().map(c=>categoryButtonHTML(c,current)).join("");
+
+  document.getElementById("renamePanel").classList.remove("show");
+  toast(changed?`已将「${renameSourceCategory}」改为「${next}」`:`分类已改名为「${next}」`);
+  renameSourceCategory=null;
+  render();
+}
+
 function createAndMoveCategory(){
   const v=document.getElementById("newCategoryInput").value.trim();
   if(!v){toast("请输入分类名称");return}
   moveItemToCategory(v);
 }
+
+
+
+// 只允许分类弹层自身滚动；触摸遮罩时完全拦截，避免滑到底层衣橱
+document.getElementById("categoryModal").addEventListener("touchmove",e=>{
+  if(e.target===document.getElementById("categoryModal")) e.preventDefault();
+},{passive:false});
+document.getElementById("categoryModal").addEventListener("click",e=>{
+  if(e.target===document.getElementById("categoryModal")) closeMoveCategory();
+});
 
 render();
 const stored = localStorage.getItem(PREF_KEY);
