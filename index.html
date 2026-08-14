@@ -1249,6 +1249,21 @@ body.category-modal-open .nav{
   z-index:10 !important;
 }
 
+
+/* v4.1 分类上下排序修复 */
+.category-row .movebtn{
+  pointer-events:auto !important;
+  touch-action:manipulation !important;
+  position:relative !important;
+  z-index:12 !important;
+  -webkit-user-select:none !important;
+  user-select:none !important;
+}
+.category-row .movebtn:disabled{
+  opacity:.28 !important;
+  pointer-events:none !important;
+}
+
 @media(min-width:700px){body{padding:20px 0}.app{min-height:calc(100vh - 40px);border-radius:36px;overflow:hidden;box-shadow:0 20px 80px rgba(74,64,58,.16)}.nav{bottom:20px}.modal{align-items:center}.sheet{border-radius:30px;max-height:80vh}}
 </style>
 </head>
@@ -1256,7 +1271,7 @@ body.category-modal-open .nav{
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v4.0 STYLE DNA</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v4.1 STYLE DNA</small></div>
       <button class="iconbtn" onclick="toast('基础版设置已保留')">⋯</button>
     </div>
   </header>
@@ -2305,6 +2320,40 @@ function saveCategoryOrder(arr){
   localStorage.setItem(CAT_ORDER_KEY,JSON.stringify(arr));
   localStorage.setItem(CAT_INIT_KEY,"1");
 }
+
+function moveCategoryOrder(index,dir){
+  const cats=getSavedCategoryOrderExact();
+  if(!Array.isArray(cats) || cats.length<2) return;
+
+  const from=Number(index);
+  const to=from+Number(dir);
+
+  if(!Number.isInteger(from) || !Number.isInteger(to)) return;
+  if(from<0 || from>=cats.length || to<0 || to>=cats.length) return;
+
+  const next=[...cats];
+  const moved=next[from];
+  [next[from],next[to]]=[next[to],next[from]];
+
+  try{
+    saveCategoryOrder(next);
+  }catch(e){
+    alert("分类排序失败：浏览器本地存储写入失败。");
+    return;
+  }
+
+  renderCategoryManager();
+  render();
+
+  requestAnimationFrame(()=>{
+    const list=document.getElementById("categoryManager");
+    if(!list)return;
+    const rows=[...list.querySelectorAll(".category-row")];
+    const row=rows[to];
+    if(row) row.scrollIntoView({block:"nearest",behavior:"smooth"});
+  });
+}
+
 function allCategories(){return getCategoryOrder();}
 
 function lockBackgroundScroll(){
@@ -2368,7 +2417,7 @@ function renderCategoryManager(){
   box.innerHTML=cats.map((c,i)=>`
     <div class="category-row ${c===current?"active":""}" data-category="${esc(c)}">
       <button class="movebtn" ${i===0?"disabled":""}
-        onclick="event.stopPropagation();moveCategoryOrder(${i},-1)">↑</button>
+        onclick="event.preventDefault();event.stopPropagation();moveCategoryOrder(${i},-1)">↑</button>
 
       <div class="category-name-wrap ${moveTargetId?"":"editable-manager"}"
         data-name="${esc(c)}"
@@ -2378,7 +2427,7 @@ function renderCategoryManager(){
       </div>
 
       <button class="movebtn" ${i===cats.length-1?"disabled":""}
-        onclick="event.stopPropagation();moveCategoryOrder(${i},1)">↓</button>
+        onclick="event.preventDefault();event.stopPropagation();moveCategoryOrder(${i},1)">↓</button>
 
       <button class="delete-cat"
         onclick="event.preventDefault();event.stopPropagation();safeDeleteCategory('${esc(c)}')"
