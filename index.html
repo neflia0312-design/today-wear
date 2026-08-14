@@ -799,6 +799,16 @@ body.modal-locked{
   touch-action:manipulation;
 }
 
+
+/* v3.2 分类与素材彻底解耦 */
+.category-manage-entry{
+  border:0;background:transparent;color:var(--muted);font-size:12px;padding:6px 2px;
+}
+.category-row{user-select:none;-webkit-user-select:none}
+.category-row .movebtn,.category-row .delete-cat{touch-action:manipulation;position:relative;z-index:3}
+.category-row .catname{touch-action:manipulation;position:relative;z-index:2}
+.category-row .catmeta{pointer-events:none}
+
 @media(min-width:700px){body{padding:20px 0}.app{min-height:calc(100vh - 40px);border-radius:36px;overflow:hidden;box-shadow:0 20px 80px rgba(74,64,58,.16)}.nav{bottom:20px}.modal{align-items:center}.sheet{border-radius:30px;max-height:80vh}}
 </style>
 </head>
@@ -806,7 +816,7 @@ body.modal-locked{
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v3.1 STYLE DNA</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v3.2 STYLE DNA</small></div>
       <button class="iconbtn" onclick="toast('基础版设置已保留')">⋯</button>
     </div>
   </header>
@@ -828,7 +838,7 @@ body.modal-locked{
         <div class="q"><b id="countFav">0</b><span>近期偏爱</span></div>
       </div>
 
-      <div class="sectionhead"><h2>我的衣橱</h2><span>分类</span></div>
+      <div class="sectionhead"><h2>我的衣橱</h2><button class="category-manage-entry" onclick="openCategoryManager()">分类</button></div>
       <div class="seasonbar" id="seasonBar">
         <button class="seasonbtn active" onclick="setSeason('全部')">全部</button>
         <button class="seasonbtn" onclick="setSeason('春')">春</button>
@@ -1018,7 +1028,7 @@ body.modal-locked{
       <h2>分类</h2>
       <button class="category-sheet-close" onclick="closeMoveCategory()" aria-label="返回衣橱">×</button>
     </div>
-    <div class="category-sheet-sub">轻点移动 · 双击改名 · ↑↓ 排序</div>
+    <div class="category-sheet-sub" id="categorySheetSub">双击名称改名 · ↑↓ 仅由箭头排序 · × 只删除分类，不删除素材</div>
     <div class="category-manager" id="categoryManager"></div>
     <div class="custom-cat-row">
       <input id="newCategoryInput" placeholder="新增分类">
@@ -1104,10 +1114,7 @@ function saveItems(v){localStorage.setItem(LS_KEY,JSON.stringify(v));render();}
 function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
 function render(){
   const data=items();
-  const itemCats=[...new Set(data.map(x=>x.category).filter(Boolean))];
-  const savedCats=getCategoryOrder();
-  const cats=[...savedCats];
-  itemCats.forEach(c=>{if(!cats.includes(c))cats.push(c)});
+  const cats=getCategoryOrder();
   document.getElementById("countAll").textContent=data.length;
   document.getElementById("countCats").textContent=cats.length;
   document.getElementById("countFav").textContent=Math.min(data.length,6);
@@ -1781,6 +1788,7 @@ async function confirmBatchImport(){
 
 
 const CAT_ORDER_KEY="today_wear_category_order_v1";
+const CAT_INIT_KEY="today_wear_category_registry_initialized_v32";
 let moveTargetId=null;
 let modalScrollY=0;
 
@@ -1796,15 +1804,18 @@ function getSavedCategoryOrderExact(){
 }
 
 function getCategoryOrder(){
-  let saved=[];
-  try{saved=JSON.parse(localStorage.getItem(CAT_ORDER_KEY)||"[]")}catch(e){saved=[]}
+  const exact=getSavedCategoryOrderExact();
+  if(exact.length)return exact;
+  if(localStorage.getItem(CAT_INIT_KEY)==="1")return [];
+  // 仅首次升级时从当前素材标签迁移一次，之后分类表独立运行。
   const fromItems=[...new Set(items().map(x=>x.category).filter(Boolean))];
-  const merged=[...saved];
-  fromItems.forEach(c=>{if(!merged.includes(c))merged.push(c)});
-  return merged.filter(Boolean);
+  const initial=fromItems.length?fromItems:defaultCategories();
+  saveCategoryOrder(initial);
+  return initial;
 }
 function saveCategoryOrder(arr){
   localStorage.setItem(CAT_ORDER_KEY,JSON.stringify(arr));
+  localStorage.setItem(CAT_INIT_KEY,"1");
 }
 function allCategories(){return getCategoryOrder();}
 
@@ -1817,6 +1828,10 @@ function unlockBackgroundScroll(){
   document.body.classList.remove("modal-locked");
   document.body.style.top="";
   window.scrollTo(0,modalScrollY);
+}
+
+function openCategoryManager(){
+  openMoveCategory(null);
 }
 
 function openMoveCategory(id){
@@ -1845,19 +1860,22 @@ function renderCategoryManager(){
   const current=moveTargetId ? (items().find(x=>x.id===moveTargetId)?.category||"") : "";
   const counts=items().reduce((m,x)=>{m[x.category]=(m[x.category]||0)+1;return m},{});
   const box=document.getElementById("categoryManager");
+  const sub=document.getElementById("categorySheetSub");
+  if(sub) sub.textContent=moveTargetId
+    ? "轻点名称移动当前素材 · 双击名称改名 · ↑↓ 仅由箭头排序 · × 不删除素材"
+    : "双击名称改名 · ↑↓ 仅由箭头排序 · × 只删除分类，不删除素材";
   if(!cats.length){
-    box.innerHTML=`<div class="empty"><b>暂无分类</b>可通过导入衣服或新建分类添加。</div>`;
+    box.innerHTML=`<div class="empty"><b>暂无分类</b>新增分类后可用于筛选衣橱。</div>`;
     return;
   }
   box.innerHTML=cats.map((c,i)=>`
-    <div class="category-row ${c===current?"active":""}">
-      <button class="movebtn" ${i===0?"disabled":""} onclick="moveCategoryOrder(${i},-1)">↑</button>
+    <div class="category-row ${c===current?"active":""}" data-category="${esc(c)}">
+      <button class="movebtn" ${i===0?"disabled":""} onclick="event.stopPropagation();moveCategoryOrder(${i},-1)">↑</button>
       <input class="catname" value="${esc(c)}" readonly
-        onclick="moveItemToCategory('${esc(c)}')"
-        ondblclick="beginInlineRename(this,'${esc(c)}')"
-        ontouchend="handleInlineTouch(event,this,'${esc(c)}')">
-      <button class="movebtn" ${i===cats.length-1?"disabled":""} onclick="moveCategoryOrder(${i},1)">↓</button>
-      <button class="delete-cat" onclick="deleteCategory('${esc(c)}')" aria-label="删除分类">×</button>
+        onclick="event.stopPropagation();handleCategoryNameTap(event,this,'${esc(c)}')"
+        ondblclick="event.stopPropagation();handleCategoryNameDoubleTap(event,this,'${esc(c)}')">
+      <button class="movebtn" ${i===cats.length-1?"disabled":""} onclick="event.stopPropagation();moveCategoryOrder(${i},1)">↓</button>
+      <button class="delete-cat" onclick="event.stopPropagation();deleteCategory('${esc(c)}')" aria-label="删除分类">×</button>
       <div class="catmeta">${counts[c]||0} 件</div>
     </div>
   `).join("");
@@ -1875,19 +1893,34 @@ function moveItemToCategory(category){
   toast(`已移动到「${category}」`);
 }
 
-let lastInlineTouchName=null;
-let lastInlineTouchAt=0;
-function handleInlineTouch(e,el,category){
+let categoryNameTapTimer=null;
+let categoryNameLastTapAt=0;
+let categoryNameLastTapName="";
+function handleCategoryNameTap(e,el,category){
   const now=Date.now();
-  if(lastInlineTouchName===category && now-lastInlineTouchAt<360){
-    e.preventDefault();
+  const isDouble=(categoryNameLastTapName===category && now-categoryNameLastTapAt<340);
+  categoryNameLastTapAt=now;
+  categoryNameLastTapName=category;
+  if(isDouble){
+    clearTimeout(categoryNameTapTimer);
+    categoryNameTapTimer=null;
     beginInlineRename(el,category);
-    lastInlineTouchName=null;
-    lastInlineTouchAt=0;
-  }else{
-    lastInlineTouchName=category;
-    lastInlineTouchAt=now;
+    categoryNameLastTapAt=0;
+    categoryNameLastTapName="";
+    return;
   }
+  clearTimeout(categoryNameTapTimer);
+  categoryNameTapTimer=setTimeout(()=>{
+    if(moveTargetId) moveItemToCategory(category);
+    categoryNameTapTimer=null;
+  },360);
+}
+function handleCategoryNameDoubleTap(e,el,category){
+  clearTimeout(categoryNameTapTimer);
+  categoryNameTapTimer=null;
+  categoryNameLastTapAt=0;
+  categoryNameLastTapName="";
+  beginInlineRename(el,category);
 }
 
 function beginInlineRename(el,oldName){
@@ -1926,7 +1959,7 @@ function renameCategoryEverywhere(oldName,next){
 }
 
 function moveCategoryOrder(index,delta){
-  const cats=getCategoryOrder();
+  const cats=[...getSavedCategoryOrderExact()];
   const j=index+delta;
   if(j<0||j>=cats.length)return;
   [cats[index],cats[j]]=[cats[j],cats[index]];
@@ -1937,48 +1970,35 @@ function moveCategoryOrder(index,delta){
 
 
 function deleteCategory(category){
-  const data=items();
-  const affected=data.filter(x=>x.category===category).length;
+  const affected=items().filter(x=>x.category===category).length;
+  const msg=affected>0
+    ? `删除分类「${category}」？
 
-  let replacement=null;
-  if(affected>0){
-    const ok=confirm(`「${category}」中还有 ${affected} 件衣服。删除分类后，这些衣服会移动到「未分类」。是否继续？`);
-    if(!ok)return;
-    replacement="未分类";
-    data.forEach(x=>{if(x.category===category)x.category=replacement;});
-  }else{
-    if(!confirm(`确认删除分类「${category}」？`))return;
-  }
+这个操作只删除分类入口；其中 ${affected} 件素材会继续完整保存在衣橱“全部”中，不会移动到未分类，也不会被删除。`
+    : `删除分类「${category}」？`;
+  if(!confirm(msg))return;
 
-  // 先真正从分类顺序里删除
-  let order=getSavedCategoryOrderExact().filter(c=>c!==category);
-  if(replacement && !order.includes(replacement)) order.push(replacement);
-
-  // 再保存衣橱数据和分类顺序
-  try{
-    localStorage.setItem(LS_KEY,JSON.stringify(data));
-    saveCategoryOrder(order);
-  }catch(e){
-    alert("删除失败：本地存储空间不足或浏览器阻止写入。");
-    return;
-  }
-
+  const order=getSavedCategoryOrderExact().filter(c=>c!==category);
+  saveCategoryOrder(order);
   if(activeCategory===category) activeCategory="全部";
   render();
   renderCategoryManager();
-  toast(`已删除「${category}」`);
+  toast(affected>0?`分类已删除，${affected} 件素材仍保留`:`已删除「${category}」`);
 }
 
 function createAndMoveCategory(){
-  const v=document.getElementById("newCategoryInput").value.trim();
+  const input=document.getElementById("newCategoryInput");
+  const v=input.value.trim();
   if(!v){toast("请输入分类名称");return}
   const cats=getCategoryOrder();
   if(!cats.includes(v)){
     cats.push(v);
     saveCategoryOrder(cats);
   }
-  document.getElementById("newCategoryInput").value="";
-  moveItemToCategory(v);
+  input.value="";
+  render();
+  renderCategoryManager();
+  toast(`已新增「${v}」`);
 }
 
 
