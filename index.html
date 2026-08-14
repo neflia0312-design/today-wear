@@ -436,6 +436,73 @@ body.modal-locked{
   display:grid;place-items:center;
 }
 
+
+/* v2.4 actual inspiration + live trend cards */
+.live-inspo{
+  background:#fff;border-radius:26px;padding:14px;box-shadow:var(--shadow);
+}
+.live-inspo-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+  min-height:230px;
+}
+.live-inspo-piece{
+  background:#fbf8f5;border:1px solid var(--line);border-radius:20px;
+  padding:8px;display:flex;flex-direction:column;justify-content:center;
+  min-width:0;
+}
+.live-inspo-piece img{
+  width:100%;aspect-ratio:1/1;object-fit:contain;background:#fff;border-radius:15px;
+}
+.live-inspo-piece b{font-size:10px;margin-top:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.live-inspo-piece small{font-size:8px;color:var(--muted)}
+.inspo-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px}
+.tiny-btn{padding:9px 12px;border-radius:999px;background:#f3ece8;color:#5d5650;font-size:10px;font-weight:750}
+
+.style-preview{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:10px;
+}
+.style-preview img{
+  width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:13px;background:#fff;
+}
+
+.trend-tabs{
+  display:flex;gap:8px;margin-bottom:12px;
+}
+.trend-tab{
+  flex:1;padding:11px 8px;border-radius:999px;background:#fff;border:1px solid var(--line);
+  font-size:11px;color:#756e67;font-weight:750;
+}
+.trend-tab.active{background:#45403c;color:#fff}
+
+.live-trend-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+}
+.live-trend-card{
+  position:relative;overflow:hidden;border-radius:22px;background:#fff;
+  box-shadow:inset 0 0 0 1px var(--line);text-decoration:none;color:inherit;
+}
+.live-trend-card img{
+  width:100%;aspect-ratio:4/5;object-fit:cover;display:block;background:#eee9e5;
+}
+.live-trend-card .trend-body{padding:11px}
+.live-trend-card h3{font-size:13px;margin:0 0 3px;line-height:1.2}
+.live-trend-card p{font-size:9px;line-height:1.45;color:#817970;margin:0}
+.live-trend-card .source-badge{
+  position:absolute;top:8px;left:8px;padding:5px 7px;border-radius:999px;
+  background:rgba(255,255,255,.88);backdrop-filter:blur(10px);
+  font-size:8px;font-weight:800;color:#4b4540;
+}
+.live-trend-card .open-badge{
+  position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;
+  background:rgba(255,255,255,.88);display:grid;place-items:center;font-size:12px;
+}
+.live-note{font-size:9px;color:#948d87;margin:8px 2px 0;line-height:1.45}
+@media(max-width:390px){
+  .live-trend-grid{gap:8px}
+  .live-trend-card .trend-body{padding:9px}
+  .live-trend-card h3{font-size:12px}
+}
+
 @media(min-width:700px){body{padding:20px 0}.app{min-height:calc(100vh - 40px);border-radius:36px;overflow:hidden;box-shadow:0 20px 80px rgba(74,64,58,.16)}.nav{bottom:20px}.modal{align-items:center}.sheet{border-radius:30px;max-height:80vh}}
 </style>
 </head>
@@ -443,7 +510,7 @@ body.modal-locked{
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v2.3 FREE</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v2.4 LIVE</small></div>
       <button class="iconbtn" onclick="toast('基础版设置已保留')">⋯</button>
     </div>
   </header>
@@ -535,44 +602,43 @@ body.modal-locked{
     </section>
 
     <section id="inspiration" class="page">
-      <div class="sectionhead"><h2>时尚灵感</h2><span>根据你的偏好生成</span></div>
-      <div class="card">
-        <div class="inspo-cover">
-          <div class="floating">
-            <div class="outfit">
-              <div class="piece p1"></div><div class="piece p2"></div><div class="piece p3"></div>
-            </div>
+      <div class="sectionhead"><h2>时尚灵感</h2><span>我的真实衣橱</span></div>
+
+      <div class="live-inspo">
+        <div class="live-inspo-grid" id="liveInspoGrid"></div>
+        <div class="inspo-actions">
+          <div>
+            <b style="font-size:12px">今日组合</b>
+            <div style="font-size:9px;color:#918a84;margin-top:2px">直接使用已录入单品</div>
           </div>
-          <div class="tag">soft pink × charcoal × cream</div>
-        </div>
-        <div class="line">
-          <div><h3>Soft Doll / 低饱和少女</h3><p>蝴蝶结、蕾丝、微Y2K、黑粉平衡</p></div>
-          <span class="badge">今日灵感</span>
+          <button class="tiny-btn" onclick="refreshInspiration()">换一组</button>
         </div>
       </div>
 
       <div class="card">
-        <div class="sectionhead" style="margin:2px 2px 10px"><h2>上传我的近期审美</h2><span>训练私人偏好</span></div>
+        <div class="sectionhead" style="margin:2px 2px 10px"><h2>近期审美</h2><span>3–20 张</span></div>
         <div class="uploadbox">
-          <div style="font-size:26px">♡</div>
-          <div style="font-size:12px;margin:6px 0 12px;color:#756e67">可连续导入 3–20 张你最近最喜欢的穿搭图</div>
-          <label class="btn secondary" for="styleInput" style="display:inline-block;cursor:pointer">导入风格图片</label>
+          <div style="font-size:24px">♡</div>
+          <label class="btn secondary" for="styleInput" style="display:inline-block;cursor:pointer;margin-top:8px">导入风格图片</label>
           <input id="styleInput" type="file" multiple accept="image/*" style="display:none"/>
         </div>
-        <div id="styleCount" class="note">尚未建立本周审美偏好样本。</div>
+        <div class="style-preview" id="stylePreview"></div>
+        <div id="styleCount" class="note">尚未导入近期审美。</div>
       </div>
-
-      <button class="btn" style="width:100%" onclick="buildOutfit()">用我的衣橱生成类似风格</button>
-      <div id="generatedLook" style="margin-top:12px"></div>
     </section>
 
     <section id="trends" class="page">
-      <div class="sectionhead"><h2>全球流行审美</h2><span>趋势雷达 · 基础版</span></div>
-      <div class="trend"><div class="trend-art"></div><div><h3>Romantic Utility</h3><p>功能感面料与柔软蕾丝、粉灰中性色叠加，强调“甜与硬”的比例。</p></div></div>
-      <div class="trend"><div class="trend-art" style="background:linear-gradient(145deg,#d5d0c5,#f8eee6)"></div><div><h3>Quiet Feminine</h3><p>奶油白、灰褐、雾粉成为核心底色，搭配细肩带、轻褶皱和更克制的装饰。</p></div></div>
-      <div class="trend"><div class="trend-art" style="background:linear-gradient(145deg,#b7b2ae,#e8d9db)"></div><div><h3>Neo-Y2K Softness</h3><p>格纹迷你裙、短上衣、蝴蝶结与金属细节回归，但轮廓更轻、更干净。</p></div></div>
+      <div class="sectionhead"><h2>全球流行审美</h2><span>官方实时入口</span></div>
 
-      <div class="panel">
+      <div class="trend-tabs">
+        <button class="trend-tab active" id="trendTabRegions" onclick="setTrendMode('regions')">国家 / 地区</button>
+        <button class="trend-tab" id="trendTabLuxury" onclick="setTrendMode('luxury')">奢侈品牌</button>
+      </div>
+
+      <div class="live-trend-grid" id="liveTrendGrid"></div>
+      <div class="live-note">缩略图来自对应官网页面的实时网页预览；点击卡片直接进入官方页面。</div>
+
+      <div class="panel" style="margin-top:14px">
         <div class="sectionhead" style="margin:0 0 8px"><h2>我的平台</h2><span>点击打开</span></div>
         <div class="social-links">
           <a class="social-link" href="https://xhslink.cn/m/9Xzh1eJcWbY" onclick="return openExternalPlatform(event,'小红书',this.href)">
@@ -629,14 +695,6 @@ body.modal-locked{
     </div>
   </div>
 </div>
-    <div class="custom-cat-row">
-      <input id="newCategoryInput" placeholder="例如：背心 / 吊带背心 / 针织背心 / 蕾丝上衣">
-      <button onclick="createAndMoveCategory()">新建并移动</button>
-    </div>
-  </div>
-</div>
-
-
 <div class="external-return-line" id="externalReturnLine">
   <div class="return-main">
     <span>←</span>
@@ -691,6 +749,8 @@ function render(){
         <span class="smallpill">${x.aiImage?"白底素材":"原图"}</span>
       </div>
     </div>`).join("");
+  renderLiveInspiration();
+  renderTrendGrid();
 }
 function setCat(c){activeCategory=c;render();}
 function setSeason(v){activeSeason=v;render();}
@@ -704,10 +764,175 @@ function handlePickedFile(f){
 }
 document.getElementById("albumInput").addEventListener("change", e=>handlePickedFile(e.target.files[0]));
 document.getElementById("cameraInput").addEventListener("change", e=>handlePickedFile(e.target.files[0]));
+
+let inspirationSeed=0;
+let trendMode="regions";
+
+function pickInspirationItems(){
+  let data=items();
+  if(activeSeason!=="全部"){
+    const seasonal=data.filter(x=>(x.seasons||[]).includes(activeSeason));
+    if(seasonal.length) data=seasonal;
+  }
+  if(!data.length)return [];
+  const ordered=[...data];
+  const offset=inspirationSeed%ordered.length;
+  return [...ordered.slice(offset),...ordered.slice(0,offset)].slice(0,Math.min(3,ordered.length));
+}
+function renderLiveInspiration(){
+  const box=document.getElementById("liveInspoGrid");
+  if(!box)return;
+  const pick=pickInspirationItems();
+  if(!pick.length){
+    box.innerHTML=`<div class="empty" style="grid-column:1/-1"><b>衣橱还是空的</b>先导入单品。</div>`;
+    return;
+  }
+  box.innerHTML=pick.map(x=>`
+    <div class="live-inspo-piece">
+      <img src="${x.aiImage||x.image}" alt="">
+      <b>${esc(x.name)}</b>
+      <small>${esc(x.category)} · ${esc((x.seasons||[]).join("/"))}</small>
+    </div>`).join("");
+}
+function refreshInspiration(){
+  inspirationSeed++;
+  renderLiveInspiration();
+}
+
+const TREND_DATA={
+  regions:[
+    {
+      name:"Tokyo / 日本",
+      subtitle:"Rakuten Fashion Week TOKYO",
+      url:"https://rakutenfashionweektokyo.com/jp/",
+      thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://rakutenfashionweektokyo.com/jp/"
+    },
+    {
+      name:"Seoul / 韩国",
+      subtitle:"Seoul Fashion Week · 2027 S/S",
+      url:"https://www.seoulfashionweek.org/hmpg/fawk/main.do",
+      thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.seoulfashionweek.org/hmpg/fawk/main.do"
+    },
+    {
+      name:"Shanghai / 中国",
+      subtitle:"Shanghai Fashion Week · AW2026",
+      url:"https://shanghaifashionweek.com/page/shfw",
+      thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://shanghaifashionweek.com/page/shfw"
+    },
+    {
+      name:"Paris / 法国",
+      subtitle:"Paris Fashion Week · 2026/27",
+      url:"https://www.fhcm.paris/en/paris-fashion-week",
+      thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.fhcm.paris/en/paris-fashion-week"
+    },
+    {
+      name:"Milano / 意大利",
+      subtitle:"Milano Fashion Week",
+      url:"https://www.cameramoda.it/en/",
+      thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.cameramoda.it/en/"
+    },
+    {
+      name:"New York / 美国",
+      subtitle:"Official NYFW · Sep 2026",
+      url:"https://cfda.com/news/view-the-preliminary-september-2026-official-nyfw-schedule/",
+      thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://cfda.com/news/view-the-preliminary-september-2026-official-nyfw-schedule/"
+    },
+    {
+      name:"London / 英国",
+      subtitle:"London Fashion Week · Sep 2026",
+      url:"https://www.britishfashioncouncil.co.uk/London-Fashion-Week",
+      thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.britishfashioncouncil.co.uk/London-Fashion-Week"
+    }
+  ],
+  luxury:[
+    {
+      name:"CHANEL",
+      subtitle:"Fall Winter 2026 Pre-Collection",
+      url:"https://www.chanel.com/us/fashion/collection/fall-winter-pre-collection-2026/",
+      thumb:"https://www.chanel.com/images/as/f_auto%2Cq_auto%3Agood%2Cdpr_1.1/w_3200/-83376284.jpg"
+    },
+    {
+      name:"DIOR",
+      subtitle:"Women’s Fall 2026",
+      url:"https://www.dior.com/en_us/fashion/womens-fashion/fall-collection",
+      thumb:"https://hips.hearstapps.com/hmg-prod/images/dior-woman-fall26-press-look-055-6942d0fae5c82.jpg?crop=1.00xw%3A0.668xh%3B0%2C0.178xh&resize=1200%3A%2A"
+    },
+    {
+      name:"PRADA",
+      subtitle:"Fall Winter 2026",
+      url:"https://www.prada.com/us/en.html",
+      thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.prada.com/us/en.html"
+    },
+    {
+      name:"MIU MIU",
+      subtitle:"Fall / Winter 2026 · Mindful Intimacy",
+      url:"https://www.miumiu.com/us/en/collections/c/10195US",
+      thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.miumiu.com/us/en/collections/c/10195US"
+    },
+    {
+      name:"LOEWE",
+      subtitle:"Fall Winter 2026",
+      url:"https://www.loewe.com/usa/en/pd/stories-collection/fw26-runway.html",
+      thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.loewe.com/usa/en/pd/stories-collection/fw26-runway.html"
+    },
+    {
+      name:"LOUIS VUITTON",
+      subtitle:"Women’s Fall-Winter 2026",
+      url:"https://us.louisvuitton.com/eng-us/magazine/articles/women-fall-winter-2026-show",
+      thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://us.louisvuitton.com/eng-us/magazine/articles/women-fall-winter-2026-show"
+    },
+    {
+      name:"SAINT LAURENT",
+      subtitle:"Women Fall 26",
+      url:"https://www.ysl.com/en-us",
+      thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.ysl.com/en-us"
+    }
+  ]
+};
+
+function setTrendMode(mode){
+  trendMode=mode;
+  document.getElementById("trendTabRegions")?.classList.toggle("active",mode==="regions");
+  document.getElementById("trendTabLuxury")?.classList.toggle("active",mode==="luxury");
+  renderTrendGrid();
+}
+function renderTrendGrid(){
+  const box=document.getElementById("liveTrendGrid");
+  if(!box)return;
+  const data=TREND_DATA[trendMode]||[];
+  box.innerHTML=data.map(x=>`
+    <a class="live-trend-card" href="${x.url}" onclick="return openExternalPlatform(event,'${esc(x.name)}',this.href)">
+      <span class="source-badge">OFFICIAL</span>
+      <span class="open-badge">↗</span>
+      <img src="${x.thumb}" loading="lazy" alt="${esc(x.name)}"
+        onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(145deg,#eee6e1,#d9d4cf)'">
+      <div class="trend-body">
+        <h3>${esc(x.name)}</h3>
+        <p>${esc(x.subtitle)}</p>
+      </div>
+    </a>`).join("");
+}
+
+function renderStylePreview(files){
+  const box=document.getElementById("stylePreview");
+  if(!box)return;
+  box.innerHTML="";
+  [...files].slice(0,8).forEach(file=>{
+    const r=new FileReader();
+    r.onload=()=>{
+      const img=document.createElement("img");
+      img.src=r.result;
+      box.appendChild(img);
+    };
+    r.readAsDataURL(file);
+  });
+}
+
 document.getElementById("styleInput").addEventListener("change",e=>{
   const n=e.target.files.length;
   localStorage.setItem(PREF_KEY,String(n));
-  document.getElementById("styleCount").textContent=`已导入 ${n} 张风格样本。基础版会用它作为“偏好已建立”的状态；正式版再做图像审美特征提取。`;
+  document.getElementById("styleCount").textContent=`${n} 张近期审美`;
+  renderStylePreview(e.target.files);
   toast(`已加入 ${n} 张审美样本`);
 });
 
@@ -1078,6 +1303,8 @@ window.addEventListener("focus",()=>{
 });
 
 render();
+renderLiveInspiration();
+renderTrendGrid();
 const stored = localStorage.getItem(PREF_KEY);
 if(stored) document.getElementById("styleCount").textContent=`已保存 ${stored} 张近期审美样本记录。`;
 </script>
