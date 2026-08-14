@@ -1299,13 +1299,55 @@ body.category-modal-open .nav{
 
 @media(min-width:700px){body{padding:20px 0}.app{min-height:calc(100vh - 40px);border-radius:36px;overflow:hidden;box-shadow:0 20px 80px rgba(74,64,58,.16)}.nav{bottom:20px}.modal{align-items:center}.sheet{border-radius:30px;max-height:80vh}}
 </style>
+
+<style>
+/* V4.4 保存按钮：低饱和莫兰迪灰褐 + 奶油白文字 */
+#manualSaveBtn{background:#81776f !important;color:#fffaf5 !important;border:1px solid #81776f !important;}
+#manualSaveBtn:disabled{background:#d8d0ca !important;color:#f8f3ef !important;border-color:#d8d0ca !important;opacity:.96 !important;}
+</style>
+
+<style>
+/* V4.5 一键备份 / 恢复 */
+#dataSettingsModal{
+  position:fixed;inset:0;z-index:10080;display:none;
+  background:rgba(53,48,44,.26);backdrop-filter:blur(12px);
+  align-items:flex-end;justify-content:center;
+}
+#dataSettingsModal.show{display:flex}
+.data-settings-sheet{
+  width:min(520px,100%);background:#fcfaf8;border-radius:30px 30px 0 0;
+  padding:18px 18px calc(22px + env(safe-area-inset-bottom));
+  box-shadow:0 -16px 50px rgba(70,60,55,.12);
+}
+.data-settings-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.data-settings-head h2{margin:0;font-size:20px;color:var(--ink)}
+.data-settings-close{
+  width:38px;height:38px;border-radius:50%;background:#eee8e3;
+  color:#625b55;font-size:20px;display:grid;place-items:center;
+}
+.data-settings-note{font-size:10px;line-height:1.6;color:var(--muted);margin:9px 1px 14px}
+.data-settings-actions{display:grid;gap:10px}
+.data-backup-btn{
+  width:100%;padding:14px 16px;border-radius:18px;font-size:13px;font-weight:800;
+  background:#81776f;color:#fffaf5;
+}
+.data-restore-btn{
+  width:100%;padding:14px 16px;border-radius:18px;font-size:13px;font-weight:800;
+  background:#f1ebe7;color:#5e5751;border:1px solid #e3dad4;
+}
+.data-settings-meta{
+  margin-top:12px;padding:11px 12px;border-radius:16px;background:#f7f2ee;
+  color:#857d76;font-size:10px;line-height:1.55;
+}
+</style>
+
 </head>
 <body>
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v4.3 STYLE DNA</small></div>
-      <button class="iconbtn" onclick="toast('基础版设置已保留')">⋯</button>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v4.5 STYLE DNA</small></div>
+      <button class="iconbtn" onclick="openDataSettings()">⋯</button>
     </div>
   </header>
 
@@ -1710,10 +1752,84 @@ function rebuildCategoryOrderFromUserOnly(){
   return cats;
 }
 
-const LS_KEY = "today_wear_items_v1";
+const LS_KEY = "today_wear_items_v1"; // legacy only: migrated once into IndexedDB
+const DB_NAME = "today_wear_db_v44";
+const DB_VERSION = 1;
+const ITEM_STORE = "wardrobe_items";
+const META_STORE = "meta";
 const PREF_KEY = "today_wear_style_samples_v1";
 let activeCategory = "全部";
 let activeSeason = "全部";
+let __itemsCache = [];
+let __dbPromise = null;
+
+function openWardrobeDB(){
+  if(__dbPromise) return __dbPromise;
+  __dbPromise = new Promise((resolve,reject)=>{
+    const req=indexedDB.open(DB_NAME,DB_VERSION);
+    req.onupgradeneeded=()=>{
+      const db=req.result;
+      if(!db.objectStoreNames.contains(ITEM_STORE)) db.createObjectStore(ITEM_STORE,{keyPath:"id"});
+      if(!db.objectStoreNames.contains(META_STORE)) db.createObjectStore(META_STORE,{keyPath:"key"});
+    };
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error||new Error("IndexedDB open failed"));
+  });
+  return __dbPromise;
+}
+
+async function idbGetAllItems(){
+  const db=await openWardrobeDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(ITEM_STORE,"readonly");
+    const req=tx.objectStore(ITEM_STORE).getAll();
+    req.onsuccess=()=>resolve((req.result||[]).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)));
+    req.onerror=()=>reject(req.error);
+  });
+}
+
+async function idbReplaceAllItems(arr){
+  const db=await openWardrobeDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(ITEM_STORE,"readwrite");
+    const store=tx.objectStore(ITEM_STORE);
+    store.clear();
+    arr.forEach(x=>store.put(x));
+    tx.oncomplete=()=>resolve(true);
+    tx.onerror=()=>reject(tx.error||new Error("IndexedDB write failed"));
+    tx.onabort=()=>reject(tx.error||new Error("IndexedDB write aborted"));
+  });
+}
+
+async function initAppStorage(){
+  try{
+    const stored=await idbGetAllItems();
+    if(stored.length){
+      __itemsCache=stored;
+    }else{
+      let legacy=[];
+      try{ legacy=JSON.parse(localStorage.getItem(LS_KEY)||"[]"); }catch(e){ legacy=[]; }
+      if(Array.isArray(legacy) && legacy.length){
+        __itemsCache=legacy;
+        await idbReplaceAllItems(legacy);
+        try{ localStorage.removeItem(LS_KEY); }catch(e){}
+        toast(`已自动迁移 ${legacy.length} 件衣服到大容量本地图库`);
+      }else{
+        __itemsCache=[];
+      }
+    }
+    if(navigator.storage?.persist){ try{ await navigator.storage.persist(); }catch(e){} }
+  }catch(err){
+    console.error("IndexedDB init failed",err);
+    try{ __itemsCache=JSON.parse(localStorage.getItem(LS_KEY)||"[]"); }catch(e){ __itemsCache=[]; }
+    alert("本地图库初始化失败，当前已进入兼容模式。建议重新打开页面后重试。\n\n"+(err.message||err));
+  }
+  render();
+  renderLiveInspiration();
+  renderTrendGrid();
+  renderStyleDNA();
+}
+
 
 function toast(msg){
   const el=document.getElementById("toast"); el.textContent=msg; el.classList.add("show");
@@ -1729,8 +1845,19 @@ function activateTab(id){
   window.scrollTo({top:0,behavior:"smooth"});
 }
 function openImporter(){activateTab("import");}
-function items(){try{return JSON.parse(localStorage.getItem(LS_KEY)||"[]")}catch(e){return []}}
-function saveItems(v){localStorage.setItem(LS_KEY,JSON.stringify(v));render();}
+function items(){return __itemsCache;}
+async function saveItems(v){
+  __itemsCache=Array.isArray(v)?v:[];
+  render();
+  try{
+    await idbReplaceAllItems(__itemsCache);
+    try{ localStorage.removeItem(LS_KEY); }catch(e){}
+    return true;
+  }catch(err){
+    console.error("IndexedDB save failed",err);
+    throw err;
+  }
+}
 function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
 function render(){
   refreshManualCategorySelect();
@@ -2318,7 +2445,7 @@ if(cameraInputV43) cameraInputV43.onchange=e=>handleManualFile(e.target.files?.[
   document.querySelectorAll('input[name="season"]').forEach(x=>x.addEventListener(evt,updateManualSaveState));
 });
 
-function saveManualItem(){
+async function saveManualItem(){
   if(!selectedDataUrl){toast('请先选择图片');return;}
   const name=(document.getElementById('itemName').value||'').trim()||'未命名单品';
   const category=document.getElementById('itemCategory').value;
@@ -2333,23 +2460,14 @@ function saveManualItem(){
   const btn=document.getElementById('manualSaveBtn');
   if(btn){btn.disabled=true;btn.textContent='正在保存…';}
 
-  const data=items();
-  data.unshift({
+  const newItem={
     id:Date.now().toString(36),
-    name,
-    category,
-    seasons,
-    tag:'原图',
-    image:selectedDataUrl,
-    createdAt:Date.now()
-  });
+    name,category,seasons,tag:'原图',image:selectedDataUrl,createdAt:Date.now()
+  };
+  const data=[newItem,...items()];
 
   try{
-    /* 直接写入并验证，避免 saveItems 内 render 报错时让用户误以为没保存 */
-    localStorage.setItem(LS_KEY,JSON.stringify(data));
-    const verify=JSON.parse(localStorage.getItem(LS_KEY)||'[]');
-    if(!Array.isArray(verify) || !verify.some(x=>x.id===data[0].id)) throw new Error('localStorage verify failed');
-
+    await saveItems(data);
     selectedDataUrl='';
     document.getElementById('preview').style.display='none';
     document.getElementById('previewImg').src='';
@@ -2357,19 +2475,15 @@ function saveManualItem(){
     document.querySelectorAll('input[name="season"]').forEach(x=>x.checked=false);
     if(albumInputV43) albumInputV43.value='';
     if(cameraInputV43) cameraInputV43.value='';
-
-    render();
     updateManualSaveState();
     toast('已保存到衣橱');
     activateTab('wardrobe');
   }catch(e){
     console.error('manual save failed',e);
+    __itemsCache=__itemsCache.filter(x=>x.id!==newItem.id);
+    render();
     if(btn){btn.disabled=false;btn.textContent='保存原图到衣橱';}
-    if(e && (e.name==='QuotaExceededError' || /quota/i.test(String(e.message||'')))){
-      toast('本地存储已满，请删除少量旧原图后再保存');
-    }else{
-      toast('保存失败，请重试');
-    }
+    toast('保存失败，请重试');
   }
 }
 
@@ -2497,14 +2611,7 @@ async function confirmBatchImport(){
     const compacted=[];
     for(const x of pendingBatch) compacted.push(await compactIncomingItem(x));
     const merged=mergeWithoutReset(existing,compacted);
-    try{
-      localStorage.setItem(LS_KEY,JSON.stringify(merged));
-    }catch(err){
-      if(err && (err.name==="QuotaExceededError"||err.code===22||err.code===1014)){
-        throw new Error("本机浏览器存储空间不足。原有衣橱没有被删除，请减少单次素材数量后重试。");
-      }
-      throw err;
-    }
+    await saveItems(merged);
     const n=compacted.length;
     pendingBatch=[];
     document.getElementById("batchPreview").classList.remove("show");
@@ -2780,7 +2887,8 @@ function renameCategoryEverywhere(oldName,next){
   const nextCats=cats.map(c=>c===oldName ? next : c);
 
   try{
-    localStorage.setItem(LS_KEY,JSON.stringify(data));
+    __itemsCache=data;
+    idbReplaceAllItems(data).catch(console.error);
     saveCategoryOrder(nextCats);
   }catch(e){
     alert("改名失败：浏览器本地存储写入失败。");
@@ -2817,7 +2925,8 @@ function deleteCategory(category){
   const data=items().map(x=>x.category===category ? {...x,category:""} : x);
 
   try{
-    localStorage.setItem(LS_KEY,JSON.stringify(data));
+    __itemsCache=data;
+    idbReplaceAllItems(data).catch(console.error);
     saveCategoryOrder(nextCats);
   }catch(e){
     alert("删除分类失败：浏览器本地存储写入失败。");
@@ -3039,6 +3148,137 @@ renderLiveInspiration();
 renderTrendGrid();
 renderStyleDNA();
 const stored = localStorage.getItem(PREF_KEY);
+
+
+/* =========================
+   V4.5 Full Backup / Restore
+   ========================= */
+function openDataSettings(){
+  const m=document.getElementById("dataSettingsModal");
+  if(!m) return;
+  m.classList.add("show");
+  m.setAttribute("aria-hidden","false");
+  const meta=document.getElementById("backupMetaText");
+  if(meta) meta.textContent=`当前衣橱 ${items().length} 件 · ${getCategoryOrder().length} 个分类 · 可一键完整备份`;
+}
+function closeDataSettings(){
+  const m=document.getElementById("dataSettingsModal");
+  if(!m) return;
+  m.classList.remove("show");
+  m.setAttribute("aria-hidden","true");
+}
+function getAppLocalStorageSnapshot(){
+  const data={};
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if(!k) continue;
+    if(k.startsWith("today_wear_")){
+      data[k]=localStorage.getItem(k);
+    }
+  }
+  return data;
+}
+async function exportFullBackup(){
+  try{
+    const wardrobe=await idbGetAllItems();
+    const backup={
+      app:"今天穿什么",
+      backupVersion:1,
+      appVersion:"4.5",
+      createdAt:new Date().toISOString(),
+      wardrobe,
+      localStorage:getAppLocalStorageSnapshot()
+    };
+    const blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json;charset=utf-8"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    const d=new Date();
+    const pad=n=>String(n).padStart(2,"0");
+    const name=`今天穿什么_完整备份_${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}.json`;
+    a.href=url;
+    a.download=name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1200);
+    toast(`已备份 ${wardrobe.length} 件衣服`);
+  }catch(err){
+    console.error("backup failed",err);
+    alert("备份失败："+(err.message||err));
+  }
+}
+async function restoreFullBackupFromFile(file){
+  if(!file) return;
+  try{
+    const text=await file.text();
+    const backup=JSON.parse(text);
+    if(!backup || backup.app!=="今天穿什么" || !Array.isArray(backup.wardrobe)){
+      throw new Error("不是有效的「今天穿什么」完整备份文件");
+    }
+    const ok=confirm(`将恢复 ${backup.wardrobe.length} 件衣服，并覆盖当前衣橱与分类设置。是否继续？`);
+    if(!ok) return;
+
+    await idbReplaceAllItems(backup.wardrobe);
+
+    // Clear only app-owned localStorage keys, then restore the snapshot.
+    const toDelete=[];
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(k && k.startsWith("today_wear_")) toDelete.push(k);
+    }
+    toDelete.forEach(k=>localStorage.removeItem(k));
+    if(backup.localStorage && typeof backup.localStorage==="object"){
+      Object.entries(backup.localStorage).forEach(([k,v])=>{
+        if(k.startsWith("today_wear_") && v!==null && v!==undefined){
+          localStorage.setItem(k,String(v));
+        }
+      });
+    }
+
+    __itemsCache=await idbGetAllItems();
+    activeCategory="全部";
+    activeSeason="全部";
+    closeDataSettings();
+    render();
+    renderLiveInspiration();
+    renderTrendGrid();
+    renderStyleDNA();
+    toast(`恢复完成：${__itemsCache.length} 件衣服`);
+  }catch(err){
+    console.error("restore failed",err);
+    alert("恢复失败："+(err.message||err));
+  }finally{
+    const input=document.getElementById("fullBackupInput");
+    if(input) input.value="";
+  }
+}
+document.addEventListener("DOMContentLoaded",()=>{
+  const m=document.getElementById("dataSettingsModal");
+  if(m) m.addEventListener("click",closeDataSettings);
+  const input=document.getElementById("fullBackupInput");
+  if(input) input.addEventListener("change",e=>restoreFullBackupFromFile(e.target.files?.[0]));
+});
+
 </script>
+
+<div id="dataSettingsModal" aria-hidden="true">
+  <div class="data-settings-sheet" onclick="event.stopPropagation()">
+    <div class="data-settings-head">
+      <h2>数据备份</h2>
+      <button class="data-settings-close" onclick="closeDataSettings()">×</button>
+    </div>
+    <div class="data-settings-note">
+      一键备份衣橱图片、名称、分类、季节、分类顺序、风格偏好和品牌设置。
+      下次只需导入这个备份文件，即可恢复到备份时的状态。
+    </div>
+    <div class="data-settings-actions">
+      <button class="data-backup-btn" onclick="exportFullBackup()">备份全部数据</button>
+      <label class="data-restore-btn" for="fullBackupInput" style="text-align:center;cursor:pointer">导入备份并恢复</label>
+      <input id="fullBackupInput" type="file" accept=".json,application/json" style="display:none">
+    </div>
+    <div class="data-settings-meta" id="backupMetaText">备份文件只保存在你自己选择的位置，不会上传服务器。</div>
+  </div>
+</div>
+
 </body>
 </html>
