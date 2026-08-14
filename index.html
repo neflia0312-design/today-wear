@@ -1276,6 +1276,27 @@ body.category-modal-open .nav{
   background:#f6f1ee !important;
 }
 
+
+
+/* V4.3 手动导入保存修复 + 低饱和莫兰迪按钮 */
+.manual-save-btn{
+  background:#756D66 !important;
+  color:#F6F0EB !important;
+  border:1px solid #756D66 !important;
+  box-shadow:0 8px 20px rgba(86,76,69,.12) !important;
+}
+.manual-save-btn:active{
+  background:#665F59 !important;
+  color:#FFF9F5 !important;
+}
+.manual-save-btn:disabled{
+  background:#D7D0CA !important;
+  color:#A49B94 !important;
+  border-color:#D7D0CA !important;
+  opacity:1 !important;
+  box-shadow:none !important;
+}
+
 @media(min-width:700px){body{padding:20px 0}.app{min-height:calc(100vh - 40px);border-radius:36px;overflow:hidden;box-shadow:0 20px 80px rgba(74,64,58,.16)}.nav{bottom:20px}.modal{align-items:center}.sheet{border-radius:30px;max-height:80vh}}
 </style>
 </head>
@@ -1283,7 +1304,7 @@ body.category-modal-open .nav{
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v4.2 STYLE DNA</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v4.3 STYLE DNA</small></div>
       <button class="iconbtn" onclick="toast('基础版设置已保留')">⋯</button>
     </div>
   </header>
@@ -1370,7 +1391,7 @@ body.category-modal-open .nav{
             <label><input type="checkbox" name="season" value="冬">冬</label>
           </div>
         </div>
-        <button class="btn" style="width:100%" onclick="saveManualItem()">保存原图到衣橱</button>
+        <button id="manualSaveBtn" class="btn manual-save-btn" style="width:100%" onclick="saveManualItem()">保存原图到衣橱</button>
       </div>
     </section>
 
@@ -1753,8 +1774,6 @@ function handlePickedFile(f){
   rd.onload=()=>{selectedDataUrl=rd.result;document.getElementById("previewImg").src=selectedDataUrl;document.getElementById("preview").style.display="block";};
   rd.readAsDataURL(f);
 }
-document.getElementById("albumInput").addEventListener("change", e=>handlePickedFile(e.target.files[0]));
-document.getElementById("cameraInput").addEventListener("change", e=>handlePickedFile(e.target.files[0]));
 
 let inspirationSeed=0;
 let trendMode="regions";
@@ -2231,35 +2250,127 @@ function readAsDataURL(file){
     const r=new FileReader(); r.onload=()=>resolve(r.result); r.onerror=reject; r.readAsDataURL(file);
   });
 }
+
+/* V4.3: 手动导入图片先压缩后再写入 localStorage，避免 iPhone 原图过大触发 QuotaExceededError */
+function compressManualImage(file,maxSide=1600,quality=.82){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onerror=reject;
+    reader.onload=()=>{
+      const im=new Image();
+      im.onerror=reject;
+      im.onload=()=>{
+        let w=im.naturalWidth||im.width;
+        let h=im.naturalHeight||im.height;
+        const scale=Math.min(1,maxSide/Math.max(w,h));
+        const cw=Math.max(1,Math.round(w*scale));
+        const ch=Math.max(1,Math.round(h*scale));
+        const canvas=document.createElement('canvas');
+        canvas.width=cw; canvas.height=ch;
+        const ctx=canvas.getContext('2d',{alpha:false});
+        ctx.fillStyle='#fff'; ctx.fillRect(0,0,cw,ch);
+        ctx.drawImage(im,0,0,cw,ch);
+        try{ resolve(canvas.toDataURL('image/jpeg',quality)); }
+        catch(e){ reject(e); }
+      };
+      im.src=reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function updateManualSaveState(){
+  const btn=document.getElementById('manualSaveBtn');
+  if(!btn)return;
+  const category=document.getElementById('itemCategory')?.value||'';
+  const seasons=[...document.querySelectorAll('input[name="season"]:checked')];
+  const ready=Boolean(selectedDataUrl && category && seasons.length);
+  btn.disabled=!ready;
+  btn.textContent=ready?'保存原图到衣橱':'保存原图到衣橱';
+}
+
 async function handleManualFile(file){
   if(!file)return;
-  selectedDataUrl=await readAsDataURL(file);
-  document.getElementById("previewImg").src=selectedDataUrl;
-  document.getElementById("preview").style.display="block";
+  const btn=document.getElementById('manualSaveBtn');
+  try{
+    if(btn){btn.disabled=true;btn.textContent='正在处理图片…';}
+    selectedDataUrl=await compressManualImage(file);
+    document.getElementById('previewImg').src=selectedDataUrl;
+    document.getElementById('preview').style.display='block';
+    updateManualSaveState();
+  }catch(e){
+    console.error(e);
+    selectedDataUrl='';
+    if(btn){btn.disabled=true;btn.textContent='保存原图到衣橱';}
+    toast('图片读取失败，请重新选择');
+  }
 }
-document.getElementById("albumInput").addEventListener("change",e=>handleManualFile(e.target.files[0]));
-document.getElementById("cameraInput").addEventListener("change",e=>handleManualFile(e.target.files[0]));
+
+/* 只绑定这一套手动导入监听，避免旧监听重复读取大图覆盖压缩结果 */
+const albumInputV43=document.getElementById('albumInput');
+const cameraInputV43=document.getElementById('cameraInput');
+if(albumInputV43) albumInputV43.onchange=e=>handleManualFile(e.target.files?.[0]);
+if(cameraInputV43) cameraInputV43.onchange=e=>handleManualFile(e.target.files?.[0]);
+
+['input','change'].forEach(evt=>{
+  document.getElementById('itemName')?.addEventListener(evt,updateManualSaveState);
+  document.getElementById('itemCategory')?.addEventListener(evt,updateManualSaveState);
+  document.querySelectorAll('input[name="season"]').forEach(x=>x.addEventListener(evt,updateManualSaveState));
+});
 
 function saveManualItem(){
-  if(!selectedDataUrl){toast("请先选择图片");return}
-  const name=document.getElementById("itemName").value.trim()||"未命名单品";
-  const category=document.getElementById("itemCategory").value;
+  if(!selectedDataUrl){toast('请先选择图片');return;}
+  const name=(document.getElementById('itemName').value||'').trim()||'未命名单品';
+  const category=document.getElementById('itemCategory').value;
   const cats=currentUserCategories();
   if(!category || !cats.includes(category)){
-    toast(cats.length?"请选择你设置的分类":"请先建立分类");
+    toast(cats.length?'请选择你设置的分类':'请先建立分类');
     return;
   }
   const seasons=[...document.querySelectorAll('input[name="season"]:checked')].map(x=>x.value);
-  if(!seasons.length){toast("请至少选择一个季节");return}
+  if(!seasons.length){toast('请至少选择一个季节');return;}
+
+  const btn=document.getElementById('manualSaveBtn');
+  if(btn){btn.disabled=true;btn.textContent='正在保存…';}
+
   const data=items();
-  data.unshift({id:Date.now().toString(36),name,category,seasons,tag:"原图",image:selectedDataUrl,createdAt:Date.now()});
-  saveItems(data);
-  selectedDataUrl="";
-  document.getElementById("preview").style.display="none";
-  document.getElementById("itemName").value="";
-  document.querySelectorAll('input[name="season"]').forEach(x=>x.checked=false);
-  toast("已保存到衣橱");
-  activateTab("wardrobe");
+  data.unshift({
+    id:Date.now().toString(36),
+    name,
+    category,
+    seasons,
+    tag:'原图',
+    image:selectedDataUrl,
+    createdAt:Date.now()
+  });
+
+  try{
+    /* 直接写入并验证，避免 saveItems 内 render 报错时让用户误以为没保存 */
+    localStorage.setItem(LS_KEY,JSON.stringify(data));
+    const verify=JSON.parse(localStorage.getItem(LS_KEY)||'[]');
+    if(!Array.isArray(verify) || !verify.some(x=>x.id===data[0].id)) throw new Error('localStorage verify failed');
+
+    selectedDataUrl='';
+    document.getElementById('preview').style.display='none';
+    document.getElementById('previewImg').src='';
+    document.getElementById('itemName').value='';
+    document.querySelectorAll('input[name="season"]').forEach(x=>x.checked=false);
+    if(albumInputV43) albumInputV43.value='';
+    if(cameraInputV43) cameraInputV43.value='';
+
+    render();
+    updateManualSaveState();
+    toast('已保存到衣橱');
+    activateTab('wardrobe');
+  }catch(e){
+    console.error('manual save failed',e);
+    if(btn){btn.disabled=false;btn.textContent='保存原图到衣橱';}
+    if(e && (e.name==='QuotaExceededError' || /quota/i.test(String(e.message||'')))){
+      toast('本地存储已满，请删除少量旧原图后再保存');
+    }else{
+      toast('保存失败，请重试');
+    }
+  }
 }
 
 function showPackageHelp(){
@@ -2923,6 +3034,7 @@ async function saveCurrentItemImage(){
 }
 
 render();
+updateManualSaveState();
 renderLiveInspiration();
 renderTrendGrid();
 renderStyleDNA();
