@@ -126,6 +126,23 @@ button{border:0}
 .ai-card{margin-top:12px;border-radius:22px;padding:14px;background:linear-gradient(145deg,#fff,#f7f1ed);box-shadow:inset 0 0 0 1px var(--line)}
 .ai-card b{display:block;font-size:13px;margin-bottom:5px}
 
+
+.ai-studio{background:linear-gradient(150deg,#f6e7e6,#fffaf6 58%,#ece8e2);border-radius:28px;padding:16px;margin:0 0 14px;box-shadow:var(--shadow)}
+.ai-studio-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.ai-studio h3{margin:0;font-size:17px;letter-spacing:-.02em}
+.ai-status{font-size:10px;padding:7px 9px;border-radius:999px;background:rgba(255,255,255,.72);color:#746d67;font-weight:750}
+.ai-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:13px}
+.ai-step{background:rgba(255,255,255,.72);border-radius:15px;padding:9px 4px;text-align:center;font-size:9px;color:#766f69;line-height:1.35}
+.ai-step b{display:block;font-size:12px;color:#3c3835;margin-bottom:2px}
+.item-actions{display:flex;gap:7px;padding:7px 4px 2px}
+.mini-btn{flex:1;padding:9px 8px;border-radius:999px;background:#f3ece8;color:#59534e;font-size:10px;font-weight:720}
+.mini-btn.primary{background:#423d39;color:#fff}
+.ai-modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.ai-preview-box{background:#fff;border-radius:20px;padding:8px;box-shadow:inset 0 0 0 1px var(--line)}
+.ai-preview-box img{width:100%;aspect-ratio:1/1;object-fit:contain;border-radius:14px;background:#fff}
+.ai-preview-box small{display:block;text-align:center;color:var(--muted);font-size:10px;margin-top:6px}
+.ai-msg{font-size:11px;line-height:1.55;color:#746d67;background:#f8f4f1;border-radius:16px;padding:11px;margin-top:10px}
+
 @media(min-width:700px){body{padding:20px 0}.app{min-height:calc(100vh - 40px);border-radius:36px;overflow:hidden;box-shadow:0 20px 80px rgba(74,64,58,.16)}.nav{bottom:20px}.modal{align-items:center}.sheet{border-radius:30px;max-height:80vh}}
 </style>
 </head>
@@ -133,7 +150,7 @@ button{border:0}
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v1.2</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v1.3</small></div>
       <button class="iconbtn" onclick="toast('基础版设置已保留')">⋯</button>
     </div>
   </header>
@@ -154,6 +171,19 @@ button{border:0}
         <div class="q"><b id="countAll">0</b><span>已录入单品</span></div>
         <div class="q"><b id="countCats">0</b><span>已建立分类</span></div>
         <div class="q"><b id="countFav">0</b><span>近期偏爱</span></div>
+      </div>
+
+      <div class="ai-studio">
+        <div class="ai-studio-head">
+          <div><div class="kicker">AI GARMENT STUDIO</div><h3>衣物重建工作室</h3></div>
+          <span class="ai-status">v1.3</span>
+        </div>
+        <div class="ai-steps">
+          <div class="ai-step"><b>01</b>识别衣服</div>
+          <div class="ai-step"><b>02</b>移除人物</div>
+          <div class="ai-step"><b>03</b>补全轮廓</div>
+          <div class="ai-step"><b>04</b>1:1 白底</div>
+        </div>
       </div>
 
       <div class="sectionhead"><h2>我的衣橱</h2><span>按季节快速调用</span></div>
@@ -214,8 +244,8 @@ button{border:0}
         </div>
         <div class="ai-card"><b>AI 衣物素材化 · 目标效果</b><span style="font-size:11px;color:#817970;line-height:1.5">识别照片中的衣服 → 去除人物、手机、房间和截图界面 → 重建完整衣物轮廓与遮挡区域 → 保留颜色、领型、纹理、图案和装饰 → 输出 1:1 白底纯衣物素材。</span></div>
 
-        <button class="btn" style="width:100%;margin-top:12px" onclick="generateCatalog()">生成 1:1 衣物素材并保存</button>
-        <div class="note">v1.2 已把图录目标改为“AI 重建纯衣物 1:1 素材”。当前 GitHub Pages 单文件版仍没有图像生成模型，因此不会假装已经完成 AI 重建：现阶段保存时先使用 1:1 白底预览；后续接入视觉生成服务后，可直接替换这一处理步骤。</div>
+        <button class="btn" style="width:100%;margin-top:12px" onclick="generateCatalog()">保存单品并进入 AI 重建</button>
+        <div class="note">v1.3 不再把普通 Canvas 白底图称作 AI 素材。导入后先保存原图，并进入“AI衣物重建”流程；原图会永久保留，AI结果作为独立素材替换展示。</div>
       </div>
     </section>
 
@@ -280,6 +310,23 @@ button{border:0}
   </nav>
 </div>
 
+
+<div class="modal" id="aiModal">
+  <div class="sheet">
+    <div class="sheetgrab"></div>
+    <button class="closex" onclick="closeAIStudio()">×</button>
+    <h2>AI 衣物重建</h2>
+    <div class="note">目标：只保留你选择的那件衣服，自动移除人物、手臂、手机、镜子、文字和背景，并补全被身体遮挡的结构，最终生成 1:1 白底纯衣物素材。</div>
+    <div class="ai-modal-grid">
+      <div class="ai-preview-box"><img id="aiOriginal"><small>原始图片</small></div>
+      <div class="ai-preview-box"><img id="aiResult"><small>AI素材预览</small></div>
+    </div>
+    <div class="ai-msg" id="aiMessage">当前 GitHub Pages 是纯静态网页。v1.3 已完成完整交互与“重新生成素材”入口，但真正的衣物补全生成需要连接一个 AI 图像后端。这里不会用普通白底画布冒充 AI 重建。</div>
+    <button class="btn" id="aiStartBtn" style="width:100%;margin-top:12px" onclick="startAIRebuild()">开始 AI 重建</button>
+    <button class="btn secondary" style="width:100%;margin-top:8px" onclick="saveMockAIResult()">先保存为待重建状态</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -317,8 +364,12 @@ function render(){
   if(!shown.length){g.innerHTML=`<div class="empty" style="grid-column:1/-1"><b>你的衣橱还是空的</b>先导入一件衣服，基础版就会开始建立私人图录。</div>`;return}
   g.innerHTML=shown.map(x=>`<div class="item">
       <button class="delete" onclick="removeItem('${x.id}')">×</button>
-      <div class="pic"><img src="${x.image}" alt=""></div>
-      <div class="meta"><div><b>${esc(x.name)}</b><small>${esc(x.category)} · ${esc((x.seasons||[]).join("/"))}</small></div><span class="smallpill">${esc(x.tag||"my closet")}</span></div>
+      <div class="pic"><img src="${x.aiImage||x.image}" alt=""></div>
+      <div class="meta"><div><b>${esc(x.name)}</b><small>${esc(x.category)} · ${esc((x.seasons||[]).join("/"))}</small></div><span class="smallpill">${x.aiImage?"AI素材":"原图"}</span></div>
+      <div class="item-actions">
+        <button class="mini-btn primary" onclick="openAIStudio('${x.id}')">${x.aiImage?"重新生成素材":"AI重建素材"}</button>
+        <button class="mini-btn" onclick="useOriginal('${x.id}')">查看原图</button>
+      </div>
     </div>`).join("");
 }
 function setCat(c){activeCategory=c;render();}
@@ -341,7 +392,7 @@ document.getElementById("styleInput").addEventListener("change",e=>{
 });
 
 async function makeWhiteCatalog(dataUrl){
-  // v1.2 浏览器 fallback：统一生成 1:1 白底预览。
+  // v1.3 仅生成本地 1:1 原图预览，不冒充 AI 重建。
   // 真正“从穿着照重建纯衣物”需要视觉生成模型，不能仅靠前端 Canvas 可靠完成。
   const img=new Image();
   await new Promise((res,rej)=>{img.onload=res;img.onerror=rej;img.src=dataUrl});
@@ -366,9 +417,9 @@ async function generateCatalog(){
     const image=await makeWhiteCatalog(selectedDataUrl);bar.style.width="100%";
     const seasons=[...document.querySelectorAll('input[name="season"]:checked')].map(x=>x.value);
     if(!seasons.length){p.style.display="none";bar.style.width="0";toast("请至少选择一个适穿季节");return}
-    const data=items(); data.unshift({id:Date.now().toString(36),name,category,seasons,tag:"1:1 catalog",image,createdAt:Date.now()});
+    const data=items(); data.unshift({id:Date.now().toString(36),name,category,seasons,tag:"待AI重建",aiPending:true,image,createdAt:Date.now()});
     saveItems(data);
-    setTimeout(()=>{p.style.display="none";bar.style.width="0";activateTab("wardrobe");toast("白底图录已生成");},260);
+    setTimeout(()=>{p.style.display="none";bar.style.width="0";activateTab("wardrobe");toast("单品已保存，可进行 AI 重建");},260);
     selectedDataUrl="";
     document.getElementById("itemName").value="";
     document.getElementById("customCategory").value="";
@@ -386,6 +437,37 @@ function buildOutfit(){
   const pick=[...data].sort(()=>Math.random()-.5).slice(0,Math.min(3,data.length));
   box.innerHTML=`<div class="card"><div class="sectionhead" style="margin:0 0 10px"><h2>你的相似风格组合</h2><span>${pick.length} 件单品</span></div><div class="grid">${pick.map(x=>`<div class="item"><div class="pic"><img src="${x.image}"></div><div class="meta"><div><b>${esc(x.name)}</b><small>${esc(x.category)} · ${esc((x.seasons||[]).join("/"))}</small></div></div></div>`).join("")}</div><div class="note">基础版先用你的真实衣橱随机组合验证完整流程；正式版会加入颜色、廓形、风格标签、天气与场景评分。</div></div>`;
 }
+
+let aiTargetId = null;
+function openAIStudio(id){
+  const x=items().find(i=>i.id===id); if(!x)return;
+  aiTargetId=id;
+  document.getElementById("aiOriginal").src=x.image;
+  document.getElementById("aiResult").src=x.aiImage||x.image;
+  document.getElementById("aiMessage").textContent=x.aiImage
+    ?"这件单品已经有 AI 素材。你可以重新生成，之后会直接替换旧 AI 素材并保留原图。"
+    :"这件单品目前还是原图。v1.3 已经把重建入口、原图保留、AI结果替换和再次生成流程接好；真正生成需要一个图像后端。";
+  document.getElementById("aiModal").classList.add("show");
+}
+function closeAIStudio(){document.getElementById("aiModal").classList.remove("show");aiTargetId=null;}
+function startAIRebuild(){
+  document.getElementById("aiMessage").textContent="当前静态版还没有连接 AI 图像后端，因此这里不会生成假的结果。下一步接后端后，这个按钮会直接上传原图并返回 1:1 白底纯衣物图。";
+  toast("AI后端尚未连接");
+}
+function saveMockAIResult(){
+  if(!aiTargetId)return;
+  const data=items(); const idx=data.findIndex(i=>i.id===aiTargetId);
+  if(idx<0)return;
+  data[idx].aiPending=true;
+  saveItems(data);
+  document.getElementById("aiMessage").textContent="已标记为“待AI重建”。以后后端接通后，可以优先批量处理这些旧单品。";
+  toast("已加入待重建");
+}
+function useOriginal(id){
+  const x=items().find(i=>i.id===id); if(!x)return;
+  const w=window.open(); if(w){w.document.write(`<img src="${x.image}" style="max-width:100%;height:auto">`);}
+}
+
 render();
 const stored = localStorage.getItem(PREF_KEY);
 if(stored) document.getElementById("styleCount").textContent=`已保存 ${stored} 张近期审美样本记录。`;
