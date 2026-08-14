@@ -984,6 +984,199 @@ input[type="search"]:focus,
   color:var(--danger) !important;
 }
 
+
+/* v3.6 低饱和莫兰迪配色优化 */
+:root{
+  --ink:#4a4642;
+  --muted:#958d86;
+  --line:#e7dfda;
+  --paper:#fbf8f5;
+  --soft:#f1ebe7;
+  --soft-2:#f7f2ef;
+
+  /* 低饱和暖灰棕 */
+  --active:#6f6862;
+  --active-deep:#5e5751;
+  --active-text:#fbf8f5;
+
+  /* 柔和灰粉 */
+  --rose:#d8c8c5;
+  --rose-soft:#f3e8e6;
+
+  /* 柔和灰褐 */
+  --taupe:#b9aea7;
+}
+
+/* 主要文字统一暖灰黑，降低纯黑压迫感 */
+body,
+.app,
+.page,
+.panel,
+.card,
+.item,
+.q,
+.sectionhead h2,
+h1,h2,h3,
+.item b,
+.meta b,
+.category-name-text{
+  color:var(--ink) !important;
+}
+
+/* 次级文字柔和 */
+.subtitle,
+.sectionhead span,
+.meta small,
+.note,
+.catmeta,
+.smallpill,
+.q span{
+  color:var(--muted) !important;
+}
+
+/* 所有深色选中态：浅色文字，避免黑底黑字 */
+.chip.active,
+.seasonbtn.active,
+.nav button.active,
+.trend-tab.active,
+.btn.primary,
+.hero .btn:first-of-type,
+.manage-brand-btn,
+.dna-primary,
+.category-back-fixed,
+.item-detail-close{
+  background:var(--active-deep) !important;
+  color:var(--active-text) !important;
+  border-color:var(--active-deep) !important;
+}
+
+/* 深色容器内的全部文字/图标都强制浅色 */
+.chip.active *,
+.seasonbtn.active *,
+.nav button.active *,
+.trend-tab.active *,
+.btn.primary *,
+.hero .btn:first-of-type *,
+.manage-brand-btn *,
+.dna-primary *,
+.category-back-fixed *,
+.item-detail-close *{
+  color:var(--active-text) !important;
+}
+
+/* 导入按钮单独保证可读性 */
+.hero .btn:first-of-type,
+.btn.primary{
+  color:var(--active-text) !important;
+}
+.hero .btn:first-of-type:disabled,
+.btn.primary:disabled{
+  background:#d7d0cb !important;
+  color:#f8f4f1 !important;
+  opacity:.92;
+}
+
+/* 非选中 pill 更轻、更高级 */
+.chip,
+.seasonbtn,
+.trend-tab{
+  background:#fcfaf8 !important;
+  color:#766f69 !important;
+  border-color:#e6ded9 !important;
+}
+.chip:not(.active):active,
+.seasonbtn:not(.active):active,
+.trend-tab:not(.active):active{
+  background:#f1ebe7 !important;
+}
+
+/* 底部导航：选中项更柔和，不用近黑 */
+.nav button{
+  color:#8f8780 !important;
+}
+.nav button.active{
+  background:#6f6862 !important;
+  color:#fbf8f5 !important;
+}
+.nav button.active span,
+.nav button.active b,
+.nav button.active div{
+  color:#fbf8f5 !important;
+}
+
+/* 统计卡的可点击分类入口，不再出现强调蓝色 */
+.q.q-clickable,
+.q.q-clickable b,
+.q.q-clickable span{
+  color:var(--ink) !important;
+}
+.q.q-clickable:active{
+  background:#f4eeea !important;
+}
+
+/* checkbox 改为低饱和灰棕，勾选后浅色勾 */
+input[type="checkbox"]{
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  border:1.5px solid #aaa19a !important;
+  background:#fdfbf9 !important;
+  box-shadow:none !important;
+}
+input[type="checkbox"]:checked{
+  background:#817871 !important;
+  border-color:#817871 !important;
+}
+input[type="checkbox"]:checked::after{
+  content:"✓";
+  color:#fffaf7 !important;
+  font-size:15px;
+  font-weight:800;
+}
+
+/* 如果是自定义季节勾选容器，文字也使用柔和暖灰 */
+.check,
+.check label,
+.seasoncheck,
+.seasoncheck label{
+  color:#6f6862 !important;
+}
+
+/* 删除按钮改成低饱和灰粉红，弱化刺激感 */
+.delete-cat{
+  background:var(--rose-soft) !important;
+  color:#a56f6b !important;
+}
+.item .delete{
+  color:#7f7771 !important;
+  background:rgba(255,255,255,.9) !important;
+}
+
+/* 编辑、输入、下拉统一暖灰边框 */
+select,
+input[type="text"],
+input[type="search"],
+.category-name-editor{
+  color:#5a544f !important;
+  background:#fffdfb !important;
+  border-color:#ddd4ce !important;
+}
+select:focus,
+input[type="text"]:focus,
+input[type="search"]:focus,
+.category-name-editor:focus{
+  border-color:#bfb3ac !important;
+  box-shadow:0 0 0 2px rgba(111,104,98,.08) !important;
+}
+
+/* 小标签统一奶油灰粉，不出现突兀高饱和色 */
+.smallpill,
+.style-dna-badge,
+.source-badge{
+  background:#f1e9e5 !important;
+  color:#716963 !important;
+}
+
 @media(min-width:700px){body{padding:20px 0}.app{min-height:calc(100vh - 40px);border-radius:36px;overflow:hidden;box-shadow:0 20px 80px rgba(74,64,58,.16)}.nav{bottom:20px}.modal{align-items:center}.sheet{border-radius:30px;max-height:80vh}}
 </style>
 </head>
@@ -991,7 +1184,7 @@ input[type="search"]:focus,
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v3.5 STYLE DNA</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v3.6 STYLE DNA</small></div>
       <button class="iconbtn" onclick="toast('基础版设置已保留')">⋯</button>
     </div>
   </header>
