@@ -144,21 +144,20 @@ button{border:0}
 .ai-msg{font-size:11px;line-height:1.55;color:#746d67;background:#f8f4f1;border-radius:16px;padding:11px;margin-top:10px}
 
 
-.ai-step.done{background:#4a4540;color:#fff}
-.ai-step.done b{color:#fff}
-.ai-step.working{background:#f1dbdb;color:#4f4843}
-.ai-step.working b{color:#3c3835}
-.auto-error{background:#fff0ef;color:#8d4f4a;border-radius:16px;padding:12px;font-size:11px;line-height:1.5;margin-top:10px}
-
-
-.confirm-card{display:none;margin-top:14px;background:#fff;border-radius:24px;padding:14px;box-shadow:var(--shadow)}
-.confirm-card.show{display:block}
-.confirm-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.confirm-grid .field{margin:8px 0}
-.confirm-seasons{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px}
-.confirm-seasons label{display:flex;align-items:center;justify-content:center;gap:5px;padding:10px 4px;border-radius:14px;background:#f8f4f1;border:1px solid var(--line);font-size:11px}
-.confirm-actions{display:flex;gap:8px;margin-top:12px}
-.confirm-actions .btn{flex:1}
+.batch-panel{background:linear-gradient(145deg,#f6e7e6,#fffaf6 55%,#ece8e2);border-radius:28px;padding:16px;margin:0 0 14px;box-shadow:var(--shadow)}
+.batch-panel h3{font-size:18px;margin:3px 0 6px}
+.batch-panel p{font-size:11px;line-height:1.6;color:#746d67;margin:0 0 12px}
+.batch-actions{display:flex;gap:8px;flex-wrap:wrap}
+.batch-preview{display:none;background:#fff;border-radius:24px;padding:14px;margin-top:12px;box-shadow:inset 0 0 0 1px var(--line)}
+.batch-preview.show{display:block}
+.batch-list{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px}
+.batch-one{border:1px solid var(--line);border-radius:18px;padding:8px;background:#fcfaf8}
+.batch-one img{width:100%;aspect-ratio:1/1;object-fit:contain;border-radius:13px;background:#fff}
+.batch-one input,.batch-one select{width:100%;margin-top:6px;border:1px solid var(--line);background:#fff;border-radius:11px;padding:8px;font-size:11px}
+.batch-season{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.batch-season label{font-size:9px;background:#f5f0ec;border-radius:999px;padding:5px 7px}
+.batch-season input{width:auto;margin:0 3px 0 0}
+.import-note{font-size:10px;line-height:1.55;color:#817970;margin-top:8px}
 
 @media(min-width:700px){body{padding:20px 0}.app{min-height:calc(100vh - 40px);border-radius:36px;overflow:hidden;box-shadow:0 20px 80px rgba(74,64,58,.16)}.nav{bottom:20px}.modal{align-items:center}.sheet{border-radius:30px;max-height:80vh}}
 </style>
@@ -167,7 +166,7 @@ button{border:0}
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v1.5</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v1.6 FREE</small></div>
       <button class="iconbtn" onclick="toast('基础版设置已保留')">⋯</button>
     </div>
   </header>
@@ -177,7 +176,7 @@ button{border:0}
       <div class="hero">
         <div class="kicker">MY DIGITAL CLOSET</div>
         <h1>今天穿什么？先看看我的衣橱。</h1>
-        <p>快速查看、整理和调用我自己的衣服。</p>
+        <p>每天直接打开：按季节看衣橱、选穿搭；白底素材可通过 ChatGPT 批量生成后一次导入。</p>
         <div class="hero-actions">
           <button class="btn" onclick="openImporter()">＋ 导入衣服</button>
           <button class="btn secondary" onclick="activateTab('inspiration')">生成灵感</button>
@@ -192,14 +191,14 @@ button{border:0}
 
       <div class="ai-studio">
         <div class="ai-studio-head">
-          <div><div class="kicker">AI GARMENT STUDIO</div><h3>自动衣物重建</h3></div>
+          <div><div class="kicker">BATCH GARMENT IMPORT</div><h3>批量素材导入</h3></div>
           <span class="ai-status">v1.3</span>
         </div>
         <div class="ai-steps">
-          <div class="ai-step"><b>01</b>识别衣服</div>
-          <div class="ai-step"><b>02</b>移除人物</div>
-          <div class="ai-step"><b>03</b>补全轮廓</div>
-          <div class="ai-step"><b>04</b>1:1 白底</div>
+          <div class="ai-step"><b>01</b>原图整理</div>
+          <div class="ai-step"><b>02</b>素材生成</div>
+          <div class="ai-step"><b>03</b>自动分类</div>
+          <div class="ai-step"><b>04</b>一键导入</div>
         </div>
       </div>
 
@@ -217,12 +216,32 @@ button{border:0}
     </section>
 
     <section id="import" class="page">
-      <div class="sectionhead"><h2>导入衣服</h2><span>选择后自动完成</span></div>
+      <div class="sectionhead"><h2>导入衣服</h2><span>永久免费本地版</span></div>
+
+      <div class="batch-panel">
+        <div class="kicker">ONE-TAP BATCH IMPORT</div>
+        <h3>从 ChatGPT 素材包一键导入</h3>
+        <p>你一次把多张衣服原图发给 ChatGPT，我帮你生成 1:1 白底纯衣物素材、名称、类别和季节，并打包成一个 <b>.json 素材包</b>。回到这里选择一次文件，即可整批加入衣橱，不用逐件输入。</p>
+        <div class="batch-actions">
+          <label class="btn" for="batchInput" style="cursor:pointer">导入素材包</label>
+          <button class="btn secondary" onclick="showPackageHelp()">查看素材包说明</button>
+        </div>
+        <input id="batchInput" type="file" accept=".json,application/json" style="display:none">
+        <div class="import-note">所有衣橱数据继续保存在你当前 Safari / 主屏幕 App 的本地存储中，不需要 API Key，也不产生按次 AI 费用。</div>
+      </div>
+
+      <div class="batch-preview" id="batchPreview">
+        <div class="sectionhead" style="margin:0"><h2>确认批量导入</h2><span id="batchCount">0 件</span></div>
+        <div class="batch-list" id="batchList"></div>
+        <button class="btn" style="width:100%;margin-top:12px" onclick="confirmBatchImport()">确认全部加入衣橱</button>
+      </div>
+
+      <div class="sectionhead"><h2>临时手动导入</h2><span>没有素材包时使用</span></div>
       <div class="panel">
         <div class="uploadbox">
-          <div style="font-size:34px">✦</div>
-          <b style="display:block;margin:8px 0 4px">添加一件衣服</b>
-          <div style="font-size:11px;color:#8a827b;line-height:1.55">无需填写名称、类别或季节。选择图片后，AI 会自动识别 → 重建纯衣物 → 分类 → 判断适穿季节 → 保存进衣橱。</div>
+          <div style="font-size:34px">◌</div>
+          <b style="display:block;margin:8px 0 4px">从相册选择 / 拍摄</b>
+          <div style="font-size:11px;color:#8a827b">这条入口只保存原图，适合临时先记进衣橱，之后可以再用 ChatGPT 批量生成白底素材。</div>
           <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px">
             <label class="btn" for="albumInput" style="display:inline-block;cursor:pointer">从相册选择</label>
             <label class="btn secondary" for="cameraInput" style="display:inline-block;cursor:pointer">拍摄衣服</label>
@@ -231,59 +250,24 @@ button{border:0}
           <input id="cameraInput" type="file" accept="image/*" capture="environment" />
         </div>
 
-        <div id="autoProcess" style="display:none;margin-top:14px">
-          <div class="ai-studio">
-            <div class="ai-studio-head">
-              <div><div class="kicker">AUTO IMPORT</div><h3 id="autoTitle">正在读取图片</h3></div>
-              <span class="ai-status" id="autoPct">0%</span>
-            </div>
-            <div class="progress" style="display:block"><i id="autoBar"></i></div>
-            <div class="ai-steps">
-              <div class="ai-step" id="st1"><b>01</b>识别衣服</div>
-              <div class="ai-step" id="st2"><b>02</b>AI重建</div>
-              <div class="ai-step" id="st3"><b>03</b>自动分类</div>
-              <div class="ai-step" id="st4"><b>04</b>保存衣橱</div>
-            </div>
-            <div class="ai-msg" id="autoMsg">选图后自动开始，不需要再点任何按钮。</div>
-          </div>
-          <div class="ai-modal-grid">
-            <div class="ai-preview-box"><img id="autoOriginal"><small>导入原图</small></div>
-            <div class="ai-preview-box"><img id="autoResult"><small>AI 1:1 素材</small></div>
-          </div>
+        <div class="preview" id="preview">
+          <img id="previewImg" alt="预览"/>
         </div>
 
-        <div class="confirm-card" id="confirmCard">
-          <div class="sectionhead" style="margin:0 0 8px"><h2>确认识别结果</h2><span>可修改后再入库</span></div>
-          <div class="confirm-grid">
-            <div class="field">
-              <label>单品名称</label>
-              <input id="confirmName" />
-            </div>
-            <div class="field">
-              <label>类别</label>
-              <select id="confirmCategory">
-                <option>上衣</option><option>裙装</option><option>裤装</option><option>外套</option><option>内衣</option><option>鞋子</option><option>包袋</option><option>配饰</option><option>其他</option>
-              </select>
-            </div>
-          </div>
-          <div class="field">
-            <label>适穿季节（可多选）</label>
-            <div class="confirm-seasons">
-              <label><input type="checkbox" name="confirmSeason" value="春">春</label>
-              <label><input type="checkbox" name="confirmSeason" value="夏">夏</label>
-              <label><input type="checkbox" name="confirmSeason" value="秋">秋</label>
-              <label><input type="checkbox" name="confirmSeason" value="冬">冬</label>
-            </div>
-          </div>
-          <div class="field">
-            <label>AI 素材结果</label>
-            <div class="ai-preview-box"><img id="confirmImage"><small>确认后保存到衣橱</small></div>
-          </div>
-          <div class="confirm-actions">
-            <button class="btn secondary" onclick="regenerateCurrent()">重新生成</button>
-            <button class="btn" onclick="confirmAndSave()">确认并加入衣橱</button>
+        <div class="field"><label>单品名称</label><input id="itemName" placeholder="例如：黑色方领针织上衣" /></div>
+        <div class="field"><label>类别</label>
+          <select id="itemCategory"><option>上衣</option><option>夏装</option><option>内衣</option><option>裙装</option><option>裤装</option><option>鞋子</option><option>包袋</option><option>配饰</option><option>外套</option></select>
+        </div>
+        <div class="field">
+          <label>适穿季节（可多选）</label>
+          <div class="seasoncheck">
+            <label><input type="checkbox" name="season" value="春">春</label>
+            <label><input type="checkbox" name="season" value="夏">夏</label>
+            <label><input type="checkbox" name="season" value="秋">秋</label>
+            <label><input type="checkbox" name="season" value="冬">冬</label>
           </div>
         </div>
+        <button class="btn" style="width:100%" onclick="saveManualItem()">保存原图到衣橱</button>
       </div>
     </section>
 
@@ -349,28 +333,11 @@ button{border:0}
 </div>
 
 
-<div class="modal" id="aiModal">
-  <div class="sheet">
-    <div class="sheetgrab"></div>
-    <button class="closex" onclick="closeAIStudio()">×</button>
-    <h2>AI 衣物重建</h2>
-    <div class="note">目标：只保留你选择的那件衣服，自动移除人物、手臂、手机、镜子、文字和背景，并补全被身体遮挡的结构，最终生成 1:1 白底纯衣物素材。</div>
-    <div class="ai-modal-grid">
-      <div class="ai-preview-box"><img id="aiOriginal"><small>原始图片</small></div>
-      <div class="ai-preview-box"><img id="aiResult"><small>AI素材预览</small></div>
-    </div>
-    <div class="ai-msg" id="aiMessage">当前 GitHub Pages 是纯静态网页。v1.3 已完成完整交互与“重新生成素材”入口，但真正的衣物补全生成需要连接一个 AI 图像后端。这里不会用普通白底画布冒充 AI 重建。</div>
-    <button class="btn" id="aiStartBtn" style="width:100%;margin-top:12px" onclick="startAIRebuild()">开始 AI 重建</button>
-    <button class="btn secondary" style="width:100%;margin-top:8px" onclick="saveMockAIResult()">先保存为待重建状态</button>
-  </div>
-</div>
-
 <div class="toast" id="toast"></div>
 
 <script>
 const LS_KEY = "today_wear_items_v1";
 const PREF_KEY = "today_wear_style_samples_v1";
-let selectedDataUrl = "";
 let activeCategory = "全部";
 let activeSeason = "全部";
 
@@ -403,153 +370,21 @@ function render(){
   g.innerHTML=shown.map(x=>`<div class="item">
       <button class="delete" onclick="removeItem('${x.id}')">×</button>
       <div class="pic"><img src="${x.aiImage||x.image}" alt=""></div>
-      <div class="meta"><div><b>${esc(x.name)}</b><small>${esc(x.category)} · ${esc((x.seasons||[]).join("/"))}</small></div><span class="smallpill">${x.aiImage?"AI素材":"原图"}</span></div>
-      <div class="item-actions">
-        <button class="mini-btn primary" onclick="openAIStudio('${x.id}')">${x.aiImage?"重新生成素材":"AI重建素材"}</button>
-        <button class="mini-btn" onclick="useOriginal('${x.id}')">查看原图</button>
-      </div>
+      <div class="meta"><div><b>${esc(x.name)}</b><small>${esc(x.category)} · ${esc((x.seasons||[]).join("/"))}</small></div><span class="smallpill">${x.aiImage?"白底素材":"原图"}</span></div>
     </div>`).join("");
 }
 function setCat(c){activeCategory=c;render();}
 function setSeason(v){activeSeason=v;render();}
 function removeItem(id){saveItems(items().filter(x=>x.id!==id));toast("已从图录移除");}
 
-async function fileToDataURL(file){
-  return await new Promise((resolve,reject)=>{
-    const r=new FileReader(); r.onload=()=>resolve(r.result); r.onerror=reject; r.readAsDataURL(file);
-  });
+function handlePickedFile(f){
+  if(!f)return;
+  const rd=new FileReader();
+  rd.onload=()=>{selectedDataUrl=rd.result;document.getElementById("previewImg").src=selectedDataUrl;document.getElementById("preview").style.display="block";};
+  rd.readAsDataURL(f);
 }
-function setAutoStep(n,title,pct,msg){
-  document.getElementById("autoProcess").style.display="block";
-  document.getElementById("autoTitle").textContent=title;
-  document.getElementById("autoPct").textContent=pct+"%";
-  document.getElementById("autoBar").style.width=pct+"%";
-  if(msg) document.getElementById("autoMsg").textContent=msg;
-  [1,2,3,4].forEach(i=>{
-    const e=document.getElementById("st"+i);
-    e.classList.remove("working","done");
-    if(i<n) e.classList.add("done");
-    if(i===n) e.classList.add("working");
-  });
-}
-async function autoImportFile(file){
-  if(!file)return;
-  activateTab("import");
-  try{
-    setAutoStep(1,"正在识别衣物",12,"AI 正在判断图片中的主要衣物。");
-    const original=await fileToDataURL(file);
-    document.getElementById("autoOriginal").src=original;
-    document.getElementById("autoResult").src=original;
-    setAutoStep(2,"正在重建纯衣物",32,"自动移除人物、手臂、手机、镜子、文字和背景，并补全被遮挡的衣物结构。");
-
-    const resp=await fetch("/api/rebuild",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({image:original})
-    });
-    const payload=await resp.json().catch(()=>({}));
-    if(!resp.ok) throw new Error(payload.error||("AI 服务返回 "+resp.status));
-
-    document.getElementById("autoResult").src=payload.image;
-    setAutoStep(3,"正在自动分类",78,"根据衣物类型、厚薄和用途判断类别与适穿季节。");
-
-    const meta=payload.metadata||{};
-    window.__pendingAIItem = {
-      id:Date.now().toString(36),
-      name:meta.name||"未命名单品",
-      category:meta.category||"其他",
-      seasons:Array.isArray(meta.seasons)&&meta.seasons.length?meta.seasons:["春","秋"],
-      tag:"AI素材",
-      image:original,
-      aiImage:payload.image,
-      aiPending:false,
-      createdAt:Date.now()
-    };
-    setAutoStep(4,"识别完成，等待确认",92,`${window.__pendingAIItem.name} · ${window.__pendingAIItem.category} · ${window.__pendingAIItem.seasons.join("/")}`);
-    document.querySelectorAll(".ai-step").forEach(e=>{e.classList.remove("working");e.classList.add("done")});
-    document.getElementById("autoPct").textContent="95%";
-    document.getElementById("autoBar").style.width="95%";
-    document.getElementById("autoTitle").textContent="请确认识别结果";
-    document.getElementById("autoMsg").textContent="AI 已完成生成和分类。你可以修改名称、类别和季节，确认后再正式加入衣橱。";
-    fillConfirmCard(window.__pendingAIItem);
-    toast("AI识别完成，请确认");
-  }catch(err){
-    document.getElementById("autoProcess").style.display="block";
-    document.getElementById("autoTitle").textContent="AI生成失败";
-    document.getElementById("autoMsg").innerHTML=`<div class="auto-error">${esc(err.message||"生成失败")}<br>如果你仍在 GitHub Pages 地址打开 v1.4，请改用 Vercel 部署地址；GitHub Pages 无法运行 /api/rebuild 后端。</div>`;
-    document.getElementById("autoPct").textContent="!";
-    toast("AI生成失败");
-  }
-}
-document.getElementById("albumInput").addEventListener("change", e=>{const f=e.target.files[0];e.target.value="";autoImportFile(f)});
-document.getElementById("cameraInput").addEventListener("change", e=>{const f=e.target.files[0];e.target.value="";autoImportFile(f)});
-
-function fillConfirmCard(item){
-  document.getElementById("confirmCard").classList.add("show");
-  document.getElementById("confirmName").value=item.name||"";
-  document.getElementById("confirmCategory").value=item.category||"其他";
-  document.getElementById("confirmImage").src=item.aiImage||item.image;
-  document.querySelectorAll('input[name="confirmSeason"]').forEach(cb=>{
-    cb.checked=(item.seasons||[]).includes(cb.value);
-  });
-  setTimeout(()=>document.getElementById("confirmCard").scrollIntoView({behavior:"smooth",block:"start"}),120);
-}
-function confirmAndSave(){
-  const item=window.__pendingAIItem;
-  if(!item){toast("没有待确认的单品");return}
-  const seasons=[...document.querySelectorAll('input[name="confirmSeason"]:checked')].map(x=>x.value);
-  if(!seasons.length){toast("请至少选择一个季节");return}
-  item.name=document.getElementById("confirmName").value.trim()||"未命名单品";
-  item.category=document.getElementById("confirmCategory").value;
-  item.seasons=seasons;
-  const data=items(); data.unshift(item); saveItems(data);
-  document.getElementById("confirmCard").classList.remove("show");
-  document.getElementById("autoPct").textContent="100%";
-  document.getElementById("autoBar").style.width="100%";
-  document.getElementById("autoTitle").textContent="已加入衣橱";
-  document.getElementById("autoMsg").textContent=`${item.name} 已保存。`;
-  window.__pendingAIItem=null;
-  toast("已加入衣橱");
-  setTimeout(()=>activateTab("wardrobe"),500);
-}
-function regenerateCurrent(){
-  const item=window.__pendingAIItem;
-  if(!item){toast("没有可重新生成的图片");return}
-  document.getElementById("confirmCard").classList.remove("show");
-  const fakeFile = null;
-  regenerateFromDataURL(item.image);
-}
-async function regenerateFromDataURL(original){
-  try{
-    setAutoStep(2,"正在重新生成纯衣物",35,"根据原图重新生成 AI 素材。");
-    const resp=await fetch("/api/rebuild",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({image:original})
-    });
-    const payload=await resp.json().catch(()=>({}));
-    if(!resp.ok) throw new Error(payload.error||("AI 服务返回 "+resp.status));
-    const meta=payload.metadata||{};
-    window.__pendingAIItem={
-      id:Date.now().toString(36),
-      name:meta.name||"未命名单品",
-      category:meta.category||"其他",
-      seasons:Array.isArray(meta.seasons)&&meta.seasons.length?meta.seasons:["春","秋"],
-      tag:"AI素材",
-      image:original,
-      aiImage:payload.image,
-      aiPending:false,
-      createdAt:Date.now()
-    };
-    document.getElementById("autoResult").src=payload.image;
-    setAutoStep(4,"重新生成完成，等待确认",95,"你可以再次确认或修改识别结果。");
-    fillConfirmCard(window.__pendingAIItem);
-    toast("已重新生成");
-  }catch(err){
-    toast("重新生成失败");
-    document.getElementById("autoMsg").textContent=err.message||"重新生成失败";
-  }
-}
+document.getElementById("albumInput").addEventListener("change", e=>handlePickedFile(e.target.files[0]));
+document.getElementById("cameraInput").addEventListener("change", e=>handlePickedFile(e.target.files[0]));
 document.getElementById("styleInput").addEventListener("change",e=>{
   const n=e.target.files.length;
   localStorage.setItem(PREF_KEY,String(n));
@@ -557,43 +392,9 @@ document.getElementById("styleInput").addEventListener("change",e=>{
   toast(`已加入 ${n} 张审美样本`);
 });
 
-async function makeWhiteCatalog(dataUrl){
-  // v1.3 仅生成本地 1:1 原图预览，不冒充 AI 重建。
-  // 真正“从穿着照重建纯衣物”需要视觉生成模型，不能仅靠前端 Canvas 可靠完成。
-  const img=new Image();
-  await new Promise((res,rej)=>{img.onload=res;img.onerror=rej;img.src=dataUrl});
-  const c=document.createElement("canvas"); c.width=1200; c.height=1200;
-  const ctx=c.getContext("2d"); ctx.fillStyle="#fff"; ctx.fillRect(0,0,c.width,c.height);
-  const pad=110, maxW=c.width-pad*2, maxH=c.height-pad*2;
-  const r=Math.min(maxW/img.width,maxH/img.height);
-  const w=img.width*r,h=img.height*r,x=(c.width-w)/2,y=(c.height-h)/2;
-  ctx.shadowColor="rgba(60,50,45,.08)";ctx.shadowBlur=22;ctx.shadowOffsetY=12;
-  ctx.drawImage(img,x,y,w,h);
-  return c.toDataURL("image/jpeg",.90);
-}
 
-async function generateCatalog(){
-  if(!selectedDataUrl){toast("请先选择一张衣服图片");return}
-  const name=document.getElementById("itemName").value.trim()||"未命名单品";
-  const custom=document.getElementById("customCategory").value.trim();
-  const category=custom||document.getElementById("itemCategory").value;
-  const p=document.getElementById("progress"),bar=document.getElementById("bar");p.style.display="block";bar.style.width="20%";
-  try{
-    await new Promise(r=>setTimeout(r,180));bar.style.width="55%";
-    const image=await makeWhiteCatalog(selectedDataUrl);bar.style.width="100%";
-    const seasons=[...document.querySelectorAll('input[name="season"]:checked')].map(x=>x.value);
-    if(!seasons.length){p.style.display="none";bar.style.width="0";toast("请至少选择一个适穿季节");return}
-    const data=items(); data.unshift({id:Date.now().toString(36),name,category,seasons,tag:"待AI重建",aiPending:true,image,createdAt:Date.now()});
-    saveItems(data);
-    setTimeout(()=>{p.style.display="none";bar.style.width="0";activateTab("wardrobe");toast("单品已保存，可进行 AI 重建");},260);
-    selectedDataUrl="";
-    document.getElementById("itemName").value="";
-    document.getElementById("customCategory").value="";
-    document.getElementById("albumInput").value="";
-    document.getElementById("cameraInput").value="";
-    document.querySelectorAll('input[name="season"]').forEach(x=>x.checked=false);
-  }catch(e){p.style.display="none";toast("图片处理失败，请换一张重试")}
-}
+
+
 
 function buildOutfit(){
   let data=items();
@@ -604,34 +405,102 @@ function buildOutfit(){
   box.innerHTML=`<div class="card"><div class="sectionhead" style="margin:0 0 10px"><h2>你的相似风格组合</h2><span>${pick.length} 件单品</span></div><div class="grid">${pick.map(x=>`<div class="item"><div class="pic"><img src="${x.image}"></div><div class="meta"><div><b>${esc(x.name)}</b><small>${esc(x.category)} · ${esc((x.seasons||[]).join("/"))}</small></div></div></div>`).join("")}</div><div class="note">基础版先用你的真实衣橱随机组合验证完整流程；正式版会加入颜色、廓形、风格标签、天气与场景评分。</div></div>`;
 }
 
-let aiTargetId = null;
-function openAIStudio(id){
-  const x=items().find(i=>i.id===id); if(!x)return;
-  aiTargetId=id;
-  document.getElementById("aiOriginal").src=x.image;
-  document.getElementById("aiResult").src=x.aiImage||x.image;
-  document.getElementById("aiMessage").textContent=x.aiImage
-    ?"这件单品已经有 AI 素材。你可以重新生成，之后会直接替换旧 AI 素材并保留原图。"
-    :"这件单品目前还是原图。v1.3 已经把重建入口、原图保留、AI结果替换和再次生成流程接好；真正生成需要一个图像后端。";
-  document.getElementById("aiModal").classList.add("show");
+
+
+
+let selectedDataUrl = "";
+let pendingBatch = [];
+
+function readAsDataURL(file){
+  return new Promise((resolve,reject)=>{
+    const r=new FileReader(); r.onload=()=>resolve(r.result); r.onerror=reject; r.readAsDataURL(file);
+  });
 }
-function closeAIStudio(){document.getElementById("aiModal").classList.remove("show");aiTargetId=null;}
-function startAIRebuild(){
-  document.getElementById("aiMessage").textContent="当前静态版还没有连接 AI 图像后端，因此这里不会生成假的结果。下一步接后端后，这个按钮会直接上传原图并返回 1:1 白底纯衣物图。";
-  toast("AI后端尚未连接");
+async function handleManualFile(file){
+  if(!file)return;
+  selectedDataUrl=await readAsDataURL(file);
+  document.getElementById("previewImg").src=selectedDataUrl;
+  document.getElementById("preview").style.display="block";
 }
-function saveMockAIResult(){
-  if(!aiTargetId)return;
-  const data=items(); const idx=data.findIndex(i=>i.id===aiTargetId);
-  if(idx<0)return;
-  data[idx].aiPending=true;
+document.getElementById("albumInput").addEventListener("change",e=>handleManualFile(e.target.files[0]));
+document.getElementById("cameraInput").addEventListener("change",e=>handleManualFile(e.target.files[0]));
+
+function saveManualItem(){
+  if(!selectedDataUrl){toast("请先选择图片");return}
+  const name=document.getElementById("itemName").value.trim()||"未命名单品";
+  const category=document.getElementById("itemCategory").value;
+  const seasons=[...document.querySelectorAll('input[name="season"]:checked')].map(x=>x.value);
+  if(!seasons.length){toast("请至少选择一个季节");return}
+  const data=items();
+  data.unshift({id:Date.now().toString(36),name,category,seasons,tag:"原图",image:selectedDataUrl,createdAt:Date.now()});
   saveItems(data);
-  document.getElementById("aiMessage").textContent="已标记为“待AI重建”。以后后端接通后，可以优先批量处理这些旧单品。";
-  toast("已加入待重建");
+  selectedDataUrl="";
+  document.getElementById("preview").style.display="none";
+  document.getElementById("itemName").value="";
+  document.querySelectorAll('input[name="season"]').forEach(x=>x.checked=false);
+  toast("已保存到衣橱");
+  activateTab("wardrobe");
 }
-function useOriginal(id){
-  const x=items().find(i=>i.id===id); if(!x)return;
-  const w=window.open(); if(w){w.document.write(`<img src="${x.image}" style="max-width:100%;height:auto">`);}
+
+function showPackageHelp(){
+  alert("素材包格式：一个 JSON 文件，包含多件衣服的名称、类别、季节、原图（可选）和 1:1 白底素材图。你把一批衣服图片发给 ChatGPT 后，我可以直接生成这个文件给你下载。");
+}
+
+document.getElementById("batchInput").addEventListener("change", async e=>{
+  const f=e.target.files[0]; e.target.value="";
+  if(!f)return;
+  try{
+    const txt=await f.text();
+    const obj=JSON.parse(txt);
+    const arr=Array.isArray(obj)?obj:obj.items;
+    if(!Array.isArray(arr)||!arr.length) throw new Error("素材包中没有衣服");
+    pendingBatch=arr.map((x,i)=>({
+      id:x.id||("pkg_"+Date.now().toString(36)+"_"+i),
+      name:x.name||"未命名单品",
+      category:x.category||"其他",
+      seasons:Array.isArray(x.seasons)&&x.seasons.length?x.seasons:["春","秋"],
+      image:x.original_image||x.image||x.ai_image,
+      aiImage:x.ai_image||x.image,
+      tag:"白底素材",
+      createdAt:Date.now()+i
+    })).filter(x=>x.aiImage);
+    if(!pendingBatch.length) throw new Error("素材包里没有有效图片");
+    renderBatchPreview();
+  }catch(err){toast("素材包读取失败");alert("素材包读取失败："+(err.message||"格式错误"))}
+});
+
+function renderBatchPreview(){
+  const box=document.getElementById("batchPreview");
+  box.classList.add("show");
+  document.getElementById("batchCount").textContent=pendingBatch.length+" 件";
+  document.getElementById("batchList").innerHTML=pendingBatch.map((x,i)=>`
+    <div class="batch-one">
+      <img src="${x.aiImage}">
+      <input value="${esc(x.name)}" onchange="pendingBatch[${i}].name=this.value">
+      <select onchange="pendingBatch[${i}].category=this.value">
+        ${["上衣","裙装","裤装","外套","内衣","鞋子","包袋","配饰","其他"].map(c=>`<option ${c===x.category?"selected":""}>${c}</option>`).join("")}
+      </select>
+      <div class="batch-season">
+        ${["春","夏","秋","冬"].map(se=>`<label><input type="checkbox" ${x.seasons.includes(se)?"checked":""} onchange="toggleBatchSeason(${i},'${se}',this.checked)">${se}</label>`).join("")}
+      </div>
+    </div>`).join("");
+}
+function toggleBatchSeason(i,se,on){
+  let a=pendingBatch[i].seasons||[];
+  if(on&&!a.includes(se))a.push(se);
+  if(!on)a=a.filter(x=>x!==se);
+  pendingBatch[i].seasons=a;
+}
+function confirmBatchImport(){
+  if(!pendingBatch.length){toast("没有待导入素材");return}
+  if(pendingBatch.some(x=>!x.seasons.length)){toast("每件衣服至少选择一个季节");return}
+  const data=items();
+  saveItems([...pendingBatch,...data]);
+  const n=pendingBatch.length;
+  pendingBatch=[];
+  document.getElementById("batchPreview").classList.remove("show");
+  toast(`已导入 ${n} 件衣服`);
+  activateTab("wardrobe");
 }
 
 render();
