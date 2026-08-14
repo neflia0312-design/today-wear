@@ -1264,6 +1264,18 @@ body.category-modal-open .nav{
   pointer-events:none !important;
 }
 
+
+/* V4.2 单一分类源 */
+#itemCategory,
+.batch-one select{
+  font-size:16px !important;
+}
+.batch-one select:disabled,
+#itemCategory:disabled{
+  opacity:.72;
+  background:#f6f1ee !important;
+}
+
 @media(min-width:700px){body{padding:20px 0}.app{min-height:calc(100vh - 40px);border-radius:36px;overflow:hidden;box-shadow:0 20px 80px rgba(74,64,58,.16)}.nav{bottom:20px}.modal{align-items:center}.sheet{border-radius:30px;max-height:80vh}}
 </style>
 </head>
@@ -1271,7 +1283,7 @@ body.category-modal-open .nav{
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v4.1 STYLE DNA</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v4.2 STYLE DNA</small></div>
       <button class="iconbtn" onclick="toast('基础版设置已保留')">⋯</button>
     </div>
   </header>
@@ -1327,7 +1339,7 @@ body.category-modal-open .nav{
         <button class="btn" style="width:100%;margin-top:12px" onclick="confirmBatchImport()">确认全部加入衣橱</button>
       </div>
 
-      <div class="sectionhead"><h2>临时手动导入</h2><span>没有素材包时使用</span></div>
+      <div class="sectionhead"><h2>手动导入</h2><span>使用我的分类</span></div>
       <div class="panel">
         <div class="uploadbox">
           <div style="font-size:34px">◌</div>
@@ -1347,7 +1359,7 @@ body.category-modal-open .nav{
 
         <div class="field"><label>单品名称</label><input id="itemName" placeholder="例如：黑色方领针织上衣" /></div>
         <div class="field"><label>类别</label>
-          <select id="itemCategory"><option>上衣</option><option>背心</option><option>吊带背心</option><option>针织背心</option><option>蕾丝上衣</option><option>T恤</option><option>衬衫</option><option>针织衫</option><option>卫衣</option><option>外套</option><option>裙装</option><option>半裙</option><option>连衣裙</option><option>裤装</option><option>牛仔裤</option><option>短裤</option><option>内衣</option><option>鞋子</option><option>包袋</option><option>配饰</option></select>
+          <select id="itemCategory"></select>
         </div>
         <div class="field">
           <label>适穿季节（可多选）</label>
@@ -1550,40 +1562,90 @@ body.category-modal-open .nav{
 
 <script>
 
-const IMPORT_CATEGORY_MODE_KEY="today_wear_import_category_mode_v39";
 
+const IMPORT_CATEGORY_MODE_KEY="today_wear_import_category_mode_v42";
+
+/*
+  V4.2 分类规则：
+  CAT_ORDER_KEY 保存的“用户分类”是唯一分类源。
+  批量导入、手动导入、修改单品分类、主页筛选全部只读取这里。
+  App 不再创建/恢复任何写死的默认分类。
+*/
 function currentUserCategories(){
-  // Use the user's saved category order as the single source of truth.
-  // Do NOT append built-in/default categories during import.
-  let cats=[];
   try{
     const raw=JSON.parse(localStorage.getItem(CAT_ORDER_KEY)||"[]");
-    if(Array.isArray(raw)) cats=raw.filter(Boolean);
-  }catch(e){}
-  return [...new Set(cats)];
+    return Array.isArray(raw) ? [...new Set(raw.filter(Boolean))] : [];
+  }catch(e){
+    return [];
+  }
+}
+
+function categoryMatchScore(category,item){
+  const cat=String(category||"").toLowerCase();
+  const name=String(item?.name||"").toLowerCase();
+  const subtype=String(item?.subtype||"").toLowerCase();
+  const incoming=String(item?.category||"").toLowerCase();
+  const text=`${name} ${subtype} ${incoming}`;
+
+  let score=0;
+
+  // Exact match always wins.
+  if(incoming && cat===incoming) score+=1000;
+  if(subtype && cat===subtype) score+=700;
+
+  // Direct text containment.
+  if(cat && text.includes(cat)) score+=260;
+  if(incoming && cat.includes(incoming)) score+=120;
+  if(incoming && incoming.includes(cat)) score+=110;
+
+  // Common garment-family aliases. They ONLY score categories the user already owns.
+  const aliasGroups=[
+    ["吊带","背心","吊带背心","针织背心","蕾丝背心","抹胸","小背心"],
+    ["短袖","短袖上衣","t恤","tee","短袖t","修身t"],
+    ["长袖","长袖上衣","打底","打底衣","长袖t"],
+    ["衬衫","衬衣","shirt"],
+    ["针织","针织衫","毛衣","毛衫"],
+    ["卫衣","hoodie","sweatshirt"],
+    ["短款外套","短外套","夹克","jacket"],
+    ["外套","大衣","风衣","西装"],
+    ["半裙","短裙","长裙","裙装"],
+    ["连衣裙","裙子","dress"],
+    ["短裤","五分裤","热裤"],
+    ["长裤","裤装","西裤","休闲裤"],
+    ["牛仔裤","denim","jeans"],
+    ["内衣","文胸","胸衣","bra"],
+    ["鞋","鞋子","靴","凉鞋","高跟鞋","运动鞋"],
+    ["包","包袋","手袋","handbag"],
+    ["配饰","饰品","首饰","帽","腰带","围巾"]
+  ];
+
+  for(const group of aliasGroups){
+    const textHit=group.some(k=>text.includes(k));
+    const catHit=group.some(k=>cat.includes(k));
+    if(textHit && catHit) score+=180;
+  }
+
+  // Color/brand words should never dominate garment type.
+  return score;
 }
 
 function normalizeImportedCategory(item){
   const cats=currentUserCategories();
-  if(!cats.length){
-    // If the user has not created categories yet, do not invent one.
-    return "";
+  if(!cats.length) return "";
+
+  let best="";
+  let bestScore=-1;
+  for(const c of cats){
+    const score=categoryMatchScore(c,item);
+    if(score>bestScore){
+      bestScore=score;
+      best=c;
+    }
   }
 
-  const incoming=(item.category||"").trim();
-  if(incoming && cats.includes(incoming)){
-    return incoming;
-  }
-
-  // Try exact subtype/name hints only against the user's own categories.
-  const text=`${item.name||""} ${item.subtype||""} ${incoming}`.toLowerCase();
-  const matched=cats.find(c=>text.includes(String(c).toLowerCase()));
-  if(matched) return matched;
-
-  // Fall back to the user's first existing category.
-  // This keeps every imported item inside the user's custom system,
-  // instead of reviving app defaults such as 上衣/背心/T恤.
-  return cats[0];
+  // If nothing meaningful matches, leave blank and ask the user to choose
+  // from their own categories on the preview page. Never revive an app default.
+  return bestScore>=150 ? best : "";
 }
 
 function normalizeImportedItemsToUserCategories(arr){
@@ -1591,6 +1653,34 @@ function normalizeImportedItemsToUserCategories(arr){
     ...x,
     category: normalizeImportedCategory(x)
   }));
+}
+
+function userCategoryOptions(selected="",allowPlaceholder=true){
+  const cats=currentUserCategories();
+  const placeholder=allowPlaceholder
+    ? `<option value="" ${selected?"":"selected"} disabled>请选择分类</option>`
+    : "";
+
+  return placeholder + cats.map(c=>
+    `<option value="${esc(c)}" ${c===selected?"selected":""}>${esc(c)}</option>`
+  ).join("");
+}
+
+function refreshManualCategorySelect(){
+  const select=document.getElementById("itemCategory");
+  if(!select) return;
+
+  const current=select.value;
+  const cats=currentUserCategories();
+
+  if(!cats.length){
+    select.innerHTML='<option value="" selected disabled>请先在首页建立分类</option>';
+    select.disabled=true;
+    return;
+  }
+
+  select.disabled=false;
+  select.innerHTML=userCategoryOptions(cats.includes(current)?current:"",true);
 }
 
 function rebuildCategoryOrderFromUserOnly(){
@@ -1611,6 +1701,10 @@ function toast(msg){
 function activateTab(id){
   document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id===id));
   document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("active",x.dataset.tab===id));
+  if(id==="import"){
+    refreshManualCategorySelect();
+    if(pendingBatch.length) renderBatchPreview();
+  }
   window.scrollTo({top:0,behavior:"smooth"});
 }
 function openImporter(){activateTab("import");}
@@ -1618,6 +1712,7 @@ function items(){try{return JSON.parse(localStorage.getItem(LS_KEY)||"[]")}catch
 function saveItems(v){localStorage.setItem(LS_KEY,JSON.stringify(v));render();}
 function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
 function render(){
+  refreshManualCategorySelect();
   const data=items();
   const cats=getCategoryOrder();
   document.getElementById("countAll").textContent=data.length;
@@ -2149,6 +2244,11 @@ function saveManualItem(){
   if(!selectedDataUrl){toast("请先选择图片");return}
   const name=document.getElementById("itemName").value.trim()||"未命名单品";
   const category=document.getElementById("itemCategory").value;
+  const cats=currentUserCategories();
+  if(!category || !cats.includes(category)){
+    toast(cats.length?"请选择你设置的分类":"请先建立分类");
+    return;
+  }
   const seasons=[...document.querySelectorAll('input[name="season"]:checked')].map(x=>x.value);
   if(!seasons.length){toast("请至少选择一个季节");return}
   const data=items();
@@ -2190,20 +2290,28 @@ document.getElementById("batchInput").addEventListener("change", async e=>{
 });
 
 function renderBatchPreview(){
+  const cats=currentUserCategories();
+  pendingBatch=pendingBatch.map(x=>{
+    if(x.category && cats.includes(x.category)) return x;
+    return {...x,category:normalizeImportedCategory(x)};
+  });
+
   const box=document.getElementById("batchPreview");
   box.classList.add("show");
   document.getElementById("batchCount").textContent=pendingBatch.length+" 件";
-  document.getElementById("batchList").innerHTML=pendingBatch.map((x,i)=>`
+  document.getElementById("batchList").innerHTML=currentUserCategories().length
+    ? pendingBatch.map((x,i)=>`
     <div class="batch-one">
       <img src="${x.aiImage}">
       <input value="${esc(x.name)}" onchange="pendingBatch[${i}].name=this.value">
       <select onchange="pendingBatch[${i}].category=this.value">
-        ${["上衣","背心","吊带背心","针织背心","蕾丝上衣","T恤","衬衫","针织衫","卫衣","外套","裙装","半裙","连衣裙","裤装","牛仔裤","短裤","内衣","鞋子","包袋","配饰","其他"].map(c=>`<option ${c===x.category?"selected":""}>${c}</option>`).join("")}
+        ${userCategoryOptions(x.category,true)}
       </select>
       <div class="batch-season">
         ${["春","夏","秋","冬"].map(se=>`<label><input type="checkbox" ${x.seasons.includes(se)?"checked":""} onchange="toggleBatchSeason(${i},'${se}',this.checked)">${se}</label>`).join("")}
       </div>
-    </div>`).join("");
+    </div>`).join("")
+    : `<div class="empty"><b>还没有可用分类</b>请先回到首页 → 已建立分类，设置好你的分类后再导入。</div>`;
 }
 function toggleBatchSeason(i,se,on){
   let a=pendingBatch[i].seasons||[];
@@ -2260,6 +2368,16 @@ function mergeWithoutReset(existing,incoming){
 async function confirmBatchImport(){
   if(!pendingBatch.length){toast("没有待导入素材");return}
   if(pendingBatch.some(x=>!x.seasons.length)){toast("每件衣服至少选择一个季节");return}
+  const userCats=currentUserCategories();
+  if(!userCats.length){
+    alert("请先在首页建立分类，再导入素材。");
+    return;
+  }
+  const invalid=pendingBatch.find(x=>!x.category || !userCats.includes(x.category));
+  if(invalid){
+    alert(`「${invalid.name||"这件素材"}」还没有选择你设置的分类。`);
+    return;
+  }
   const btn=document.querySelector('#batchPreview .btn');
   const oldText=btn?btn.textContent:"";
   if(btn){btn.disabled=true;btn.textContent="正在加入…"}
@@ -2298,7 +2416,8 @@ let moveTargetId=null;
 let modalScrollY=0;
 
 function defaultCategories(){
-  return ["上衣","背心","吊带背心","针织背心","蕾丝上衣","T恤","衬衫","针织衫","卫衣","外套","裙装","半裙","连衣裙","裤装","牛仔裤","短裤","内衣","鞋子","包袋","配饰"];
+  // V4.2: no built-in categories. User registry is the only source.
+  return [];
 }
 
 function getSavedCategoryOrderExact(){
