@@ -1240,6 +1240,15 @@ body.category-modal-open .nav{
   display:none !important;
 }
 
+
+/* v4.0 分类删除交互修复 */
+.delete-cat{
+  pointer-events:auto !important;
+  touch-action:manipulation !important;
+  position:relative !important;
+  z-index:10 !important;
+}
+
 @media(min-width:700px){body{padding:20px 0}.app{min-height:calc(100vh - 40px);border-radius:36px;overflow:hidden;box-shadow:0 20px 80px rgba(74,64,58,.16)}.nav{bottom:20px}.modal{align-items:center}.sheet{border-radius:30px;max-height:80vh}}
 </style>
 </head>
@@ -1247,7 +1256,7 @@ body.category-modal-open .nav{
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v3.9 STYLE DNA</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v4.0 STYLE DNA</small></div>
       <button class="iconbtn" onclick="toast('基础版设置已保留')">⋯</button>
     </div>
   </header>
@@ -2372,7 +2381,7 @@ function renderCategoryManager(){
         onclick="event.stopPropagation();moveCategoryOrder(${i},1)">↓</button>
 
       <button class="delete-cat"
-        onclick="event.stopPropagation();deleteCategory('${esc(c)}')"
+        onclick="event.preventDefault();event.stopPropagation();safeDeleteCategory('${esc(c)}')"
         aria-label="删除分类">×</button>
 
       <div class="catmeta">${counts[c]||0} 件</div>
@@ -2474,15 +2483,84 @@ function beginInlineRenameV34(wrap,oldName){
 }
 
 function renameCategoryEverywhere(oldName,next){
-  const data=items();
-  data.forEach(x=>{if(x.category===oldName)x.category=next});
-  saveItems(data);
+  next=(next||"").trim();
+  if(!next || next===oldName){
+    renderCategoryManager();
+    return;
+  }
 
-  rebuildCategoryOrderFromUserOnly();
-  if(activeCategory===category) activeCategory="全部";
+  const cats=getSavedCategoryOrderExact();
+  if(cats.includes(next)){
+    alert(`分类「${next}」已经存在，请换一个名称。`);
+    renderCategoryManager();
+    return;
+  }
+
+  // 分类改名时保留素材，并同步它们的分类名称
+  const data=items().map(x=>x.category===oldName ? {...x,category:next} : x);
+  const nextCats=cats.map(c=>c===oldName ? next : c);
+
+  try{
+    localStorage.setItem(LS_KEY,JSON.stringify(data));
+    saveCategoryOrder(nextCats);
+  }catch(e){
+    alert("改名失败：浏览器本地存储写入失败。");
+    renderCategoryManager();
+    return;
+  }
+
+  if(activeCategory===oldName) activeCategory=next;
   render();
   renderCategoryManager();
-  toast(affected>0?`分类已删除，${affected} 件素材仍保留`:`已删除「${category}」`);
+  toast(`已改名为「${next}」`);
+}
+
+function deleteCategory(category){
+  const cats=getSavedCategoryOrderExact();
+  if(!cats.includes(category)){
+    renderCategoryManager();
+    return;
+  }
+
+  const affected=items().filter(x=>x.category===category).length;
+  const message=affected>0
+    ? `确认删除分类「${category}」？
+
+其中 ${affected} 件素材不会被删除，仍会完整保留在「全部」中。`
+    : `确认删除分类「${category}」？`;
+
+  if(!confirm(message)) return;
+
+  // 真正删除分类入口
+  const nextCats=cats.filter(c=>c!==category);
+
+  // 素材绝不删除，只取消这个已经不存在的分类归属
+  const data=items().map(x=>x.category===category ? {...x,category:""} : x);
+
+  try{
+    localStorage.setItem(LS_KEY,JSON.stringify(data));
+    saveCategoryOrder(nextCats);
+  }catch(e){
+    alert("删除分类失败：浏览器本地存储写入失败。");
+    return;
+  }
+
+  if(activeCategory===category) activeCategory="全部";
+
+  render();
+  renderCategoryManager();
+  toast(affected>0
+    ? `已删除「${category}」，${affected} 件素材仍保留`
+    : `已删除「${category}」`);
+}
+
+
+let lastDeleteCategoryAt=0;
+function safeDeleteCategory(category){
+  const now=Date.now();
+  if(now-lastDeleteCategoryAt<600) return;
+  lastDeleteCategoryAt=now;
+  deleteCategory(category);
 }
 
 function createAndMoveCategory(){
