@@ -115,6 +115,17 @@ button{border:0}
 .sheet h2{font-size:21px;margin:0 0 8px}
 .closex{float:right;width:34px;height:34px;border-radius:50%;background:#f1ece8}
 .smallpill{display:inline-flex;padding:6px 8px;border-radius:999px;background:#f3ece8;color:#665f59;font-size:10px;font-weight:700}
+
+.seasonbar{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:4px 0 14px}
+.seasonbtn{background:rgba(255,255,255,.82);border-radius:18px;padding:11px 5px;color:#817970;font-size:12px;font-weight:720;box-shadow:inset 0 0 0 1px var(--line)}
+.seasonbtn.active{background:#4a4540;color:#fff}
+.seasonhint{font-size:10px;color:var(--muted);line-height:1.45;margin:-5px 3px 10px}
+.seasoncheck{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.seasoncheck label{display:grid;place-items:center;gap:5px;background:#fbf8f5;border:1px solid var(--line);border-radius:16px;padding:10px 4px;font-size:11px;color:#706861}
+.seasoncheck input{accent-color:#514b46}
+.ai-card{margin-top:12px;border-radius:22px;padding:14px;background:linear-gradient(145deg,#fff,#f7f1ed);box-shadow:inset 0 0 0 1px var(--line)}
+.ai-card b{display:block;font-size:13px;margin-bottom:5px}
+
 @media(min-width:700px){body{padding:20px 0}.app{min-height:calc(100vh - 40px);border-radius:36px;overflow:hidden;box-shadow:0 20px 80px rgba(74,64,58,.16)}.nav{bottom:20px}.modal{align-items:center}.sheet{border-radius:30px;max-height:80vh}}
 </style>
 </head>
@@ -122,7 +133,7 @@ button{border:0}
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v1.1</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v1.2</small></div>
       <button class="iconbtn" onclick="toast('基础版设置已保留')">⋯</button>
     </div>
   </header>
@@ -145,7 +156,15 @@ button{border:0}
         <div class="q"><b id="countFav">0</b><span>近期偏爱</span></div>
       </div>
 
-      <div class="sectionhead"><h2>我的衣橱</h2><span>轻点分类筛选</span></div>
+      <div class="sectionhead"><h2>我的衣橱</h2><span>按季节快速调用</span></div>
+      <div class="seasonbar" id="seasonBar">
+        <button class="seasonbtn active" onclick="setSeason('全部')">全部</button>
+        <button class="seasonbtn" onclick="setSeason('春')">春</button>
+        <button class="seasonbtn" onclick="setSeason('夏')">夏</button>
+        <button class="seasonbtn" onclick="setSeason('秋')">秋</button>
+        <button class="seasonbtn" onclick="setSeason('冬')">冬</button>
+      </div>
+      <div class="seasonhint">春 / 秋单品可同时标记多个季节；夏、冬作为强季节衣橱，生成穿搭时优先隔离。</div>
       <div class="chips" id="categoryChips"></div>
       <div id="wardrobeGrid" class="grid"></div>
     </section>
@@ -184,9 +203,19 @@ button{border:0}
           <label>自定义类别（可选）</label>
           <input id="customCategory" placeholder="如：软妹 / Y2K / 通勤 / 旅行" />
         </div>
+        <div class="field">
+          <label>适穿季节（可多选）</label>
+          <div class="seasoncheck">
+            <label><input type="checkbox" name="season" value="春">春</label>
+            <label><input type="checkbox" name="season" value="夏">夏</label>
+            <label><input type="checkbox" name="season" value="秋">秋</label>
+            <label><input type="checkbox" name="season" value="冬">冬</label>
+          </div>
+        </div>
+        <div class="ai-card"><b>AI 衣物素材化 · 目标效果</b><span style="font-size:11px;color:#817970;line-height:1.5">识别照片中的衣服 → 去除人物、手机、房间和截图界面 → 重建完整衣物轮廓与遮挡区域 → 保留颜色、领型、纹理、图案和装饰 → 输出 1:1 白底纯衣物素材。</span></div>
 
-        <button class="btn" style="width:100%;margin-top:5px" onclick="generateCatalog()">生成白底图录并保存</button>
-        <div class="note">基础版使用浏览器本地能力保存图录。为了保证“真正自动抠图”的稳定性，正式版建议接入本地端/云端背景分割模型；当前版本先把完整导入、分类、图录和后续推荐流程跑通。</div>
+        <button class="btn" style="width:100%;margin-top:12px" onclick="generateCatalog()">生成 1:1 衣物素材并保存</button>
+        <div class="note">v1.2 已把图录目标改为“AI 重建纯衣物 1:1 素材”。当前 GitHub Pages 单文件版仍没有图像生成模型，因此不会假装已经完成 AI 重建：现阶段保存时先使用 1:1 白底预览；后续接入视觉生成服务后，可直接替换这一处理步骤。</div>
       </div>
     </section>
 
@@ -258,6 +287,7 @@ const LS_KEY = "today_wear_items_v1";
 const PREF_KEY = "today_wear_style_samples_v1";
 let selectedDataUrl = "";
 let activeCategory = "全部";
+let activeSeason = "全部";
 
 function toast(msg){
   const el=document.getElementById("toast"); el.textContent=msg; el.classList.add("show");
@@ -280,16 +310,19 @@ function render(){
   const chips=["全部",...cats];
   const cc=document.getElementById("categoryChips");
   cc.innerHTML=chips.map(c=>`<button class="chip ${c===activeCategory?"active":""}" onclick="setCat('${esc(c)}')">${esc(c)}</button>`).join("");
-  const shown=activeCategory==="全部"?data:data.filter(x=>x.category===activeCategory);
+  let shown=activeCategory==="全部"?data:data.filter(x=>x.category===activeCategory);
+  if(activeSeason!=="全部") shown=shown.filter(x=>(x.seasons||[]).includes(activeSeason));
+  document.querySelectorAll(".seasonbtn").forEach(b=>b.classList.toggle("active",b.textContent.trim()===activeSeason));
   const g=document.getElementById("wardrobeGrid");
   if(!shown.length){g.innerHTML=`<div class="empty" style="grid-column:1/-1"><b>你的衣橱还是空的</b>先导入一件衣服，基础版就会开始建立私人图录。</div>`;return}
   g.innerHTML=shown.map(x=>`<div class="item">
       <button class="delete" onclick="removeItem('${x.id}')">×</button>
       <div class="pic"><img src="${x.image}" alt=""></div>
-      <div class="meta"><div><b>${esc(x.name)}</b><small>${esc(x.category)}</small></div><span class="smallpill">${esc(x.tag||"my closet")}</span></div>
+      <div class="meta"><div><b>${esc(x.name)}</b><small>${esc(x.category)} · ${esc((x.seasons||[]).join("/"))}</small></div><span class="smallpill">${esc(x.tag||"my closet")}</span></div>
     </div>`).join("");
 }
 function setCat(c){activeCategory=c;render();}
+function setSeason(v){activeSeason=v;render();}
 function removeItem(id){saveItems(items().filter(x=>x.id!==id));toast("已从图录移除");}
 
 function handlePickedFile(f){
@@ -308,11 +341,11 @@ document.getElementById("styleInput").addEventListener("change",e=>{
 });
 
 async function makeWhiteCatalog(dataUrl){
-  // 基础版：保持原图完整、使用白底画布和轻微留白，生成统一图录比例。
-  // 正式版会将此函数替换为真实人物/背景分割模型。
+  // v1.2 浏览器 fallback：统一生成 1:1 白底预览。
+  // 真正“从穿着照重建纯衣物”需要视觉生成模型，不能仅靠前端 Canvas 可靠完成。
   const img=new Image();
   await new Promise((res,rej)=>{img.onload=res;img.onerror=rej;img.src=dataUrl});
-  const c=document.createElement("canvas"); c.width=1200; c.height=1400;
+  const c=document.createElement("canvas"); c.width=1200; c.height=1200;
   const ctx=c.getContext("2d"); ctx.fillStyle="#fff"; ctx.fillRect(0,0,c.width,c.height);
   const pad=110, maxW=c.width-pad*2, maxH=c.height-pad*2;
   const r=Math.min(maxW/img.width,maxH/img.height);
@@ -331,7 +364,9 @@ async function generateCatalog(){
   try{
     await new Promise(r=>setTimeout(r,180));bar.style.width="55%";
     const image=await makeWhiteCatalog(selectedDataUrl);bar.style.width="100%";
-    const data=items(); data.unshift({id:Date.now().toString(36),name,category,tag:"white catalog",image,createdAt:Date.now()});
+    const seasons=[...document.querySelectorAll('input[name="season"]:checked')].map(x=>x.value);
+    if(!seasons.length){p.style.display="none";bar.style.width="0";toast("请至少选择一个适穿季节");return}
+    const data=items(); data.unshift({id:Date.now().toString(36),name,category,seasons,tag:"1:1 catalog",image,createdAt:Date.now()});
     saveItems(data);
     setTimeout(()=>{p.style.display="none";bar.style.width="0";activateTab("wardrobe");toast("白底图录已生成");},260);
     selectedDataUrl="";
@@ -339,15 +374,17 @@ async function generateCatalog(){
     document.getElementById("customCategory").value="";
     document.getElementById("albumInput").value="";
     document.getElementById("cameraInput").value="";
+    document.querySelectorAll('input[name="season"]').forEach(x=>x.checked=false);
   }catch(e){p.style.display="none";toast("图片处理失败，请换一张重试")}
 }
 
 function buildOutfit(){
-  const data=items();
+  let data=items();
+  if(activeSeason!=="全部") data=data.filter(x=>(x.seasons||[]).includes(activeSeason));
   const box=document.getElementById("generatedLook");
   if(!data.length){box.innerHTML=`<div class="empty"><b>还没有可用单品</b>先导入几件衣服，我再从你的真实衣橱里做搭配。</div>`;return}
   const pick=[...data].sort(()=>Math.random()-.5).slice(0,Math.min(3,data.length));
-  box.innerHTML=`<div class="card"><div class="sectionhead" style="margin:0 0 10px"><h2>你的相似风格组合</h2><span>${pick.length} 件单品</span></div><div class="grid">${pick.map(x=>`<div class="item"><div class="pic"><img src="${x.image}"></div><div class="meta"><div><b>${esc(x.name)}</b><small>${esc(x.category)}</small></div></div></div>`).join("")}</div><div class="note">基础版先用你的真实衣橱随机组合验证完整流程；正式版会加入颜色、廓形、风格标签、天气与场景评分。</div></div>`;
+  box.innerHTML=`<div class="card"><div class="sectionhead" style="margin:0 0 10px"><h2>你的相似风格组合</h2><span>${pick.length} 件单品</span></div><div class="grid">${pick.map(x=>`<div class="item"><div class="pic"><img src="${x.image}"></div><div class="meta"><div><b>${esc(x.name)}</b><small>${esc(x.category)} · ${esc((x.seasons||[]).join("/"))}</small></div></div></div>`).join("")}</div><div class="note">基础版先用你的真实衣橱随机组合验证完整流程；正式版会加入颜色、廓形、风格标签、天气与场景评分。</div></div>`;
 }
 render();
 const stored = localStorage.getItem(PREF_KEY);
