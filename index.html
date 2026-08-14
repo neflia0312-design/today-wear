@@ -204,31 +204,71 @@ body.modal-locked{
   font-weight:600;
 }
 .move-option.active::after{opacity:.7}
-.rename-panel{
-  display:none;
-  margin-top:12px;
-  padding:12px;
-  border-radius:18px;
-  background:#f8f4f1;
-  border:1px solid var(--line);
+
+
+
+/* v1.9 minimal homepage */
+.minimal-hero{padding:18px 18px 16px;background:linear-gradient(145deg,#f4e5e4,#fbf5ef);box-shadow:none}
+.minimal-hero h1{font-size:28px;margin:8px 0 14px}
+.minimal-hero .kicker{font-size:10px}
+.quick{margin-top:10px}
+.quick .q{min-height:76px;padding:12px 10px}
+.q b{font-size:17px}
+.q span{font-size:10px}
+.sectionhead{margin-top:16px}
+
+/* 分类管理：原地改名 + 上下移动 */
+.category-manager{
+  display:grid;
+  gap:8px;
+  margin-top:10px;
 }
-.rename-panel.show{display:block}
-.rename-panel .rename-title{font-size:11px;color:var(--muted);margin-bottom:8px}
-.rename-row{display:flex;gap:8px}
-.rename-row input{
-  flex:1;
-  border:1px solid var(--line);
+.category-row{
+  display:grid;
+  grid-template-columns:44px 1fr 44px;
+  align-items:center;
+  gap:8px;
   background:#fff;
-  border-radius:14px;
-  padding:11px 12px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:8px;
 }
-.rename-row button{
-  padding:11px 13px;
-  border-radius:14px;
-  background:#4a4540;
-  color:#fff;
+.category-row.active{
+  background:#f3ece8;
+}
+.category-row .movebtn{
+  width:36px;height:36px;border-radius:12px;background:#f6f2ee;color:#665f59;
+  display:grid;place-items:center;font-size:16px;
+}
+.category-row .catname{
+  width:100%;
+  border:0;
+  outline:none;
+  background:transparent;
+  text-align:center;
+  font-size:13px;
+  color:#4f4944;
   font-weight:700;
+  padding:8px 4px;
+  border-radius:12px;
 }
+.category-row .catname.editing{
+  background:#fbf7f4;
+  box-shadow:inset 0 0 0 1px var(--line);
+}
+.category-row .catname[readonly]{
+  cursor:pointer;
+}
+.category-row .catmeta{
+  grid-column:1/-1;
+  text-align:center;
+  font-size:9px;
+  color:#a19a94;
+  margin-top:-3px;
+}
+.category-row .movebtn:disabled{opacity:.28}
+.sheet h2{margin-bottom:4px}
+.category-help{font-size:10px;color:#8a827b;margin-bottom:10px}
 
 @media(min-width:700px){body{padding:20px 0}.app{min-height:calc(100vh - 40px);border-radius:36px;overflow:hidden;box-shadow:0 20px 80px rgba(74,64,58,.16)}.nav{bottom:20px}.modal{align-items:center}.sheet{border-radius:30px;max-height:80vh}}
 </style>
@@ -237,20 +277,19 @@ body.modal-locked{
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v1.8 FREE</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v1.9 FREE</small></div>
       <button class="iconbtn" onclick="toast('基础版设置已保留')">⋯</button>
     </div>
   </header>
 
   <main>
     <section id="wardrobe" class="page active">
-      <div class="hero">
-        <div class="kicker">MY DIGITAL CLOSET</div>
-        <h1>今天穿什么？先看看我的衣橱。</h1>
-        <p>每天直接打开：按季节看衣橱、选穿搭；白底素材可通过 ChatGPT 批量生成后一次导入。</p>
+      <div class="hero minimal-hero">
+        <div class="kicker">MY CLOSET</div>
+        <h1>今天穿什么</h1>
         <div class="hero-actions">
-          <button class="btn" onclick="openImporter()">＋ 导入衣服</button>
-          <button class="btn secondary" onclick="activateTab('inspiration')">生成灵感</button>
+          <button class="btn" onclick="openImporter()">＋ 导入</button>
+          <button class="btn secondary" onclick="activateTab('inspiration')">灵感</button>
         </div>
       </div>
 
@@ -260,20 +299,7 @@ body.modal-locked{
         <div class="q"><b id="countFav">0</b><span>近期偏爱</span></div>
       </div>
 
-      <div class="ai-studio">
-        <div class="ai-studio-head">
-          <div><div class="kicker">BATCH GARMENT IMPORT</div><h3>批量素材导入</h3></div>
-          <span class="ai-status">v1.3</span>
-        </div>
-        <div class="ai-steps">
-          <div class="ai-step"><b>01</b>原图整理</div>
-          <div class="ai-step"><b>02</b>素材生成</div>
-          <div class="ai-step"><b>03</b>自动分类</div>
-          <div class="ai-step"><b>04</b>一键导入</div>
-        </div>
-      </div>
-
-      <div class="sectionhead"><h2>我的衣橱</h2><span>分类可随时修改</span></div>
+      <div class="sectionhead"><h2>我的衣橱</h2><span>分类</span></div>
       <div class="seasonbar" id="seasonBar">
         <button class="seasonbtn active" onclick="setSeason('全部')">全部</button>
         <button class="seasonbtn" onclick="setSeason('春')">春</button>
@@ -281,7 +307,7 @@ body.modal-locked{
         <button class="seasonbtn" onclick="setSeason('秋')">秋</button>
         <button class="seasonbtn" onclick="setSeason('冬')">冬</button>
       </div>
-      <div class="seasonhint">春 / 秋单品可同时标记多个季节；夏、冬作为强季节衣橱，生成穿搭时优先隔离。</div>
+      
       <div class="chips" id="categoryChips"></div>
       <div id="wardrobeGrid" class="grid"></div>
     </section>
@@ -409,16 +435,15 @@ body.modal-locked{
   <div class="sheet">
     <div class="sheetgrab"></div>
     <button class="closex" onclick="closeMoveCategory()">×</button>
-    <h2>移动到分类</h2>
-    <div class="note">轻点＝移动到该分类；双击分类名称＝直接改名。弹层内可独立上下滑动，不会再带动底层页面。</div>
-    <div class="move-sheet-list" id="moveCategoryList"></div>
-    <div class="rename-panel" id="renamePanel">
-      <div class="rename-title" id="renameTitle">修改分类名称</div>
-      <div class="rename-row">
-        <input id="renameCategoryInput" placeholder="输入新的分类名称">
-        <button onclick="confirmRenameCategory()">确认改名</button>
-      </div>
+    <h2>分类</h2>
+    <div class="category-help">轻点移动 · 双击名称直接修改 · ↑↓ 调整顺序</div>
+    <div class="category-manager" id="categoryManager"></div>
+    <div class="custom-cat-row">
+      <input id="newCategoryInput" placeholder="新增分类">
+      <button onclick="createAndMoveCategory()">＋</button>
     </div>
+  </div>
+</div>
     <div class="custom-cat-row">
       <input id="newCategoryInput" placeholder="例如：背心 / 吊带背心 / 针织背心 / 蕾丝上衣">
       <button onclick="createAndMoveCategory()">新建并移动</button>
@@ -448,7 +473,7 @@ function items(){try{return JSON.parse(localStorage.getItem(LS_KEY)||"[]")}catch
 function saveItems(v){localStorage.setItem(LS_KEY,JSON.stringify(v));render();}
 function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
 function render(){
-  const data=items(), cats=[...new Set(data.map(x=>x.category))];
+  const data=items(); const used=new Set(data.map(x=>x.category)); const cats=getCategoryOrder().filter(c=>used.has(c));
   document.getElementById("countAll").textContent=data.length;
   document.getElementById("countCats").textContent=cats.length;
   document.getElementById("countFav").textContent=Math.min(data.length,6);
@@ -602,16 +627,25 @@ function confirmBatchImport(){
 
 
 
-let moveTargetId=null;
-let renameSourceCategory=null;
-let modalScrollY=0;
-let categoryTapTimer={};
 
-function allCategories(){
-  const base=["上衣","背心","吊带背心","针织背心","蕾丝上衣","T恤","衬衫","针织衫","卫衣","外套","裙装","半裙","连衣裙","裤装","牛仔裤","短裤","内衣","鞋子","包袋","配饰"];
-  const own=items().map(x=>x.category).filter(Boolean);
-  return [...new Set([...base,...own])];
+const CAT_ORDER_KEY="today_wear_category_order_v1";
+let moveTargetId=null;
+let modalScrollY=0;
+
+function defaultCategories(){
+  return ["上衣","背心","吊带背心","针织背心","蕾丝上衣","T恤","衬衫","针织衫","卫衣","外套","裙装","半裙","连衣裙","裤装","牛仔裤","短裤","内衣","鞋子","包袋","配饰"];
 }
+function getCategoryOrder(){
+  let saved=[];
+  try{saved=JSON.parse(localStorage.getItem(CAT_ORDER_KEY)||"[]")}catch(e){}
+  const own=items().map(x=>x.category).filter(Boolean);
+  const merged=[...saved,...defaultCategories(),...own];
+  return [...new Set(merged)];
+}
+function saveCategoryOrder(arr){
+  localStorage.setItem(CAT_ORDER_KEY,JSON.stringify(arr));
+}
+function allCategories(){return getCategoryOrder();}
 
 function lockBackgroundScroll(){
   modalScrollY=window.scrollY||0;
@@ -624,63 +658,33 @@ function unlockBackgroundScroll(){
   window.scrollTo(0,modalScrollY);
 }
 
-function categoryButtonHTML(c,current){
-  const safe=esc(c);
-  return `<button class="move-option ${c===current?"active":""}"
-    onclick="handleCategoryTap(event,'${safe}')"
-    ondblclick="handleCategoryDoubleClick(event,'${safe}')"
-    ontouchend="handleCategoryTouchEnd(event,'${safe}')">${safe}</button>`;
-}
-
 function openMoveCategory(id){
   moveTargetId=id;
-  renameSourceCategory=null;
-  const item=items().find(x=>x.id===id);
-  if(!item)return;
-  const list=document.getElementById("moveCategoryList");
-  list.innerHTML=allCategories().map(c=>categoryButtonHTML(c,item.category)).join("");
+  renderCategoryManager();
   document.getElementById("newCategoryInput").value="";
-  document.getElementById("renamePanel").classList.remove("show");
   document.getElementById("categoryModal").classList.add("show");
   lockBackgroundScroll();
 }
-
 function closeMoveCategory(){
   document.getElementById("categoryModal").classList.remove("show");
-  document.getElementById("renamePanel").classList.remove("show");
-  renameSourceCategory=null;
   moveTargetId=null;
   unlockBackgroundScroll();
 }
 
-function handleCategoryTap(e,category){
-  // 轻点延迟执行，给双击留出判断时间
-  e.preventDefault();
-  clearTimeout(categoryTapTimer[category]);
-  categoryTapTimer[category]=setTimeout(()=>moveItemToCategory(category),260);
-}
-function handleCategoryDoubleClick(e,category){
-  e.preventDefault();
-  e.stopPropagation();
-  clearTimeout(categoryTapTimer[category]);
-  openRenameCategory(category);
-}
-
-// iPhone Safari 对 dblclick 不稳定：用两次触摸模拟“双击”
-let lastTouchCategory=null;
-let lastTouchAt=0;
-function handleCategoryTouchEnd(e,category){
-  const now=Date.now();
-  if(lastTouchCategory===category && now-lastTouchAt<360){
-    e.preventDefault();
-    clearTimeout(categoryTapTimer[category]);
-    openRenameCategory(category);
-    lastTouchCategory=null;
-    lastTouchAt=0;
-  }else{
-    lastTouchCategory=category;
-    lastTouchAt=now;
-  }
+function renderCategoryManager(){
+  const target=items().find(x=>x.id===moveTargetId);
+  const current=target?.category||"";
+  const cats=getCategoryOrder();
+  document.getElementById("categoryManager").innerHTML=cats.map((c,i)=>`
+    <div class="category-row ${c===current?"active":""}">
+      <button class="movebtn" ${i===0?"disabled":""} onclick="moveCategoryOrder(${i},-1)">↑</button>
+      <input class="catname" value="${esc(c)}" readonly
+        onclick="moveItemToCategory('${esc(c)}')"
+        ondblclick="beginInlineRename(this,'${esc(c)}')"
+        ontouchend="handleInlineTouch(event,this,'${esc(c)}')">
+      <button class="movebtn" ${i===cats.length-1?"disabled":""} onclick="moveCategoryOrder(${i},1)">↓</button>
+    </div>
+  `).join("");
 }
 
 function moveItemToCategory(category){
@@ -691,56 +695,82 @@ function moveItemToCategory(category){
   data[idx].category=category;
   saveItems(data);
   activeCategory="全部";
-  closeMoveCategory();
+  renderCategoryManager();
   toast(`已移动到「${category}」`);
 }
 
-function openRenameCategory(category){
-  renameSourceCategory=category;
-  document.getElementById("renamePanel").classList.add("show");
-  document.getElementById("renameTitle").textContent=`将「${category}」改名为`;
-  const input=document.getElementById("renameCategoryInput");
-  input.value=category;
-  setTimeout(()=>{
-    input.focus();
-    input.setSelectionRange(0,input.value.length);
-    document.getElementById("renamePanel").scrollIntoView({behavior:"smooth",block:"nearest"});
-  },80);
+let lastInlineTouchName=null;
+let lastInlineTouchAt=0;
+function handleInlineTouch(e,el,category){
+  const now=Date.now();
+  if(lastInlineTouchName===category && now-lastInlineTouchAt<360){
+    e.preventDefault();
+    beginInlineRename(el,category);
+    lastInlineTouchName=null;
+    lastInlineTouchAt=0;
+  }else{
+    lastInlineTouchName=category;
+    lastInlineTouchAt=now;
+  }
 }
 
-function confirmRenameCategory(){
-  if(!renameSourceCategory)return;
-  const next=document.getElementById("renameCategoryInput").value.trim();
-  if(!next){toast("请输入新的分类名称");return}
-  if(next===renameSourceCategory){toast("分类名称没有变化");return}
+function beginInlineRename(el,oldName){
+  el.readOnly=false;
+  el.classList.add("editing");
+  el.focus();
+  el.select();
 
+  const finish=()=>{
+    const next=el.value.trim()||oldName;
+    el.readOnly=true;
+    el.classList.remove("editing");
+    el.onblur=null;
+    el.onkeydown=null;
+    if(next!==oldName) renameCategoryEverywhere(oldName,next);
+    else el.value=oldName;
+  };
+  el.onblur=finish;
+  el.onkeydown=(e)=>{
+    if(e.key==="Enter"){e.preventDefault();el.blur();}
+    if(e.key==="Escape"){el.value=oldName;el.blur();}
+  };
+}
+
+function renameCategoryEverywhere(oldName,next){
   const data=items();
-  let changed=0;
-  data.forEach(x=>{
-    if(x.category===renameSourceCategory){
-      x.category=next;
-      changed++;
-    }
-  });
+  data.forEach(x=>{if(x.category===oldName)x.category=next});
   saveItems(data);
 
-  if(activeCategory===renameSourceCategory) activeCategory=next;
-  const target=moveTargetId ? data.find(x=>x.id===moveTargetId) : null;
-  const current=target?.category||next;
-  document.getElementById("moveCategoryList").innerHTML=
-    allCategories().map(c=>categoryButtonHTML(c,current)).join("");
-
-  document.getElementById("renamePanel").classList.remove("show");
-  toast(changed?`已将「${renameSourceCategory}」改为「${next}」`:`分类已改名为「${next}」`);
-  renameSourceCategory=null;
+  const order=getCategoryOrder().map(c=>c===oldName?next:c);
+  saveCategoryOrder([...new Set(order)]);
+  if(activeCategory===oldName)activeCategory=next;
   render();
+  renderCategoryManager();
+  toast(`已改为「${next}」`);
+}
+
+function moveCategoryOrder(index,delta){
+  const cats=getCategoryOrder();
+  const j=index+delta;
+  if(j<0||j>=cats.length)return;
+  [cats[index],cats[j]]=[cats[j],cats[index]];
+  saveCategoryOrder(cats);
+  render();
+  renderCategoryManager();
 }
 
 function createAndMoveCategory(){
   const v=document.getElementById("newCategoryInput").value.trim();
   if(!v){toast("请输入分类名称");return}
+  const cats=getCategoryOrder();
+  if(!cats.includes(v)){
+    cats.push(v);
+    saveCategoryOrder(cats);
+  }
+  document.getElementById("newCategoryInput").value="";
   moveItemToCategory(v);
 }
+
 
 
 
