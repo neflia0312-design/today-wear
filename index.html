@@ -337,6 +337,23 @@ body.modal-locked{
   .category-row .catname{font-size:12px}
 }
 
+
+.category-row{
+  grid-template-columns:38px minmax(0,1fr) 38px 38px;
+}
+.category-row .delete-cat{
+  width:34px;height:34px;border-radius:12px;
+  background:#f8eeee;color:#9a5c5c;
+  display:grid;place-items:center;font-size:18px;
+}
+.category-row .delete-cat:disabled{opacity:.25}
+@media(max-width:390px){
+  .category-row{
+    grid-template-columns:34px minmax(0,1fr) 34px 34px;
+  }
+  .category-row .delete-cat{width:32px;height:32px}
+}
+
 @media(min-width:700px){body{padding:20px 0}.app{min-height:calc(100vh - 40px);border-radius:36px;overflow:hidden;box-shadow:0 20px 80px rgba(74,64,58,.16)}.nav{bottom:20px}.modal{align-items:center}.sheet{border-radius:30px;max-height:80vh}}
 </style>
 </head>
@@ -344,7 +361,7 @@ body.modal-locked{
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v2.0 FREE</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v2.1 FREE</small></div>
       <button class="iconbtn" onclick="toast('基础版设置已保留')">⋯</button>
     </div>
   </header>
@@ -759,6 +776,7 @@ function renderCategoryManager(){
         ondblclick="beginInlineRename(this,'${esc(c)}')"
         ontouchend="handleInlineTouch(event,this,'${esc(c)}')">
       <button class="movebtn" ${i===cats.length-1?"disabled":""} onclick="moveCategoryOrder(${i},1)">↓</button>
+      <button class="delete-cat" onclick="deleteCategory('${esc(c)}')" aria-label="删除分类">×</button>
     </div>
   `).join("");
 }
@@ -833,6 +851,32 @@ function moveCategoryOrder(index,delta){
   saveCategoryOrder(cats);
   render();
   renderCategoryManager();
+}
+
+
+function deleteCategory(category){
+  const data=items();
+  const affected=data.filter(x=>x.category===category).length;
+
+  if(affected>0){
+    const ok=confirm(`「${category}」里还有 ${affected} 件衣服。删除分类后，这些衣服会移动到「未分类」。继续吗？`);
+    if(!ok)return;
+    data.forEach(x=>{if(x.category===category)x.category="未分类";});
+    saveItems(data);
+  }else{
+    const ok=confirm(`删除分类「${category}」？`);
+    if(!ok)return;
+  }
+
+  const cats=getCategoryOrder().filter(c=>c!==category);
+  if(!cats.includes("未分类") && affected>0) cats.push("未分类");
+  saveCategoryOrder(cats);
+
+  if(activeCategory===category) activeCategory="全部";
+
+  render();
+  renderCategoryManager();
+  toast(`已删除「${category}」`);
 }
 
 function createAndMoveCategory(){
