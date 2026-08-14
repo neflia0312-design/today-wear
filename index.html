@@ -709,6 +709,57 @@ body.modal-locked{
   }
 }
 
+
+/* v2.8 衣物详情：点开大图 / 双指缩放 / 保存相册 */
+.item-detail-modal{
+  position:fixed;inset:0;z-index:10050;display:none;
+  background:rgba(246,242,239,.98);backdrop-filter:blur(18px);
+}
+.item-detail-modal.show{display:block}
+.item-detail-sheet{
+  position:absolute;inset:0;overflow:hidden;
+  padding:calc(10px + env(safe-area-inset-top)) 12px calc(14px + env(safe-area-inset-bottom));
+}
+.item-detail-head{
+  height:52px;display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+.item-detail-head h2{
+  margin:0;font-size:15px;max-width:68vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.item-detail-close,.item-detail-save{
+  width:40px;height:40px;border-radius:50%;display:grid;place-items:center;
+}
+.item-detail-close{background:#45403c;color:#fff;font-size:21px}
+.item-detail-save{background:#fff;color:#514b46;border:1px solid var(--line);font-size:17px}
+.item-detail-viewport{
+  position:absolute;
+  left:12px;right:12px;
+  top:calc(72px + env(safe-area-inset-top));
+  bottom:calc(74px + env(safe-area-inset-bottom));
+  border-radius:28px;background:#fff;overflow:hidden;
+  touch-action:none;box-shadow:var(--shadow);
+}
+.item-detail-stage{
+  width:100%;height:100%;display:grid;place-items:center;
+  transform-origin:center center;will-change:transform;
+}
+.item-detail-stage img{
+  max-width:92%;max-height:92%;object-fit:contain;user-select:none;-webkit-user-drag:none;
+}
+.item-detail-tools{
+  position:absolute;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));
+  height:52px;border-radius:20px;background:rgba(255,255,255,.94);
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  box-shadow:var(--shadow);backdrop-filter:blur(16px);
+}
+.item-detail-tools button{
+  min-width:74px;padding:10px 12px;border-radius:999px;background:#f3ece8;color:#5e5751;
+  font-size:10px;font-weight:800;
+}
+.item-detail-tools button.primary{background:#45403c;color:#fff}
+.item{cursor:pointer}
+.item .delete,.item .card-edit{z-index:3}
+
 @media(min-width:700px){body{padding:20px 0}.app{min-height:calc(100vh - 40px);border-radius:36px;overflow:hidden;box-shadow:0 20px 80px rgba(74,64,58,.16)}.nav{bottom:20px}.modal{align-items:center}.sheet{border-radius:30px;max-height:80vh}}
 </style>
 </head>
@@ -716,7 +767,7 @@ body.modal-locked{
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v2.7 STYLE DNA</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v2.8 STYLE DNA</small></div>
       <button class="iconbtn" onclick="toast('基础版设置已保留')">⋯</button>
     </div>
   </header>
@@ -969,6 +1020,28 @@ body.modal-locked{
   <button onclick="hideExternalReturnLine()" aria-label="关闭">×</button>
 </div>
 
+
+<div class="item-detail-modal" id="itemDetailModal">
+  <div class="item-detail-sheet">
+    <div class="item-detail-head">
+      <button class="item-detail-close" onclick="closeItemDetail()">×</button>
+      <h2 id="itemDetailTitle">单品</h2>
+      <button class="item-detail-save" onclick="saveCurrentItemImage()" aria-label="保存到相册">⇩</button>
+    </div>
+    <div class="item-detail-viewport" id="itemDetailViewport">
+      <div class="item-detail-stage" id="itemDetailStage">
+        <img id="itemDetailImage" alt="">
+      </div>
+    </div>
+    <div class="item-detail-tools">
+      <button onclick="zoomItemDetail(-0.25)">－</button>
+      <button onclick="resetItemDetail()">100%</button>
+      <button onclick="zoomItemDetail(0.25)">＋</button>
+      <button class="primary" onclick="saveCurrentItemImage()">保存图片</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1003,9 +1076,9 @@ function render(){
   document.querySelectorAll(".seasonbtn").forEach(b=>b.classList.toggle("active",b.textContent.trim()===activeSeason));
   const g=document.getElementById("wardrobeGrid");
   if(!shown.length){g.innerHTML=`<div class="empty" style="grid-column:1/-1"><b>你的衣橱还是空的</b>先导入一件衣服，基础版就会开始建立私人图录。</div>`;return}
-  g.innerHTML=shown.map(x=>`<div class="item">
-      <button class="card-edit" onclick="openMoveCategory('${x.id}')">修改分类</button>
-      <button class="delete" onclick="removeItem('${x.id}')">×</button>
+  g.innerHTML=shown.map(x=>`<div class="item" onclick="openItemDetail('${x.id}',event)">
+      <button class="card-edit" onclick="event.stopPropagation();openMoveCategory('${x.id}')">修改分类</button>
+      <button class="delete" onclick="event.stopPropagation();removeItem('${x.id}')">×</button>
       <div class="pic"><img src="${x.aiImage||x.image}" alt=""></div>
       <div class="meta">
         <div><b>${esc(x.name)}</b><small>${esc(x.category)} · ${esc((x.seasons||[]).join("/"))}</small></div>
@@ -1866,6 +1939,87 @@ document.getElementById("categoryModal")?.addEventListener("touchend",e=>{
   if(now-lastTouchEnd<280) e.preventDefault();
   lastTouchEnd=now;
 },{passive:false});
+
+
+let detailItemId=null;
+let detailScale=1;
+let detailX=0, detailY=0;
+let detailStartDist=0, detailStartScale=1;
+let detailDragStart=null;
+
+function openItemDetail(id,e){
+  if(e && e.target && (e.target.closest(".delete")||e.target.closest(".card-edit")))return;
+  const item=items().find(x=>x.id===id); if(!item)return;
+  detailItemId=id;
+  document.getElementById("itemDetailTitle").textContent=item.name||"单品";
+  document.getElementById("itemDetailImage").src=item.aiImage||item.image;
+  detailScale=1;detailX=0;detailY=0;applyDetailTransform();
+  document.getElementById("itemDetailModal").classList.add("show");
+  document.body.style.overflow="hidden";
+}
+function closeItemDetail(){
+  document.getElementById("itemDetailModal").classList.remove("show");
+  document.body.style.overflow="";
+  detailItemId=null;
+}
+function applyDetailTransform(){
+  document.getElementById("itemDetailStage").style.transform=`translate(${detailX}px,${detailY}px) scale(${detailScale})`;
+}
+function zoomItemDetail(delta){
+  detailScale=Math.min(4,Math.max(0.75,detailScale+delta));
+  if(detailScale<=1){detailX=0;detailY=0}
+  applyDetailTransform();
+}
+function resetItemDetail(){
+  detailScale=1;detailX=0;detailY=0;applyDetailTransform();
+}
+function touchDist(a,b){
+  const dx=a.clientX-b.clientX,dy=a.clientY-b.clientY;
+  return Math.hypot(dx,dy);
+}
+const detailViewport=document.getElementById("itemDetailViewport");
+detailViewport.addEventListener("touchstart",e=>{
+  if(e.touches.length===2){
+    detailStartDist=touchDist(e.touches[0],e.touches[1]);
+    detailStartScale=detailScale;
+  }else if(e.touches.length===1 && detailScale>1){
+    detailDragStart={x:e.touches[0].clientX-detailX,y:e.touches[0].clientY-detailY};
+  }
+},{passive:false});
+detailViewport.addEventListener("touchmove",e=>{
+  if(e.touches.length===2){
+    e.preventDefault();
+    const d=touchDist(e.touches[0],e.touches[1]);
+    detailScale=Math.min(4,Math.max(0.75,detailStartScale*(d/detailStartDist)));
+    if(detailScale<=1){detailX=0;detailY=0}
+    applyDetailTransform();
+  }else if(e.touches.length===1 && detailScale>1 && detailDragStart){
+    e.preventDefault();
+    detailX=e.touches[0].clientX-detailDragStart.x;
+    detailY=e.touches[0].clientY-detailDragStart.y;
+    applyDetailTransform();
+  }
+},{passive:false});
+detailViewport.addEventListener("touchend",e=>{
+  if(e.touches.length<2) detailStartDist=0;
+  if(e.touches.length===0) detailDragStart=null;
+},{passive:false});
+
+async function saveCurrentItemImage(){
+  const item=items().find(x=>x.id===detailItemId); if(!item)return;
+  const src=item.aiImage||item.image;
+  try{
+    const a=document.createElement("a");
+    a.href=src;
+    a.download=(item.name||"衣服")+".png";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    toast("已调用保存图片");
+  }catch(err){
+    window.open(src,"_blank");
+  }
+}
 
 render();
 renderLiveInspiration();
