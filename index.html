@@ -390,6 +390,52 @@ body.modal-locked{
   flex:0 0 auto;
 }
 
+
+.external-return-line{
+  position:fixed;
+  left:50%;
+  transform:translateX(-50%);
+  top:calc(8px + env(safe-area-inset-top));
+  width:min(492px,calc(100% - 28px));
+  z-index:90;
+  display:none;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 12px;
+  border-radius:18px;
+  background:rgba(48,44,41,.92);
+  color:#fff;
+  box-shadow:0 10px 30px rgba(40,35,32,.18);
+  backdrop-filter:blur(16px);
+}
+.external-return-line.show{display:flex}
+.external-return-line .return-main{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:0;
+  font-size:12px;
+  font-weight:720;
+}
+.external-return-line .return-main small{
+  display:block;
+  font-size:9px;
+  opacity:.68;
+  font-weight:600;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.external-return-line button{
+  flex:0 0 auto;
+  width:30px;height:30px;
+  border-radius:50%;
+  background:rgba(255,255,255,.14);
+  color:#fff;
+  display:grid;place-items:center;
+}
+
 @media(min-width:700px){body{padding:20px 0}.app{min-height:calc(100vh - 40px);border-radius:36px;overflow:hidden;box-shadow:0 20px 80px rgba(74,64,58,.16)}.nav{bottom:20px}.modal{align-items:center}.sheet{border-radius:30px;max-height:80vh}}
 </style>
 </head>
@@ -397,7 +443,7 @@ body.modal-locked{
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v2.2 FREE</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v2.3 FREE</small></div>
       <button class="iconbtn" onclick="toast('基础版设置已保留')">⋯</button>
     </div>
   </header>
@@ -529,7 +575,7 @@ body.modal-locked{
       <div class="panel">
         <div class="sectionhead" style="margin:0 0 8px"><h2>我的平台</h2><span>点击打开</span></div>
         <div class="social-links">
-          <a class="social-link" href="https://xhslink.cn/m/9Xzh1eJcWbY" target="_blank" rel="noopener noreferrer">
+          <a class="social-link" href="https://xhslink.cn/m/9Xzh1eJcWbY" onclick="return openExternalPlatform(event,'小红书',this.href)">
             <div>
               小红书
               <small>打开我的主页</small>
@@ -537,7 +583,7 @@ body.modal-locked{
             <span class="go">↗</span>
           </a>
 
-          <a class="social-link" href="https://v.douyin.com/7tcmToTE1LA/" target="_blank" rel="noopener noreferrer">
+          <a class="social-link" href="https://v.douyin.com/7tcmToTE1LA/" onclick="return openExternalPlatform(event,'抖音',this.href)">
             <div>
               抖音
               <small>打开我的主页</small>
@@ -545,7 +591,7 @@ body.modal-locked{
             <span class="go">↗</span>
           </a>
 
-          <a class="social-link" href="https://www.instagram.com/neflia_?igsh=MXR2a2Yxa204eXJzdw%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer">
+          <a class="social-link" href="https://www.instagram.com/neflia_?igsh=MXR2a2Yxa204eXJzdw%3D%3D&utm_source=qr" onclick="return openExternalPlatform(event,'Instagram',this.href)">
             <div>
               Instagram
               <small>@neflia_</small>
@@ -588,6 +634,18 @@ body.modal-locked{
       <button onclick="createAndMoveCategory()">新建并移动</button>
     </div>
   </div>
+</div>
+
+
+<div class="external-return-line" id="externalReturnLine">
+  <div class="return-main">
+    <span>←</span>
+    <div>
+      返回「今天穿什么」
+      <small id="externalReturnPlatform">外部平台已打开</small>
+    </div>
+  </div>
+  <button onclick="hideExternalReturnLine()" aria-label="关闭">×</button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -985,6 +1043,39 @@ document.getElementById("categoryModal").addEventListener("touchmove",e=>{
   if(e.target===document.getElementById("categoryModal")) e.preventDefault();
 },{passive:false});
 
+
+
+function showExternalReturnLine(platform){
+  const bar=document.getElementById("externalReturnLine");
+  document.getElementById("externalReturnPlatform").textContent=`已打开 ${platform}`;
+  bar.classList.add("show");
+  sessionStorage.setItem("today_wear_external_platform",platform);
+}
+function hideExternalReturnLine(){
+  document.getElementById("externalReturnLine").classList.remove("show");
+  sessionStorage.removeItem("today_wear_external_platform");
+}
+function openExternalPlatform(e,platform,url){
+  e.preventDefault();
+  showExternalReturnLine(platform);
+
+  // 新窗口/新标签打开，保留“今天穿什么”本身，
+  // 这样回到上一标签或主屏幕 App 时无需重新加载衣橱。
+  const w=window.open(url,"_blank","noopener,noreferrer");
+  if(!w){
+    // 浏览器阻止新窗口时退回当前页面跳转，系统返回键仍可回 App。
+    window.location.href=url;
+  }
+  return false;
+}
+window.addEventListener("pageshow",()=>{
+  const p=sessionStorage.getItem("today_wear_external_platform");
+  if(p) showExternalReturnLine(p);
+});
+window.addEventListener("focus",()=>{
+  const p=sessionStorage.getItem("today_wear_external_platform");
+  if(p) showExternalReturnLine(p);
+});
 
 render();
 const stored = localStorage.getItem(PREF_KEY);
