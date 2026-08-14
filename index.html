@@ -354,6 +354,42 @@ body.modal-locked{
   .category-row .delete-cat{width:32px;height:32px}
 }
 
+
+.social-links{
+  display:grid;
+  gap:10px;
+  margin-top:12px;
+}
+.social-link{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:14px 15px;
+  border-radius:18px;
+  background:#fff;
+  color:#4f4944;
+  text-decoration:none;
+  box-shadow:inset 0 0 0 1px var(--line);
+  font-size:13px;
+  font-weight:720;
+}
+.social-link small{
+  display:block;
+  margin-top:2px;
+  color:#958e87;
+  font-size:9px;
+  font-weight:600;
+}
+.social-link .go{
+  width:30px;height:30px;border-radius:50%;
+  background:#f3ece8;
+  display:grid;place-items:center;
+  font-size:14px;
+  flex:0 0 auto;
+}
+
 @media(min-width:700px){body{padding:20px 0}.app{min-height:calc(100vh - 40px);border-radius:36px;overflow:hidden;box-shadow:0 20px 80px rgba(74,64,58,.16)}.nav{bottom:20px}.modal{align-items:center}.sheet{border-radius:30px;max-height:80vh}}
 </style>
 </head>
@@ -361,7 +397,7 @@ body.modal-locked{
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v2.1 FREE</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v2.2 FREE</small></div>
       <button class="iconbtn" onclick="toast('基础版设置已保留')">⋯</button>
     </div>
   </header>
@@ -491,14 +527,32 @@ body.modal-locked{
       <div class="trend"><div class="trend-art" style="background:linear-gradient(145deg,#b7b2ae,#e8d9db)"></div><div><h3>Neo-Y2K Softness</h3><p>格纹迷你裙、短上衣、蝴蝶结与金属细节回归，但轮廓更轻、更干净。</p></div></div>
 
       <div class="panel">
-        <div class="sectionhead" style="margin:0 0 8px"><h2>我的平台</h2><span>正式版将支持连接</span></div>
-        <div class="platforms">
-          <button class="chip" onclick="toast('Instagram 连接入口将在正式版开放')">Instagram</button>
-          <button class="chip" onclick="toast('小红书连接入口将在正式版开放')">小红书</button>
-          <button class="chip" onclick="toast('TikTok 连接入口将在正式版开放')">TikTok</button>
-          <button class="chip" onclick="toast('抖音连接入口将在正式版开放')">抖音</button>
+        <div class="sectionhead" style="margin:0 0 8px"><h2>我的平台</h2><span>点击打开</span></div>
+        <div class="social-links">
+          <a class="social-link" href="https://xhslink.cn/m/9Xzh1eJcWbY" target="_blank" rel="noopener noreferrer">
+            <div>
+              小红书
+              <small>打开我的主页</small>
+            </div>
+            <span class="go">↗</span>
+          </a>
+
+          <a class="social-link" href="https://v.douyin.com/7tcmToTE1LA/" target="_blank" rel="noopener noreferrer">
+            <div>
+              抖音
+              <small>打开我的主页</small>
+            </div>
+            <span class="go">↗</span>
+          </a>
+
+          <a class="social-link" href="https://www.instagram.com/neflia_?igsh=MXR2a2Yxa204eXJzdw%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer">
+            <div>
+              Instagram
+              <small>@neflia_</small>
+            </div>
+            <span class="go">↗</span>
+          </a>
         </div>
-        <div class="note">这一页正式版会把“奢侈品牌趋势 / 秀场 / 社媒审美 / 你的个人账号收藏”拆成不同来源，避免把营销热门和真正的风格趋势混在一起。</div>
       </div>
     </section>
   </main>
