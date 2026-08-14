@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <meta name="theme-color" content="#F1DBDB" />
@@ -767,7 +767,7 @@ body.modal-locked{
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v2.8 STYLE DNA</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v2.9 STYLE DNA</small></div>
       <button class="iconbtn" onclick="toast('基础版设置已保留')">⋯</button>
     </div>
   </header>
@@ -1652,16 +1652,82 @@ function toggleBatchSeason(i,se,on){
   if(!on)a=a.filter(x=>x!==se);
   pendingBatch[i].seasons=a;
 }
-function confirmBatchImport(){
+function dataUrlBytes(url){
+  if(!url||typeof url!=="string")return 0;
+  const comma=url.indexOf(",");
+  if(comma<0)return url.length;
+  return Math.ceil((url.length-comma-1)*3/4);
+}
+function compressDataUrl(src,maxSide=820,quality=.82){
+  return new Promise((resolve,reject)=>{
+    if(!src||typeof src!=="string"||!src.startsWith("data:image/")){resolve(src);return}
+    const img=new Image();
+    img.onload=()=>{
+      try{
+        const scale=Math.min(1,maxSide/Math.max(img.naturalWidth||img.width,img.naturalHeight||img.height));
+        const w=Math.max(1,Math.round((img.naturalWidth||img.width)*scale));
+        const h=Math.max(1,Math.round((img.naturalHeight||img.height)*scale));
+        const c=document.createElement("canvas"); c.width=w;c.height=h;
+        const ctx=c.getContext("2d");
+        ctx.fillStyle="#fff";ctx.fillRect(0,0,w,h);ctx.drawImage(img,0,0,w,h);
+        resolve(c.toDataURL("image/jpeg",quality));
+      }catch(err){resolve(src)}
+    };
+    img.onerror=()=>resolve(src);
+    img.src=src;
+  });
+}
+async function compactIncomingItem(x){
+  const out={...x};
+  const aiSrc=x.aiImage||x.image;
+  const originalSrc=x.image||x.aiImage;
+  // 批量素材只保留一份经过压缩的白底图，避免同一图片在 image/aiImage 中重复占用 localStorage。
+  const compact=await compressDataUrl(aiSrc,820,.82);
+  out.aiImage=compact;
+  out.image=compact;
+  return out;
+}
+function mergeWithoutReset(existing,incoming){
+  const seen=new Set(existing.map(x=>x.id));
+  const safeIncoming=incoming.map((x,i)=>{
+    let id=x.id||("pkg_"+Date.now().toString(36)+"_"+i);
+    if(seen.has(id)) id=id+"_"+Date.now().toString(36)+"_"+i;
+    seen.add(id);
+    return {...x,id};
+  });
+  // 新导入在前，原有衣橱完整保留在后；绝不清空旧数据。
+  return [...safeIncoming,...existing];
+}
+async function confirmBatchImport(){
   if(!pendingBatch.length){toast("没有待导入素材");return}
   if(pendingBatch.some(x=>!x.seasons.length)){toast("每件衣服至少选择一个季节");return}
-  const data=items();
-  saveItems([...pendingBatch,...data]);
-  const n=pendingBatch.length;
-  pendingBatch=[];
-  document.getElementById("batchPreview").classList.remove("show");
-  toast(`已导入 ${n} 件衣服`);
-  activateTab("wardrobe");
+  const btn=document.querySelector('#batchPreview .btn');
+  const oldText=btn?btn.textContent:"";
+  if(btn){btn.disabled=true;btn.textContent="正在加入…"}
+  try{
+    const existing=items();
+    const compacted=[];
+    for(const x of pendingBatch) compacted.push(await compactIncomingItem(x));
+    const merged=mergeWithoutReset(existing,compacted);
+    try{
+      localStorage.setItem(LS_KEY,JSON.stringify(merged));
+    }catch(err){
+      if(err && (err.name==="QuotaExceededError"||err.code===22||err.code===1014)){
+        throw new Error("本机浏览器存储空间不足。原有衣橱没有被删除，请减少单次素材数量后重试。");
+      }
+      throw err;
+    }
+    const n=compacted.length;
+    pendingBatch=[];
+    document.getElementById("batchPreview").classList.remove("show");
+    render();
+    toast(`已加入 ${n} 件，原有衣橱已保留`);
+    activateTab("wardrobe");
+  }catch(err){
+    alert(err.message||"导入失败，原有衣橱未改动");
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent=oldText||"确认全部加入衣橱"}
+  }
 }
 
 
