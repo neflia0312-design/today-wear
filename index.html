@@ -1177,6 +1177,83 @@ input[type="search"]:focus,
   color:#716963 !important;
 }
 
+
+/* v3.7 分类管理：独立滚动 + 底部导航可切页 */
+#categoryModal{
+  position:fixed !important;
+  inset:0 !important;
+  width:100vw !important;
+  height:100dvh !important;
+  z-index:12000 !important;
+  background:#fcfaf8 !important;
+  display:none;
+  overflow:hidden !important;
+  pointer-events:auto !important;
+}
+#categoryModal.show{display:block !important;}
+
+#categoryModal .sheet{
+  position:absolute !important;
+  inset:0 0 calc(82px + env(safe-area-inset-bottom)) 0 !important;
+  height:auto !important;
+  max-height:none !important;
+  border-radius:0 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  overflow:hidden !important;
+  padding:
+    calc(12px + env(safe-area-inset-top))
+    14px
+    12px !important;
+  background:#fcfaf8 !important;
+  pointer-events:auto !important;
+}
+
+#categoryModal .category-sheet-head{
+  flex:0 0 auto !important;
+}
+
+#categoryManager{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  -webkit-overflow-scrolling:touch !important;
+  overscroll-behavior:contain !important;
+  touch-action:pan-y !important;
+  padding-bottom:160px !important;
+}
+
+.category-manager-footer{
+  position:sticky !important;
+  bottom:0 !important;
+  z-index:25 !important;
+  flex:0 0 auto !important;
+  background:linear-gradient(to bottom,rgba(252,250,248,.88),#fcfaf8 34%) !important;
+  backdrop-filter:blur(12px);
+  padding:12px 0 8px !important;
+  margin-top:0 !important;
+}
+
+.category-manager-footer .custom-cat-row{
+  margin-top:0 !important;
+}
+
+/* 底部导航始终高于分类弹层的内容区，并且可点击 */
+.nav{
+  z-index:30000 !important;
+  pointer-events:auto !important;
+}
+.nav button{
+  pointer-events:auto !important;
+  touch-action:manipulation !important;
+}
+
+/* 分类弹层打开时，底部导航仍然显示并可切页 */
+body.category-modal-open .nav{
+  display:flex !important;
+}
+
 @media(min-width:700px){body{padding:20px 0}.app{min-height:calc(100vh - 40px);border-radius:36px;overflow:hidden;box-shadow:0 20px 80px rgba(74,64,58,.16)}.nav{bottom:20px}.modal{align-items:center}.sheet{border-radius:30px;max-height:80vh}}
 </style>
 </head>
@@ -1184,7 +1261,7 @@ input[type="search"]:focus,
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v3.6 STYLE DNA</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v3.7 STYLE DNA</small></div>
       <button class="iconbtn" onclick="toast('基础版设置已保留')">⋯</button>
     </div>
   </header>
@@ -1398,10 +1475,10 @@ input[type="search"]:focus,
     </div>
     <div class="category-sheet-sub" id="categorySheetSub">轻点名称即可原地改名 · ↑↓ 只由箭头排序 · × 只删除分类，不删除素材</div>
     <div class="category-manager" id="categoryManager"></div>
-    <div class="custom-cat-row">
+    <div class="category-manager-footer"><div class="custom-cat-row">
       <input id="newCategoryInput" placeholder="新增分类">
       <button onclick="createAndMoveCategory()">＋</button>
-    </div>
+    </div></div>
   </div>
 </div>
 
@@ -2199,7 +2276,16 @@ function unlockBackgroundScroll(){
 }
 
 function openCategoryManager(){
-  openMoveCategory(null);
+  moveTargetId=null;
+  const modal=document.getElementById("categoryModal");
+  modal.classList.add("show");
+  document.body.classList.add("category-modal-open");
+  document.body.style.overflow="hidden";
+  renderCategoryManager();
+  requestAnimationFrame(()=>{
+    const list=document.getElementById("categoryManager");
+    if(list) list.scrollTop=0;
+  });
 }
 
 function openMoveCategory(id){
