@@ -594,6 +594,121 @@ body.modal-locked{
 .outfit-missing{display:grid;place-items:center;text-align:center;height:100%;min-height:90px;color:#aaa19a;font-size:9px;border:1px dashed #ddd4cf;border-radius:10px}
 .dna-local-note{font-size:9px;line-height:1.5;color:#9a928b;margin-top:9px}
 
+
+/* v2.7 分类页：固定返回 + 删除 + 防 iOS 自动放大 */
+#categoryModal{
+  position:fixed !important;
+  inset:0 !important;
+  width:100vw !important;
+  height:100dvh !important;
+  z-index:9999 !important;
+  background:#fcfaf8 !important;
+  display:none;
+  overflow:hidden !important;
+}
+#categoryModal.show{display:block !important}
+
+#categoryModal .sheet{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  max-height:none !important;
+  border-radius:0 !important;
+  padding:
+    calc(12px + env(safe-area-inset-top))
+    14px
+    calc(24px + env(safe-area-inset-bottom)) !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  touch-action:pan-y;
+  background:#fcfaf8;
+}
+
+.category-sheet-head{
+  position:sticky !important;
+  top:calc(-12px - env(safe-area-inset-top)) !important;
+  z-index:50 !important;
+  margin:
+    calc(-12px - env(safe-area-inset-top))
+    -14px
+    12px !important;
+  padding:
+    calc(14px + env(safe-area-inset-top))
+    14px
+    12px !important;
+  background:rgba(252,250,248,.98) !important;
+  backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.category-sheet-head h2{margin:0;font-size:22px}
+
+.category-back-fixed{
+  position:fixed;
+  top:calc(12px + env(safe-area-inset-top));
+  right:14px;
+  width:42px;height:42px;border-radius:50%;
+  background:#453f3b;color:#fff;
+  display:grid;place-items:center;
+  z-index:10020;
+  font-size:22px;
+  box-shadow:0 8px 24px rgba(0,0,0,.16);
+}
+
+.category-row{
+  grid-template-columns:38px minmax(0,1fr) 38px 38px !important;
+  gap:7px !important;
+}
+.category-row .movebtn,
+.category-row .delete-cat{
+  width:34px !important;
+  height:34px !important;
+  border-radius:12px !important;
+}
+.category-row .delete-cat{
+  display:grid !important;
+  place-items:center !important;
+  background:#f6e9e9 !important;
+  color:#9b5a5a !important;
+  font-size:18px !important;
+  font-weight:800;
+}
+.category-row .catname{
+  min-width:0 !important;
+  width:100% !important;
+  font-size:16px !important; /* 避免 iOS 聚焦输入框时自动放大 */
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+#brandSearchInput,
+#newCategoryInput,
+#customBrandName,
+#customBrandUrl,
+#renameCategoryInput,
+.category-row input,
+.field input,
+.field select{
+  font-size:16px !important; /* iOS Safari: 小于16px可能触发自动缩放 */
+}
+
+@media(max-width:390px){
+  .category-row{
+    grid-template-columns:34px minmax(0,1fr) 34px 34px !important;
+    gap:5px !important;
+  }
+  .category-row .movebtn,
+  .category-row .delete-cat{
+    width:32px !important;height:32px !important;
+  }
+}
+
 @media(min-width:700px){body{padding:20px 0}.app{min-height:calc(100vh - 40px);border-radius:36px;overflow:hidden;box-shadow:0 20px 80px rgba(74,64,58,.16)}.nav{bottom:20px}.modal{align-items:center}.sheet{border-radius:30px;max-height:80vh}}
 </style>
 </head>
@@ -601,7 +716,7 @@ body.modal-locked{
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v2.6 STYLE DNA</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v2.7 STYLE DNA</small></div>
       <button class="iconbtn" onclick="toast('基础版设置已保留')">⋯</button>
     </div>
   </header>
@@ -807,6 +922,7 @@ body.modal-locked{
 
 
 <div class="modal" id="categoryModal">
+  <button class="category-back-fixed" onclick="closeMoveCategory()" aria-label="返回衣橱">×</button>
   <div class="sheet">
     <div class="category-sheet-head">
       <h2>分类</h2>
@@ -1729,6 +1845,27 @@ window.addEventListener("focus",()=>{
   const p=sessionStorage.getItem("today_wear_external_platform");
   if(p) showExternalReturnLine(p);
 });
+
+
+document.addEventListener("gesturestart",e=>{
+  const m=document.getElementById("categoryModal");
+  if(m && m.classList.contains("show")) e.preventDefault();
+},{passive:false});
+document.addEventListener("gesturechange",e=>{
+  const m=document.getElementById("categoryModal");
+  if(m && m.classList.contains("show")) e.preventDefault();
+},{passive:false});
+document.addEventListener("gestureend",e=>{
+  const m=document.getElementById("categoryModal");
+  if(m && m.classList.contains("show")) e.preventDefault();
+},{passive:false});
+
+let lastTouchEnd=0;
+document.getElementById("categoryModal")?.addEventListener("touchend",e=>{
+  const now=Date.now();
+  if(now-lastTouchEnd<280) e.preventDefault();
+  lastTouchEnd=now;
+},{passive:false});
 
 render();
 renderLiveInspiration();
