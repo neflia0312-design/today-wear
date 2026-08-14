@@ -809,6 +809,47 @@ body.modal-locked{
 .category-row .catname{touch-action:manipulation;position:relative;z-index:2}
 .category-row .catmeta{pointer-events:none}
 
+
+/* v3.3 分类名称双击改名交互修复 */
+.category-name-wrap{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:42px;
+  border-radius:12px;
+  position:relative;
+  z-index:2;
+  touch-action:manipulation;
+  -webkit-user-select:none;
+  user-select:none;
+}
+.category-name-text{
+  width:100%;
+  text-align:center;
+  font-size:16px;
+  color:#4f4944;
+  font-weight:700;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  padding:8px 4px;
+}
+.category-name-editor{
+  width:100%;
+  min-width:0;
+  border:0;
+  outline:none;
+  background:#fbf7f4;
+  box-shadow:inset 0 0 0 1px var(--line);
+  text-align:center;
+  font-size:16px !important;
+  color:#4f4944;
+  font-weight:700;
+  padding:8px 6px;
+  border-radius:12px;
+}
+
 @media(min-width:700px){body{padding:20px 0}.app{min-height:calc(100vh - 40px);border-radius:36px;overflow:hidden;box-shadow:0 20px 80px rgba(74,64,58,.16)}.nav{bottom:20px}.modal{align-items:center}.sheet{border-radius:30px;max-height:80vh}}
 </style>
 </head>
@@ -816,7 +857,7 @@ body.modal-locked{
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v3.2 STYLE DNA</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v3.3 STYLE DNA</small></div>
       <button class="iconbtn" onclick="toast('基础版设置已保留')">⋯</button>
     </div>
   </header>
@@ -1028,7 +1069,7 @@ body.modal-locked{
       <h2>分类</h2>
       <button class="category-sheet-close" onclick="closeMoveCategory()" aria-label="返回衣橱">×</button>
     </div>
-    <div class="category-sheet-sub" id="categorySheetSub">双击名称改名 · ↑↓ 仅由箭头排序 · × 只删除分类，不删除素材</div>
+    <div class="category-sheet-sub" id="categorySheetSub">双击名称原地改名 · ↑↓ 只由箭头排序 · × 只删除分类，不删除素材</div>
     <div class="category-manager" id="categoryManager"></div>
     <div class="custom-cat-row">
       <input id="newCategoryInput" placeholder="新增分类">
@@ -1862,20 +1903,30 @@ function renderCategoryManager(){
   const box=document.getElementById("categoryManager");
   const sub=document.getElementById("categorySheetSub");
   if(sub) sub.textContent=moveTargetId
-    ? "轻点名称移动当前素材 · 双击名称改名 · ↑↓ 仅由箭头排序 · × 不删除素材"
-    : "双击名称改名 · ↑↓ 仅由箭头排序 · × 只删除分类，不删除素材";
+    ? "轻点名称移动当前素材 · 双击名称原地改名 · ↑↓ 只由箭头排序 · × 不删除素材"
+    : "双击名称原地改名 · ↑↓ 只由箭头排序 · × 只删除分类，不删除素材";
   if(!cats.length){
     box.innerHTML=`<div class="empty"><b>暂无分类</b>新增分类后可用于筛选衣橱。</div>`;
     return;
   }
   box.innerHTML=cats.map((c,i)=>`
     <div class="category-row ${c===current?"active":""}" data-category="${esc(c)}">
-      <button class="movebtn" ${i===0?"disabled":""} onclick="event.stopPropagation();moveCategoryOrder(${i},-1)">↑</button>
-      <input class="catname" value="${esc(c)}" readonly
-        onclick="event.stopPropagation();handleCategoryNameTap(event,this,'${esc(c)}')"
-        ondblclick="event.stopPropagation();handleCategoryNameDoubleTap(event,this,'${esc(c)}')">
-      <button class="movebtn" ${i===cats.length-1?"disabled":""} onclick="event.stopPropagation();moveCategoryOrder(${i},1)">↓</button>
-      <button class="delete-cat" onclick="event.stopPropagation();deleteCategory('${esc(c)}')" aria-label="删除分类">×</button>
+      <button class="movebtn" ${i===0?"disabled":""}
+        onclick="event.stopPropagation();moveCategoryOrder(${i},-1)">↑</button>
+
+      <div class="category-name-wrap"
+        data-name="${esc(c)}"
+        onclick="handleCategoryNameTapV33(event,this,'${esc(c)}')">
+        <div class="category-name-text">${esc(c)}</div>
+      </div>
+
+      <button class="movebtn" ${i===cats.length-1?"disabled":""}
+        onclick="event.stopPropagation();moveCategoryOrder(${i},1)">↓</button>
+
+      <button class="delete-cat"
+        onclick="event.stopPropagation();deleteCategory('${esc(c)}')"
+        aria-label="删除分类">×</button>
+
       <div class="catmeta">${counts[c]||0} 件</div>
     </div>
   `).join("");
@@ -1893,56 +1944,73 @@ function moveItemToCategory(category){
   toast(`已移动到「${category}」`);
 }
 
-let categoryNameTapTimer=null;
-let categoryNameLastTapAt=0;
-let categoryNameLastTapName="";
-function handleCategoryNameTap(e,el,category){
+
+let categoryTapState={name:"",time:0,timer:null};
+
+function handleCategoryNameTapV33(e,wrap,category){
+  e.stopPropagation();
   const now=Date.now();
-  const isDouble=(categoryNameLastTapName===category && now-categoryNameLastTapAt<340);
-  categoryNameLastTapAt=now;
-  categoryNameLastTapName=category;
+  const isDouble=categoryTapState.name===category && (now-categoryTapState.time)<=420;
+
   if(isDouble){
-    clearTimeout(categoryNameTapTimer);
-    categoryNameTapTimer=null;
-    beginInlineRename(el,category);
-    categoryNameLastTapAt=0;
-    categoryNameLastTapName="";
+    if(categoryTapState.timer) clearTimeout(categoryTapState.timer);
+    categoryTapState={name:"",time:0,timer:null};
+    beginInlineRenameV33(wrap,category);
     return;
   }
-  clearTimeout(categoryNameTapTimer);
-  categoryNameTapTimer=setTimeout(()=>{
+
+  if(categoryTapState.timer) clearTimeout(categoryTapState.timer);
+  categoryTapState.name=category;
+  categoryTapState.time=now;
+
+  // 单击只有在“修改某件衣服分类”时才执行移动。
+  // 普通分类管理页面单击名称不做任何排序或移动。
+  categoryTapState.timer=setTimeout(()=>{
     if(moveTargetId) moveItemToCategory(category);
-    categoryNameTapTimer=null;
-  },360);
-}
-function handleCategoryNameDoubleTap(e,el,category){
-  clearTimeout(categoryNameTapTimer);
-  categoryNameTapTimer=null;
-  categoryNameLastTapAt=0;
-  categoryNameLastTapName="";
-  beginInlineRename(el,category);
+    categoryTapState={name:"",time:0,timer:null};
+  },430);
 }
 
-function beginInlineRename(el,oldName){
-  el.readOnly=false;
-  el.classList.add("editing");
-  el.focus();
-  el.select();
+function beginInlineRenameV33(wrap,oldName){
+  if(wrap.querySelector("input")) return;
 
-  const finish=()=>{
-    const next=el.value.trim()||oldName;
-    el.readOnly=true;
-    el.classList.remove("editing");
-    el.onblur=null;
-    el.onkeydown=null;
-    if(next!==oldName) renameCategoryEverywhere(oldName,next);
-    else el.value=oldName;
+  const input=document.createElement("input");
+  input.className="category-name-editor";
+  input.value=oldName;
+
+  wrap.innerHTML="";
+  wrap.appendChild(input);
+
+  requestAnimationFrame(()=>{
+    input.focus();
+    input.setSelectionRange(0,input.value.length);
+  });
+
+  let finished=false;
+  const finish=(commit=true)=>{
+    if(finished)return;
+    finished=true;
+
+    const next=(commit ? input.value.trim() : oldName) || oldName;
+    if(next!==oldName){
+      renameCategoryEverywhere(oldName,next);
+    }else{
+      renderCategoryManager();
+    }
   };
-  el.onblur=finish;
-  el.onkeydown=(e)=>{
-    if(e.key==="Enter"){e.preventDefault();el.blur();}
-    if(e.key==="Escape"){el.value=oldName;el.blur();}
-  };
+
+  input.addEventListener("click",ev=>ev.stopPropagation());
+  input.addEventListener("touchend",ev=>ev.stopPropagation(),{passive:true});
+  input.addEventListener("blur",()=>finish(true),{once:true});
+  input.addEventListener("keydown",ev=>{
+    if(ev.key==="Enter"){
+      ev.preventDefault();
+      input.blur();
+    }else if(ev.key==="Escape"){
+      ev.preventDefault();
+      finish(false);
+    }
+  });
 }
 
 function renameCategoryEverywhere(oldName,next){
