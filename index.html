@@ -850,6 +850,28 @@ body.modal-locked{
   border-radius:12px;
 }
 
+
+/* v3.4 分类入口与改名交互 */
+.q.q-clickable{
+  appearance:none;
+  border:0;
+  font:inherit;
+  text-align:left;
+  cursor:pointer;
+  touch-action:manipulation;
+}
+.q.q-clickable:active{transform:scale(.985)}
+
+.category-name-wrap{
+  cursor:text;
+}
+.category-name-wrap.editable-manager{
+  background:transparent;
+}
+.category-name-wrap.editable-manager:active{
+  background:#f7f1ed;
+}
+
 @media(min-width:700px){body{padding:20px 0}.app{min-height:calc(100vh - 40px);border-radius:36px;overflow:hidden;box-shadow:0 20px 80px rgba(74,64,58,.16)}.nav{bottom:20px}.modal{align-items:center}.sheet{border-radius:30px;max-height:80vh}}
 </style>
 </head>
@@ -857,7 +879,7 @@ body.modal-locked{
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v3.3 STYLE DNA</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v3.4 STYLE DNA</small></div>
       <button class="iconbtn" onclick="toast('基础版设置已保留')">⋯</button>
     </div>
   </header>
@@ -875,7 +897,7 @@ body.modal-locked{
 
       <div class="quick">
         <div class="q"><b id="countAll">0</b><span>已录入单品</span></div>
-        <div class="q"><b id="countCats">0</b><span>已建立分类</span></div>
+        <button class="q q-clickable" onclick="openCategoryManager()"><b id="countCats">0</b><span>已建立分类　›</span></button>
         <div class="q"><b id="countFav">0</b><span>近期偏爱</span></div>
       </div>
 
@@ -1069,7 +1091,7 @@ body.modal-locked{
       <h2>分类</h2>
       <button class="category-sheet-close" onclick="closeMoveCategory()" aria-label="返回衣橱">×</button>
     </div>
-    <div class="category-sheet-sub" id="categorySheetSub">双击名称原地改名 · ↑↓ 只由箭头排序 · × 只删除分类，不删除素材</div>
+    <div class="category-sheet-sub" id="categorySheetSub">轻点名称即可原地改名 · ↑↓ 只由箭头排序 · × 只删除分类，不删除素材</div>
     <div class="category-manager" id="categoryManager"></div>
     <div class="custom-cat-row">
       <input id="newCategoryInput" placeholder="新增分类">
@@ -1903,8 +1925,8 @@ function renderCategoryManager(){
   const box=document.getElementById("categoryManager");
   const sub=document.getElementById("categorySheetSub");
   if(sub) sub.textContent=moveTargetId
-    ? "轻点名称移动当前素材 · 双击名称原地改名 · ↑↓ 只由箭头排序 · × 不删除素材"
-    : "双击名称原地改名 · ↑↓ 只由箭头排序 · × 只删除分类，不删除素材";
+    ? "轻点名称移动当前素材 · 双击名称可改名 · ↑↓ 只由箭头排序 · × 不删除素材"
+    : "轻点名称即可原地改名 · ↑↓ 只由箭头排序 · × 只删除分类，不删除素材";
   if(!cats.length){
     box.innerHTML=`<div class="empty"><b>暂无分类</b>新增分类后可用于筛选衣橱。</div>`;
     return;
@@ -1914,9 +1936,10 @@ function renderCategoryManager(){
       <button class="movebtn" ${i===0?"disabled":""}
         onclick="event.stopPropagation();moveCategoryOrder(${i},-1)">↑</button>
 
-      <div class="category-name-wrap"
+      <div class="category-name-wrap ${moveTargetId?"":"editable-manager"}"
         data-name="${esc(c)}"
-        onclick="handleCategoryNameTapV33(event,this,'${esc(c)}')">
+        onclick="handleCategoryNameTapV34(event,this,'${esc(c)}')"
+        ondblclick="event.preventDefault();event.stopPropagation();beginInlineRenameV34(this,'${esc(c)}')">
         <div class="category-name-text">${esc(c)}</div>
       </div>
 
@@ -1945,52 +1968,62 @@ function moveItemToCategory(category){
 }
 
 
+
 let categoryTapState={name:"",time:0,timer:null};
 
-function handleCategoryNameTapV33(e,wrap,category){
+function handleCategoryNameTapV34(e,wrap,category){
+  e.preventDefault();
   e.stopPropagation();
+
+  // 独立分类管理：轻点名称即可进入原地编辑，不再依赖 iPhone 双击识别。
+  if(!moveTargetId){
+    beginInlineRenameV34(wrap,category);
+    return;
+  }
+
+  // 给某件素材修改分类时：
+  // 单击 = 移动到该分类；短时间内第二击 = 改名。
   const now=Date.now();
   const isDouble=categoryTapState.name===category && (now-categoryTapState.time)<=420;
 
   if(isDouble){
     if(categoryTapState.timer) clearTimeout(categoryTapState.timer);
     categoryTapState={name:"",time:0,timer:null};
-    beginInlineRenameV33(wrap,category);
+    beginInlineRenameV34(wrap,category);
     return;
   }
 
   if(categoryTapState.timer) clearTimeout(categoryTapState.timer);
   categoryTapState.name=category;
   categoryTapState.time=now;
-
-  // 单击只有在“修改某件衣服分类”时才执行移动。
-  // 普通分类管理页面单击名称不做任何排序或移动。
   categoryTapState.timer=setTimeout(()=>{
-    if(moveTargetId) moveItemToCategory(category);
+    moveItemToCategory(category);
     categoryTapState={name:"",time:0,timer:null};
   },430);
 }
 
-function beginInlineRenameV33(wrap,oldName){
-  if(wrap.querySelector("input")) return;
+function beginInlineRenameV34(wrap,oldName){
+  if(!wrap || wrap.querySelector("input")) return;
 
   const input=document.createElement("input");
   input.className="category-name-editor";
   input.value=oldName;
+  input.setAttribute("aria-label","修改分类名称");
+  input.autocomplete="off";
+  input.autocapitalize="off";
+  input.spellcheck=false;
 
-  wrap.innerHTML="";
-  wrap.appendChild(input);
+  wrap.replaceChildren(input);
 
   requestAnimationFrame(()=>{
-    input.focus();
-    input.setSelectionRange(0,input.value.length);
+    input.focus({preventScroll:true});
+    try{input.setSelectionRange(0,input.value.length)}catch(e){}
   });
 
   let finished=false;
   const finish=(commit=true)=>{
     if(finished)return;
     finished=true;
-
     const next=(commit ? input.value.trim() : oldName) || oldName;
     if(next!==oldName){
       renameCategoryEverywhere(oldName,next);
@@ -1999,8 +2032,10 @@ function beginInlineRenameV33(wrap,oldName){
     }
   };
 
-  input.addEventListener("click",ev=>ev.stopPropagation());
-  input.addEventListener("touchend",ev=>ev.stopPropagation(),{passive:true});
+  ["click","pointerdown","touchstart","touchend"].forEach(type=>{
+    input.addEventListener(type,ev=>ev.stopPropagation(),{passive:type==="touchstart"||type==="touchend"});
+  });
+
   input.addEventListener("blur",()=>finish(true),{once:true});
   input.addEventListener("keydown",ev=>{
     if(ev.key==="Enter"){
