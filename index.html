@@ -1346,7 +1346,7 @@ body.category-modal-open .nav{
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v4.5 STYLE DNA</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v4.6 STYLE DNA</small></div>
       <button class="iconbtn" onclick="openDataSettings()">⋯</button>
     </div>
   </header>
@@ -1763,6 +1763,34 @@ let activeSeason = "全部";
 let __itemsCache = [];
 let __dbPromise = null;
 
+let __saveQueue = Promise.resolve();
+let __storageReady = false;
+
+async function verifyIndexedDBWrite(expected){
+  const stored = await idbGetAllItems();
+  if(stored.length !== expected.length){
+    throw new Error(`写入校验失败：应有 ${expected.length} 件，实际 ${stored.length} 件`);
+  }
+  const expectedIds = new Set(expected.map(x=>String(x.id)));
+  for(const x of stored){
+    if(!expectedIds.has(String(x.id))){
+      throw new Error("写入校验失败：衣橱数据不一致");
+    }
+  }
+  return stored;
+}
+
+function queueWardrobeSave(snapshot){
+  const data = Array.isArray(snapshot) ? snapshot.map(x=>({...x})) : [];
+  __saveQueue = __saveQueue.then(async()=>{
+    await idbReplaceAllItems(data);
+    const verified = await verifyIndexedDBWrite(data);
+    return verified;
+  });
+  return __saveQueue;
+}
+
+
 function openWardrobeDB(){
   if(__dbPromise) return __dbPromise;
   __dbPromise = new Promise((resolve,reject)=>{
@@ -1803,31 +1831,39 @@ async function idbReplaceAllItems(arr){
 
 async function initAppStorage(){
   try{
-    const stored=await idbGetAllItems();
+    const db = await openWardrobeDB();
+    const stored = await idbGetAllItems();
+
     if(stored.length){
-      __itemsCache=stored;
+      __itemsCache = stored;
     }else{
-      let legacy=[];
-      try{ legacy=JSON.parse(localStorage.getItem(LS_KEY)||"[]"); }catch(e){ legacy=[]; }
+      let legacy = [];
+      try{ legacy = JSON.parse(localStorage.getItem(LS_KEY)||"[]"); }catch(e){ legacy=[]; }
+
       if(Array.isArray(legacy) && legacy.length){
-        __itemsCache=legacy;
         await idbReplaceAllItems(legacy);
+        __itemsCache = await verifyIndexedDBWrite(legacy);
         try{ localStorage.removeItem(LS_KEY); }catch(e){}
-        toast(`已自动迁移 ${legacy.length} 件衣服到大容量本地图库`);
+        toast(`已自动迁移 ${legacy.length} 件衣服到本地图库`);
       }else{
-        __itemsCache=[];
+        __itemsCache = [];
       }
     }
-    if(navigator.storage?.persist){ try{ await navigator.storage.persist(); }catch(e){} }
+
+    if(navigator.storage?.persist){
+      try{ await navigator.storage.persist(); }catch(e){}
+    }
+
+    __storageReady = true;
+    render();
+    renderLiveInspiration();
+    renderTrendGrid();
+    renderStyleDNA();
   }catch(err){
     console.error("IndexedDB init failed",err);
-    try{ __itemsCache=JSON.parse(localStorage.getItem(LS_KEY)||"[]"); }catch(e){ __itemsCache=[]; }
-    alert("本地图库初始化失败，当前已进入兼容模式。建议重新打开页面后重试。\n\n"+(err.message||err));
+    __storageReady = false;
+    alert("本地衣橱数据库读取失败。为避免覆盖你已有的数据，本次不会写入空衣橱。请关闭页面后重新打开。\n\n"+(err.message||err));
   }
-  render();
-  renderLiveInspiration();
-  renderTrendGrid();
-  renderStyleDNA();
 }
 
 
@@ -1847,14 +1883,21 @@ function activateTab(id){
 function openImporter(){activateTab("import");}
 function items(){return __itemsCache;}
 async function saveItems(v){
-  __itemsCache=Array.isArray(v)?v:[];
-  render();
+  if(!__storageReady){
+    throw new Error("本地衣橱尚未完成初始化");
+  }
+  const next = Array.isArray(v) ? v : [];
+  const previous = __itemsCache;
   try{
-    await idbReplaceAllItems(__itemsCache);
+    const verified = await queueWardrobeSave(next);
+    __itemsCache = verified;
     try{ localStorage.removeItem(LS_KEY); }catch(e){}
+    render();
     return true;
   }catch(err){
+    __itemsCache = previous;
     console.error("IndexedDB save failed",err);
+    render();
     throw err;
   }
 }
@@ -3142,11 +3185,7 @@ async function saveCurrentItemImage(){
   }
 }
 
-render();
 updateManualSaveState();
-renderLiveInspiration();
-renderTrendGrid();
-renderStyleDNA();
 const stored = localStorage.getItem(PREF_KEY);
 
 
@@ -3184,7 +3223,7 @@ async function exportFullBackup(){
     const backup={
       app:"今天穿什么",
       backupVersion:1,
-      appVersion:"4.5",
+      appVersion:"4.6",
       createdAt:new Date().toISOString(),
       wardrobe,
       localStorage:getAppLocalStorageSnapshot()
@@ -3219,6 +3258,7 @@ async function restoreFullBackupFromFile(file){
     if(!ok) return;
 
     await idbReplaceAllItems(backup.wardrobe);
+    await verifyIndexedDBWrite(backup.wardrobe);
 
     // Clear only app-owned localStorage keys, then restore the snapshot.
     const toDelete=[];
@@ -3252,11 +3292,33 @@ async function restoreFullBackupFromFile(file){
     if(input) input.value="";
   }
 }
-document.addEventListener("DOMContentLoaded",()=>{
+document.addEventListener("DOMContentLoaded", async ()=>{
+  await initAppStorage();
   const m=document.getElementById("dataSettingsModal");
   if(m) m.addEventListener("click",closeDataSettings);
   const input=document.getElementById("fullBackupInput");
   if(input) input.addEventListener("change",e=>restoreFullBackupFromFile(e.target.files?.[0]));
+});
+
+
+/* V4.6：从后台/返回页面时重新读取 IndexedDB，避免内存缓存与真实数据库脱节 */
+document.addEventListener("visibilitychange", async ()=>{
+  if(document.visibilityState==="visible" && __storageReady){
+    try{
+      await __saveQueue;
+      __itemsCache = await idbGetAllItems();
+      render();
+    }catch(e){ console.error("resume reload failed",e); }
+  }
+});
+window.addEventListener("pageshow", async e=>{
+  if(__storageReady){
+    try{
+      await __saveQueue;
+      __itemsCache = await idbGetAllItems();
+      render();
+    }catch(err){ console.error("pageshow reload failed",err); }
+  }
 });
 
 </script>
