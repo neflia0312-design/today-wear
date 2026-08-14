@@ -788,6 +788,17 @@ body.modal-locked{
   margin-top:-2px !important;
 }
 
+
+/* v3.1 点击层级修复 */
+.nav{
+  z-index:30000 !important;
+  pointer-events:auto !important;
+}
+.nav button{
+  pointer-events:auto !important;
+  touch-action:manipulation;
+}
+
 @media(min-width:700px){body{padding:20px 0}.app{min-height:calc(100vh - 40px);border-radius:36px;overflow:hidden;box-shadow:0 20px 80px rgba(74,64,58,.16)}.nav{bottom:20px}.modal{align-items:center}.sheet{border-radius:30px;max-height:80vh}}
 </style>
 </head>
@@ -795,7 +806,7 @@ body.modal-locked{
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v3.0 STYLE DNA</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v3.1 STYLE DNA</small></div>
       <button class="iconbtn" onclick="toast('基础版设置已保留')">⋯</button>
     </div>
   </header>
@@ -1092,17 +1103,21 @@ function items(){try{return JSON.parse(localStorage.getItem(LS_KEY)||"[]")}catch
 function saveItems(v){localStorage.setItem(LS_KEY,JSON.stringify(v));render();}
 function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
 function render(){
-  const data=items(); const used=new Set(data.map(x=>x.category)); const cats=getCategoryOrder().filter(c=>used.has(c));
+  const data=items();
+  const itemCats=[...new Set(data.map(x=>x.category).filter(Boolean))];
+  const savedCats=getCategoryOrder();
+  const cats=[...savedCats];
+  itemCats.forEach(c=>{if(!cats.includes(c))cats.push(c)});
   document.getElementById("countAll").textContent=data.length;
   document.getElementById("countCats").textContent=cats.length;
   document.getElementById("countFav").textContent=Math.min(data.length,6);
   const chips=["全部",...cats];
   const cc=document.getElementById("categoryChips");
   cc.innerHTML=chips.map(c=>`<button class="chip ${c===activeCategory?"active":""}" onclick="setCat('${esc(c)}')">${esc(c)}</button>`).join("");
-  let shown=activeCategory==="全部"?data:data.filter(x=>x.category===activeCategory);
-  if(activeSeason!=="全部") shown=shown.filter(x=>(x.seasons||[]).includes(activeSeason));
-  document.querySelectorAll(".seasonbtn").forEach(b=>b.classList.toggle("active",b.textContent.trim()===activeSeason));
-  let shown=data.filter(x=>
+  document.querySelectorAll(".seasonbtn").forEach(
+    b=>b.classList.toggle("active",b.textContent.trim()===activeSeason)
+  );
+  const shown=data.filter(x=>
     (activeSeason==="全部" || (x.seasons||[]).includes(activeSeason)) &&
     (activeCategory==="全部" || x.category===activeCategory)
   );
@@ -1772,6 +1787,14 @@ let modalScrollY=0;
 function defaultCategories(){
   return ["上衣","背心","吊带背心","针织背心","蕾丝上衣","T恤","衬衫","针织衫","卫衣","外套","裙装","半裙","连衣裙","裤装","牛仔裤","短裤","内衣","鞋子","包袋","配饰"];
 }
+
+function getSavedCategoryOrderExact(){
+  try{
+    const v=JSON.parse(localStorage.getItem(CAT_ORDER_KEY)||"[]");
+    return Array.isArray(v)?v.filter(Boolean):[];
+  }catch(e){return []}
+}
+
 function getCategoryOrder(){
   let saved=[];
   try{saved=JSON.parse(localStorage.getItem(CAT_ORDER_KEY)||"[]")}catch(e){saved=[]}
@@ -1928,12 +1951,12 @@ function deleteCategory(category){
   }
 
   // 先真正从分类顺序里删除
-  let order=getCategoryOrder().filter(c=>c!==category);
+  let order=getSavedCategoryOrderExact().filter(c=>c!==category);
   if(replacement && !order.includes(replacement)) order.push(replacement);
 
   // 再保存衣橱数据和分类顺序
   try{
-    localStorage.setItem(KEY,JSON.stringify(data));
+    localStorage.setItem(LS_KEY,JSON.stringify(data));
     saveCategoryOrder(order);
   }catch(e){
     alert("删除失败：本地存储空间不足或浏览器阻止写入。");
