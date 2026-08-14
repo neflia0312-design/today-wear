@@ -122,8 +122,7 @@ button{border:0}
 .seasonhint{font-size:10px;color:var(--muted);line-height:1.45;margin:-5px 3px 10px}
 .seasoncheck{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .seasoncheck label{display:grid;place-items:center;gap:5px;background:#fbf8f5;border:1px solid var(--line);border-radius:16px;padding:10px 4px;font-size:11px;color:#706861}
-.seasoncheck input{accent-color:#514b46}
-.ai-card{margin-top:12px;border-radius:22px;padding:14px;background:linear-gradient(145deg,#fff,#f7f1ed);box-shadow:inset 0 0 0 1px var(--line)}
+.seasoncheck input{accent-color:#4a433e;border-radius:22px;padding:14px;background:linear-gradient(145deg,#fff,#f7f1ed);box-shadow:inset 0 0 0 1px var(--line)}
 .ai-card b{display:block;font-size:13px;margin-bottom:5px}
 
 
@@ -872,6 +871,119 @@ body.modal-locked{
   background:#f7f1ed;
 }
 
+
+/* v3.5 严格统一暖灰/奶油色系：去除系统蓝色 */
+:root{
+  --ink:#3f3a36;
+  --muted:#8f8780;
+  --line:#e7dfda;
+  --paper:#fbf8f5;
+  --soft:#f3ece8;
+  --soft-2:#f8f3ef;
+  --danger-bg:#f5e7e7;
+  --danger:#a55d5d;
+  --accent:#4a433e;
+}
+
+/* 禁止 iOS / Safari / 浏览器默认蓝色高亮 */
+html,body,*{
+  -webkit-tap-highlight-color:transparent !important;
+}
+button,
+a,
+input,
+select,
+textarea{
+  -webkit-appearance:none;
+  appearance:none;
+}
+button,
+a{
+  color:inherit !important;
+}
+button:focus,
+button:focus-visible,
+a:focus,
+a:focus-visible,
+input:focus,
+input:focus-visible,
+select:focus,
+select:focus-visible,
+textarea:focus,
+textarea:focus-visible{
+  outline:none !important;
+  box-shadow:none !important;
+}
+
+/* 首页统计卡：保持暖灰黑，不使用系统蓝色 */
+.q.q-clickable,
+.q.q-clickable b,
+.q.q-clickable span{
+  color:var(--ink) !important;
+}
+.q.q-clickable:active{
+  background:#f8f3ef !important;
+}
+
+/* 分类、季节、导航等所有选中态统一为暖深灰 */
+.chip.active,
+.seasonbtn.active,
+.nav button.active,
+.trend-tab.active{
+  background:var(--accent) !important;
+  color:#fff !important;
+  border-color:var(--accent) !important;
+}
+
+/* checkbox：取消系统蓝色，改为暖深灰 */
+input[type="checkbox"]{
+  -webkit-appearance:none !important;
+  appearance:none !important;
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  border:1.5px solid #9f9790;
+  background:#fff;
+  display:inline-grid;
+  place-items:center;
+  vertical-align:middle;
+  margin:0;
+}
+input[type="checkbox"]:checked{
+  background:var(--accent) !important;
+  border-color:var(--accent) !important;
+}
+input[type="checkbox"]:checked::after{
+  content:"✓";
+  color:#fff;
+  font-size:15px;
+  line-height:1;
+  font-weight:800;
+}
+
+/* select / input 编辑状态不出现蓝框 */
+select,
+input[type="text"],
+input[type="search"],
+.category-name-editor{
+  color:var(--ink) !important;
+  border-color:var(--line) !important;
+  background-color:#fff !important;
+}
+select:focus,
+input[type="text"]:focus,
+input[type="search"]:focus,
+.category-name-editor:focus{
+  border-color:#cfc5bf !important;
+  box-shadow:0 0 0 2px rgba(74,67,62,.08) !important;
+}
+
+/* 删除键继续使用原来的柔和红色，不变成系统红/蓝 */
+.delete-cat,
+.item .delete{
+  color:var(--danger) !important;
+}
+
 @media(min-width:700px){body{padding:20px 0}.app{min-height:calc(100vh - 40px);border-radius:36px;overflow:hidden;box-shadow:0 20px 80px rgba(74,64,58,.16)}.nav{bottom:20px}.modal{align-items:center}.sheet{border-radius:30px;max-height:80vh}}
 </style>
 </head>
@@ -879,7 +991,7 @@ body.modal-locked{
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v3.4 STYLE DNA</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v3.5 STYLE DNA</small></div>
       <button class="iconbtn" onclick="toast('基础版设置已保留')">⋯</button>
     </div>
   </header>
