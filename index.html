@@ -159,6 +159,19 @@ button{border:0}
 .batch-season input{width:auto;margin:0 3px 0 0}
 .import-note{font-size:10px;line-height:1.55;color:#817970;margin-top:8px}
 
+
+.cat-toolbar{display:flex;gap:8px;overflow:auto;padding:0 1px 10px;scrollbar-width:none}
+.cat-toolbar::-webkit-scrollbar{display:none}
+.cat-toolbar .chip{flex:0 0 auto}
+.edit-pill{padding:7px 10px;border-radius:999px;background:#f5eee9;color:#665f59;font-size:10px;font-weight:700}
+.move-sheet-list{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+.move-option{padding:12px 10px;border-radius:16px;background:#fff;border:1px solid var(--line);font-size:12px;color:#5f5852}
+.move-option.active{background:#423d39;color:white}
+.custom-cat-row{display:flex;gap:8px;margin-top:10px}
+.custom-cat-row input{flex:1;border:1px solid var(--line);border-radius:14px;padding:11px 12px;background:#fff}
+.custom-cat-row button{padding:11px 13px;border-radius:14px;background:#4a4540;color:#fff}
+.card-edit{position:absolute;left:16px;top:16px;padding:7px 9px;border-radius:999px;background:rgba(255,255,255,.78);backdrop-filter:blur(8px);font-size:10px;font-weight:700;color:#5f5852;box-shadow:0 3px 10px rgba(0,0,0,.05)}
+
 @media(min-width:700px){body{padding:20px 0}.app{min-height:calc(100vh - 40px);border-radius:36px;overflow:hidden;box-shadow:0 20px 80px rgba(74,64,58,.16)}.nav{bottom:20px}.modal{align-items:center}.sheet{border-radius:30px;max-height:80vh}}
 </style>
 </head>
@@ -166,7 +179,7 @@ button{border:0}
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v1.6 FREE</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v1.7 FREE</small></div>
       <button class="iconbtn" onclick="toast('基础版设置已保留')">⋯</button>
     </div>
   </header>
@@ -202,7 +215,7 @@ button{border:0}
         </div>
       </div>
 
-      <div class="sectionhead"><h2>我的衣橱</h2><span>按季节快速调用</span></div>
+      <div class="sectionhead"><h2>我的衣橱</h2><span>分类可随时修改</span></div>
       <div class="seasonbar" id="seasonBar">
         <button class="seasonbtn active" onclick="setSeason('全部')">全部</button>
         <button class="seasonbtn" onclick="setSeason('春')">春</button>
@@ -256,7 +269,7 @@ button{border:0}
 
         <div class="field"><label>单品名称</label><input id="itemName" placeholder="例如：黑色方领针织上衣" /></div>
         <div class="field"><label>类别</label>
-          <select id="itemCategory"><option>上衣</option><option>夏装</option><option>内衣</option><option>裙装</option><option>裤装</option><option>鞋子</option><option>包袋</option><option>配饰</option><option>外套</option></select>
+          <select id="itemCategory"><option>上衣</option><option>背心</option><option>吊带背心</option><option>针织背心</option><option>蕾丝上衣</option><option>T恤</option><option>衬衫</option><option>针织衫</option><option>卫衣</option><option>外套</option><option>裙装</option><option>半裙</option><option>连衣裙</option><option>裤装</option><option>牛仔裤</option><option>短裤</option><option>内衣</option><option>鞋子</option><option>包袋</option><option>配饰</option></select>
         </div>
         <div class="field">
           <label>适穿季节（可多选）</label>
@@ -333,6 +346,21 @@ button{border:0}
 </div>
 
 
+
+<div class="modal" id="categoryModal">
+  <div class="sheet">
+    <div class="sheetgrab"></div>
+    <button class="closex" onclick="closeMoveCategory()">×</button>
+    <h2>移动到分类</h2>
+    <div class="note">选择一个已有分类，或新建你自己的细分类。修改后主页会立即同步。</div>
+    <div class="move-sheet-list" id="moveCategoryList"></div>
+    <div class="custom-cat-row">
+      <input id="newCategoryInput" placeholder="例如：背心 / 吊带背心 / 针织背心 / 蕾丝上衣">
+      <button onclick="createAndMoveCategory()">新建并移动</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -368,9 +396,13 @@ function render(){
   const g=document.getElementById("wardrobeGrid");
   if(!shown.length){g.innerHTML=`<div class="empty" style="grid-column:1/-1"><b>你的衣橱还是空的</b>先导入一件衣服，基础版就会开始建立私人图录。</div>`;return}
   g.innerHTML=shown.map(x=>`<div class="item">
+      <button class="card-edit" onclick="openMoveCategory('${x.id}')">修改分类</button>
       <button class="delete" onclick="removeItem('${x.id}')">×</button>
       <div class="pic"><img src="${x.aiImage||x.image}" alt=""></div>
-      <div class="meta"><div><b>${esc(x.name)}</b><small>${esc(x.category)} · ${esc((x.seasons||[]).join("/"))}</small></div><span class="smallpill">${x.aiImage?"白底素材":"原图"}</span></div>
+      <div class="meta">
+        <div><b>${esc(x.name)}</b><small>${esc(x.category)} · ${esc((x.seasons||[]).join("/"))}</small></div>
+        <span class="smallpill">${x.aiImage?"白底素材":"原图"}</span>
+      </div>
     </div>`).join("");
 }
 function setCat(c){activeCategory=c;render();}
@@ -478,7 +510,7 @@ function renderBatchPreview(){
       <img src="${x.aiImage}">
       <input value="${esc(x.name)}" onchange="pendingBatch[${i}].name=this.value">
       <select onchange="pendingBatch[${i}].category=this.value">
-        ${["上衣","裙装","裤装","外套","内衣","鞋子","包袋","配饰","其他"].map(c=>`<option ${c===x.category?"selected":""}>${c}</option>`).join("")}
+        ${["上衣","背心","吊带背心","针织背心","蕾丝上衣","T恤","衬衫","针织衫","卫衣","外套","裙装","半裙","连衣裙","裤装","牛仔裤","短裤","内衣","鞋子","包袋","配饰","其他"].map(c=>`<option ${c===x.category?"selected":""}>${c}</option>`).join("")}
       </select>
       <div class="batch-season">
         ${["春","夏","秋","冬"].map(se=>`<label><input type="checkbox" ${x.seasons.includes(se)?"checked":""} onchange="toggleBatchSeason(${i},'${se}',this.checked)">${se}</label>`).join("")}
@@ -501,6 +533,48 @@ function confirmBatchImport(){
   document.getElementById("batchPreview").classList.remove("show");
   toast(`已导入 ${n} 件衣服`);
   activateTab("wardrobe");
+}
+
+
+let moveTargetId=null;
+
+function allCategories(){
+  const base=["上衣","背心","吊带背心","针织背心","蕾丝上衣","T恤","衬衫","针织衫","卫衣","外套","裙装","半裙","连衣裙","裤装","牛仔裤","短裤","内衣","鞋子","包袋","配饰"];
+  const own=items().map(x=>x.category).filter(Boolean);
+  return [...new Set([...base,...own])];
+}
+
+function openMoveCategory(id){
+  moveTargetId=id;
+  const item=items().find(x=>x.id===id);
+  if(!item)return;
+  const list=document.getElementById("moveCategoryList");
+  list.innerHTML=allCategories().map(c=>`<button class="move-option ${c===item.category?"active":""}" onclick="moveItemToCategory('${esc(c)}')">${esc(c)}</button>`).join("");
+  document.getElementById("newCategoryInput").value="";
+  document.getElementById("categoryModal").classList.add("show");
+}
+
+function closeMoveCategory(){
+  document.getElementById("categoryModal").classList.remove("show");
+  moveTargetId=null;
+}
+
+function moveItemToCategory(category){
+  if(!moveTargetId)return;
+  const data=items();
+  const idx=data.findIndex(x=>x.id===moveTargetId);
+  if(idx<0)return;
+  data[idx].category=category;
+  saveItems(data);
+  activeCategory="全部";
+  closeMoveCategory();
+  toast(`已移动到「${category}」`);
+}
+
+function createAndMoveCategory(){
+  const v=document.getElementById("newCategoryInput").value.trim();
+  if(!v){toast("请输入分类名称");return}
+  moveItemToCategory(v);
 }
 
 render();
