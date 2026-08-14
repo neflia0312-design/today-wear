@@ -503,6 +503,97 @@ body.modal-locked{
   .live-trend-card h3{font-size:12px}
 }
 
+
+/* v2.5 luxury brand library */
+.luxury-tools{
+  display:flex;gap:8px;align-items:center;justify-content:space-between;margin:0 0 12px;
+}
+.luxury-tools .manage-brand-btn{
+  padding:10px 13px;border-radius:999px;background:#45403c;color:#fff;
+  font-size:10px;font-weight:800;
+}
+.brand-count{font-size:9px;color:#948d87}
+.brand-card-remove{
+  position:absolute;bottom:9px;right:9px;width:26px;height:26px;border-radius:50%;
+  background:rgba(255,255,255,.9);color:#8a6f6f;font-size:15px;z-index:4;
+  display:grid;place-items:center;
+}
+.brand-manager-search{
+  position:sticky;top:0;z-index:3;background:#fcfaf8;padding:4px 0 10px;
+}
+.brand-manager-search input{
+  width:100%;border:1px solid var(--line);background:#fff;border-radius:15px;
+  padding:12px 13px;font-size:12px;
+}
+.brand-library{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-bottom:16px;
+}
+.brand-choice{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  border:1px solid var(--line);border-radius:16px;background:#fff;padding:11px 10px;
+  text-align:left;color:#514b46;
+}
+.brand-choice b{font-size:11px;display:block}
+.brand-choice small{font-size:8px;color:#99918b}
+.brand-choice .brand-plus{
+  width:26px;height:26px;border-radius:50%;background:#f2ece8;display:grid;place-items:center;flex:0 0 auto;
+}
+.brand-choice.selected{background:#f2ece8}
+.brand-choice.selected .brand-plus{background:#45403c;color:#fff}
+.custom-brand-add{
+  margin-top:12px;padding:12px;border-radius:18px;background:#f7f2ee;border:1px solid var(--line);
+}
+.custom-brand-add input{
+  width:100%;border:1px solid var(--line);background:#fff;border-radius:13px;padding:10px 11px;font-size:11px;margin-top:7px;
+}
+.custom-brand-add button{
+  width:100%;margin-top:8px;padding:10px;border-radius:13px;background:#45403c;color:#fff;font-size:11px;font-weight:800;
+}
+#brandManagerModal .sheet{
+  max-height:90dvh;
+}
+
+
+/* v2.6 STYLE DNA */
+.style-dna-shell{display:grid;gap:12px}
+.style-dna-panel{background:#fff;border-radius:26px;padding:14px;box-shadow:var(--shadow)}
+.style-dna-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.style-dna-head h2{margin:0;font-size:17px}
+.style-dna-badge{font-size:9px;font-weight:800;padding:7px 9px;border-radius:999px;background:#f2ece8;color:#6b645e}
+.style-upload-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px}
+.style-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:10px}
+.style-thumb{position:relative;border-radius:15px;overflow:hidden;background:#f6f1ed;aspect-ratio:1/1}
+.style-thumb img{width:100%;height:100%;object-fit:cover}
+.style-thumb button{position:absolute;right:5px;top:5px;width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.88);font-size:14px}
+.dna-empty{padding:24px 10px;text-align:center;color:#99918b;font-size:11px}
+.dna-style-list{display:grid;gap:8px;margin-top:10px}
+.dna-style{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:11px 12px;border-radius:16px;background:#faf6f3}
+.dna-style b{font-size:12px}
+.dna-style small{font-size:9px;color:#918983;display:block;margin-top:2px}
+.dna-score{font-size:10px;font-weight:850;padding:6px 8px;border-radius:999px;background:#eee5df}
+.dna-palette{display:flex;gap:7px;margin-top:10px}
+.dna-color{width:34px;height:34px;border-radius:50%;border:1px solid rgba(0,0,0,.06);box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.dna-keywords{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.dna-keyword{font-size:9px;padding:7px 9px;border-radius:999px;background:#f5efeb;color:#6e6761}
+.wardrobe-match{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.wardrobe-match .match-item{background:#fbf8f5;border-radius:17px;padding:7px}
+.wardrobe-match img{width:100%;aspect-ratio:1/1;object-fit:contain;background:#fff;border-radius:12px}
+.wardrobe-match b{font-size:9px;display:block;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wardrobe-match small{font-size:8px;color:#948d87}
+.dna-actions{display:flex;gap:8px;margin-top:11px}
+.dna-actions button{flex:1;padding:10px;border-radius:999px;font-size:10px;font-weight:800}
+.dna-primary{background:#45403c;color:#fff}
+.dna-secondary{background:#f2ece8;color:#5f5852}
+.search-platforms{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.search-platform{padding:11px 6px;border-radius:16px;background:#fff;border:1px solid var(--line);font-size:10px;font-weight:800;color:#514b46;text-decoration:none;text-align:center}
+.outfit-sets{display:grid;gap:10px;margin-top:10px}
+.outfit-set{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;padding:9px;background:#faf6f3;border-radius:18px}
+.outfit-set .slot{background:#fff;border-radius:13px;padding:5px;min-height:90px}
+.outfit-set img{width:100%;aspect-ratio:1/1;object-fit:contain;border-radius:10px;background:#fff}
+.outfit-set b{font-size:8px;display:block;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.outfit-missing{display:grid;place-items:center;text-align:center;height:100%;min-height:90px;color:#aaa19a;font-size:9px;border:1px dashed #ddd4cf;border-radius:10px}
+.dna-local-note{font-size:9px;line-height:1.5;color:#9a928b;margin-top:9px}
+
 @media(min-width:700px){body{padding:20px 0}.app{min-height:calc(100vh - 40px);border-radius:36px;overflow:hidden;box-shadow:0 20px 80px rgba(74,64,58,.16)}.nav{bottom:20px}.modal{align-items:center}.sheet{border-radius:30px;max-height:80vh}}
 </style>
 </head>
@@ -510,7 +601,7 @@ body.modal-locked{
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v2.4 LIVE</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v2.6 STYLE DNA</small></div>
       <button class="iconbtn" onclick="toast('基础版设置已保留')">⋯</button>
     </div>
   </header>
@@ -602,28 +693,57 @@ body.modal-locked{
     </section>
 
     <section id="inspiration" class="page">
-      <div class="sectionhead"><h2>时尚灵感</h2><span>我的真实衣橱</span></div>
+      <div class="sectionhead"><h2>STYLE DNA</h2><span>近期审美</span></div>
 
-      <div class="live-inspo">
-        <div class="live-inspo-grid" id="liveInspoGrid"></div>
-        <div class="inspo-actions">
-          <div>
-            <b style="font-size:12px">今日组合</b>
-            <div style="font-size:9px;color:#918a84;margin-top:2px">直接使用已录入单品</div>
+      <div class="style-dna-shell">
+        <div class="style-dna-panel">
+          <div class="style-dna-head">
+            <h2>我的风格样本</h2>
+            <span class="style-dna-badge" id="styleSampleCount">0 张</span>
           </div>
-          <button class="tiny-btn" onclick="refreshInspiration()">换一组</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="sectionhead" style="margin:2px 2px 10px"><h2>近期审美</h2><span>3–20 张</span></div>
-        <div class="uploadbox">
-          <div style="font-size:24px">♡</div>
-          <label class="btn secondary" for="styleInput" style="display:inline-block;cursor:pointer;margin-top:8px">导入风格图片</label>
+          <div class="style-upload-actions">
+            <label class="btn secondary" for="styleInput" style="cursor:pointer">＋ 导入图片</label>
+            <label class="btn secondary" for="styleDNAInput" style="cursor:pointer">导入 Style DNA</label>
+            <button class="tiny-btn" onclick="clearStyleSamples()">清空</button>
+          </div>
           <input id="styleInput" type="file" multiple accept="image/*" style="display:none"/>
+          <input id="styleDNAInput" type="file" accept=".json,application/json" style="display:none"/>
+          <div class="style-strip" id="stylePreview"></div>
         </div>
-        <div class="style-preview" id="stylePreview"></div>
-        <div id="styleCount" class="note">尚未导入近期审美。</div>
+
+        <div class="style-dna-panel">
+          <div class="style-dna-head">
+            <h2>风格画像</h2>
+            <span class="style-dna-badge" id="dnaModeBadge">本地初筛</span>
+          </div>
+          <div id="dnaResult"></div>
+        </div>
+
+        <div class="style-dna-panel">
+          <div class="style-dna-head">
+            <h2>我的衣橱匹配</h2>
+            <button class="tiny-btn" onclick="shuffleDNAMatches()">换一组</button>
+          </div>
+          <div class="wardrobe-match" id="dnaWardrobeMatch"></div>
+          <div class="dna-actions">
+            <button class="dna-primary" onclick="generateDNAOutfits()">随机组合</button>
+            <button class="dna-secondary" onclick="activateTab('wardrobe')">打开衣橱</button>
+          </div>
+          <div class="outfit-sets" id="dnaOutfitSets"></div>
+        </div>
+
+        <div class="style-dna-panel">
+          <div class="style-dna-head">
+            <h2>延伸灵感</h2>
+            <span class="style-dna-badge">一键搜索</span>
+          </div>
+          <div class="dna-keywords" id="dnaSearchTerms"></div>
+          <div class="search-platforms">
+            <a class="search-platform" id="searchInstagram" href="#" onclick="return openStyleSearch(event,'Instagram',this.href)">Instagram</a>
+            <a class="search-platform" id="searchXHS" href="#" onclick="return openStyleSearch(event,'小红书',this.href)">小红书</a>
+            <a class="search-platform" id="searchDouyin" href="#" onclick="return openStyleSearch(event,'抖音',this.href)">抖音</a>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -633,6 +753,11 @@ body.modal-locked{
       <div class="trend-tabs">
         <button class="trend-tab active" id="trendTabRegions" onclick="setTrendMode('regions')">国家 / 地区</button>
         <button class="trend-tab" id="trendTabLuxury" onclick="setTrendMode('luxury')">奢侈品牌</button>
+      </div>
+
+      <div class="luxury-tools" id="luxuryTools" style="display:none">
+        <span class="brand-count" id="brandCount">0 个品牌</span>
+        <button class="manage-brand-btn" onclick="openBrandManager()">＋ 管理品牌</button>
       </div>
 
       <div class="live-trend-grid" id="liveTrendGrid"></div>
@@ -695,6 +820,28 @@ body.modal-locked{
     </div>
   </div>
 </div>
+
+<div class="modal" id="brandManagerModal">
+  <div class="sheet">
+    <div class="sheetgrab"></div>
+    <button class="closex" onclick="closeBrandManager()">×</button>
+    <h2>全球品牌库</h2>
+    <div class="note">选择后加入「奢侈品牌」页。可随时添加 / 删除。</div>
+
+    <div class="brand-manager-search">
+      <input id="brandSearchInput" placeholder="搜索品牌，例如 Alexander McQueen" oninput="renderBrandLibrary()">
+    </div>
+    <div class="brand-library" id="brandLibrary"></div>
+
+    <div class="custom-brand-add">
+      <b style="font-size:11px">没有找到？自行添加</b>
+      <input id="customBrandName" placeholder="品牌名称">
+      <input id="customBrandUrl" placeholder="官方时装秀 / Collections 链接">
+      <button onclick="addCustomBrand()">加入品牌页</button>
+    </div>
+  </div>
+</div>
+
 <div class="external-return-line" id="externalReturnLine">
   <div class="return-main">
     <span>←</span>
@@ -751,6 +898,7 @@ function render(){
     </div>`).join("");
   renderLiveInspiration();
   renderTrendGrid();
+  renderStyleDNA();
 }
 function setCat(c){activeCategory=c;render();}
 function setSeason(v){activeSeason=v;render();}
@@ -799,111 +947,411 @@ function refreshInspiration(){
   renderLiveInspiration();
 }
 
+
+
+const STYLE_SAMPLES_KEY="today_wear_style_samples_v26";
+const STYLE_DNA_KEY="today_wear_style_dna_v26";
+let dnaMatchSeed=0;
+
+const STYLE_LIBRARY=[
+  {name:"Grey Feminine",cn:"格雷系",keys:["灰","炭","黑","白","蕾丝","针织"],terms:["grey feminine outfit","灰色系穿搭","grey lace outfit"]},
+  {name:"Soft Y2K",cn:"柔和Y2K",keys:["吊带","背心","蕾丝","短","紧身","蝴蝶结"],terms:["soft y2k outfit","柔和Y2K穿搭","y2k lace top outfit"]},
+  {name:"Y2K",cn:"Y2K",keys:["吊带","背心","低腰","短裤","迷你","金属"],terms:["y2k outfit","Y2K穿搭","2000s fashion outfit"]},
+  {name:"Balletcore",cn:"芭蕾风",keys:["粉","白","奶油","蕾丝","蝴蝶结","半裙"],terms:["balletcore outfit","芭蕾风穿搭","ballet flats outfit"]},
+  {name:"Dark Ballet",cn:"暗黑芭蕾",keys:["黑","藏蓝","蕾丝","蝴蝶结","半裙"],terms:["dark balletcore outfit","暗黑芭蕾穿搭","black lace ballet outfit"]},
+  {name:"Coquette",cn:"Coquette",keys:["蝴蝶结","蕾丝","粉","珍珠","花边"],terms:["coquette outfit","coquette穿搭","lace bow outfit"]},
+  {name:"Quiet Luxury",cn:"静奢",keys:["米","奶油","灰","针织","衬衫","西装"],terms:["quiet luxury outfit","静奢穿搭","minimal luxury outfit"]},
+  {name:"90s Minimal",cn:"90年代极简",keys:["黑","白","灰","吊带","背心","直筒"],terms:["90s minimal outfit","90年代极简穿搭","minimal tank outfit"]},
+  {name:"Office Siren",cn:"办公室魅惑",keys:["灰","黑","衬衫","紧身","蕾丝","半裙"],terms:["office siren outfit","office siren穿搭","grey fitted outfit"]},
+  {name:"Dark Feminine",cn:"暗黑女性化",keys:["黑","藏蓝","蕾丝","紧身","蝴蝶结"],terms:["dark feminine outfit","暗黑女性化穿搭","navy lace outfit"]},
+  {name:"Japanese Feminine",cn:"日系轻甜",keys:["白领","针织","半裙","奶油","珍珠"],terms:["japanese feminine outfit","日系轻甜穿搭","japanese knit outfit"]},
+  {name:"Korean Minimal",cn:"韩系极简",keys:["灰","黑","白","针织","背心","直筒"],terms:["korean minimal outfit","韩系极简穿搭","seoul minimal outfit"]},
+  {name:"Clean Girl",cn:"清透极简",keys:["白","米","灰","背心","衬衫"],terms:["clean girl outfit","清透极简穿搭","neutral clean outfit"]},
+  {name:"Romantic Utility",cn:"浪漫机能",keys:["灰","黑","绑带","金属","蕾丝"],terms:["romantic utility outfit","浪漫机能穿搭","utility lace outfit"]}
+];
+
+function getStyleSamples(){
+  try{return JSON.parse(localStorage.getItem(STYLE_SAMPLES_KEY)||"[]")}catch(e){return[]}
+}
+function saveStyleSamples(arr){
+  try{localStorage.setItem(STYLE_SAMPLES_KEY,JSON.stringify(arr))}catch(e){
+    toast("图片较多，已保留部分样本");
+    localStorage.setItem(STYLE_SAMPLES_KEY,JSON.stringify(arr.slice(-8)));
+  }
+}
+function getStyleDNA(){
+  try{return JSON.parse(localStorage.getItem(STYLE_DNA_KEY)||"null")}catch(e){return null}
+}
+function saveStyleDNA(dna){
+  localStorage.setItem(STYLE_DNA_KEY,JSON.stringify(dna));
+}
+function fileToCompressedDataURL(file,max=420,q=.78){
+  return new Promise((resolve,reject)=>{
+    const r=new FileReader();
+    r.onload=()=>{
+      const img=new Image();
+      img.onload=()=>{
+        const scale=Math.min(1,max/Math.max(img.width,img.height));
+        const w=Math.max(1,Math.round(img.width*scale)),h=Math.max(1,Math.round(img.height*scale));
+        const c=document.createElement("canvas");c.width=w;c.height=h;
+        const ctx=c.getContext("2d");ctx.drawImage(img,0,0,w,h);
+        resolve(c.toDataURL("image/jpeg",q));
+      };
+      img.onerror=reject;img.src=r.result;
+    };
+    r.onerror=reject;r.readAsDataURL(file);
+  });
+}
+function avgPalette(dataUrl){
+  return new Promise(resolve=>{
+    const img=new Image();
+    img.onload=()=>{
+      const c=document.createElement("canvas");c.width=40;c.height=40;
+      const ctx=c.getContext("2d");ctx.drawImage(img,0,0,40,40);
+      const d=ctx.getImageData(0,0,40,40).data;
+      let r=0,g=0,b=0,n=0;
+      for(let i=0;i<d.length;i+=16){r+=d[i];g+=d[i+1];b+=d[i+2];n++}
+      r=Math.round(r/n);g=Math.round(g/n);b=Math.round(b/n);
+      resolve({r,g,b,hex:"#"+[r,g,b].map(x=>x.toString(16).padStart(2,"0")).join("")});
+    };
+    img.src=dataUrl;
+  });
+}
+async function addStyleFiles(files){
+  const existing=getStyleSamples();
+  const incoming=[];
+  for(const f of [...files].slice(0,20)){
+    const image=await fileToCompressedDataURL(f);
+    const palette=await avgPalette(image);
+    incoming.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),image,palette,name:f.name||""});
+  }
+  saveStyleSamples([...existing,...incoming].slice(-20));
+  // 深度分析包不存在时，重新做本地初筛
+  if(!getStyleDNA()?.deep) saveStyleDNA(buildLocalDNA([...existing,...incoming].slice(-20)));
+  renderStyleDNA();
+}
+function removeStyleSample(id){
+  const arr=getStyleSamples().filter(x=>x.id!==id);saveStyleSamples(arr);
+  if(!getStyleDNA()?.deep) saveStyleDNA(buildLocalDNA(arr));
+  renderStyleDNA();
+}
+function clearStyleSamples(){
+  if(!confirm("清空近期审美图片？"))return;
+  localStorage.removeItem(STYLE_SAMPLES_KEY);
+  localStorage.removeItem(STYLE_DNA_KEY);
+  renderStyleDNA();
+}
+function buildLocalDNA(samples){
+  if(!samples.length)return {deep:false,styles:[],palette:[],keywords:[],terms:[]};
+  let ar=0,ag=0,ab=0;
+  samples.forEach(x=>{ar+=x.palette?.r||0;ag+=x.palette?.g||0;ab+=x.palette?.b||0});
+  ar/=samples.length;ag/=samples.length;ab/=samples.length;
+  const max=Math.max(ar,ag,ab),min=Math.min(ar,ag,ab),sat=max-min,light=(max+min)/2;
+  let names=[];
+  if(sat<38) names.push("Grey Feminine","90s Minimal","Korean Minimal");
+  if(light<125) names.push("Dark Feminine","Dark Ballet","Office Siren");
+  if(light>185) names.push("Clean Girl","Balletcore","Quiet Luxury");
+  if(ar>ag+10 && ar>ab+10) names.push("Coquette","Balletcore");
+  names=[...new Set(names)];
+  while(names.length<3) names.push(["Soft Y2K","Japanese Feminine","Quiet Luxury"][names.length]);
+  const styles=names.slice(0,4).map((n,i)=>{
+    const x=STYLE_LIBRARY.find(s=>s.name===n);
+    return {name:n,cn:x?.cn||n,score:[72,58,44,32][i]||30};
+  });
+  const palette=[...new Set(samples.map(x=>x.palette?.hex).filter(Boolean))].slice(0,5);
+  const terms=styles.flatMap(st=>STYLE_LIBRARY.find(x=>x.name===st.name)?.terms||[]).slice(0,6);
+  return {deep:false,styles,palette,keywords:styles.map(x=>x.cn),terms};
+}
+function normalizedDNA(obj){
+  const styles=Array.isArray(obj.styles)?obj.styles.map((x,i)=>typeof x==="string"?{name:x,cn:x,score:70-i*10}:{name:x.name||x.label||"Style",cn:x.cn||x.name||x.label||"Style",score:Number(x.score||x.weight||60)}):[];
+  return {
+    deep:true,
+    styles,
+    palette:Array.isArray(obj.palette)?obj.palette.slice(0,6):[],
+    keywords:Array.isArray(obj.keywords)?obj.keywords.slice(0,10):styles.map(x=>x.cn),
+    terms:Array.isArray(obj.search_terms)?obj.search_terms:(Array.isArray(obj.terms)?obj.terms:[]),
+    outfitHints:Array.isArray(obj.outfit_hints)?obj.outfit_hints:[]
+  };
+}
+function renderStyleDNA(){
+  const samples=getStyleSamples();
+  document.getElementById("styleSampleCount").textContent=`${samples.length} 张`;
+  const strip=document.getElementById("stylePreview");
+  strip.innerHTML=samples.map(x=>`<div class="style-thumb"><img src="${x.image}"><button onclick="removeStyleSample('${x.id}')">×</button></div>`).join("");
+  if(!samples.length)strip.innerHTML=`<div class="dna-empty" style="grid-column:1/-1">导入最近喜欢的穿搭图</div>`;
+
+  let dna=getStyleDNA();
+  if(!dna && samples.length){dna=buildLocalDNA(samples);saveStyleDNA(dna)}
+  document.getElementById("dnaModeBadge").textContent=dna?.deep?"深度分析":"本地初筛";
+  const result=document.getElementById("dnaResult");
+  if(!dna||!dna.styles?.length){
+    result.innerHTML=`<div class="dna-empty">导入图片后建立你的 STYLE DNA</div>`;
+  }else{
+    result.innerHTML=`
+      <div class="dna-style-list">${dna.styles.slice(0,5).map(x=>`<div class="dna-style"><div><b>${esc(x.cn||x.name)}</b><small>${esc(x.name||"")}</small></div><span class="dna-score">${Math.round(x.score||0)}%</span></div>`).join("")}</div>
+      <div class="dna-palette">${(dna.palette||[]).map(c=>`<span class="dna-color" style="background:${c}"></span>`).join("")}</div>
+      <div class="dna-keywords">${(dna.keywords||[]).map(k=>`<span class="dna-keyword">${esc(k)}</span>`).join("")}</div>
+      ${!dna.deep?`<div class="dna-local-note">本地版只做配色与已有衣橱关键词初筛；把同一批图片发给 ChatGPT 后，可导入 Style DNA JSON 获得更准确的廓形 / 材质 / 风格权重。</div>`:""}
+    `;
+  }
+  renderDNAMatches();
+  renderSearchLinks();
+}
+function dnaTopNames(){
+  const dna=getStyleDNA();
+  return (dna?.styles||[]).map(x=>`${x.name||""} ${x.cn||""}`.toLowerCase());
+}
+function itemDNAScore(item){
+  const text=`${item.name||""} ${item.category||""} ${item.subtype||""}`.toLowerCase();
+  let score=0;
+  for(const stName of dnaTopNames()){
+    const st=STYLE_LIBRARY.find(x=>stName.includes(x.name.toLowerCase())||stName.includes((x.cn||"").toLowerCase()));
+    if(st) st.keys.forEach(k=>{if(text.includes(k.toLowerCase()))score+=12});
+  }
+  const dna=getStyleDNA();
+  (dna?.keywords||[]).forEach(k=>{if(text.includes(String(k).toLowerCase()))score+=7});
+  return score+Math.random()*5;
+}
+function matchedItems(){
+  let data=items();
+  if(activeSeason!=="全部"){
+    const f=data.filter(x=>(x.seasons||[]).includes(activeSeason));if(f.length)data=f;
+  }
+  return [...data].sort((a,b)=>itemDNAScore(b)-itemDNAScore(a));
+}
+function renderDNAMatches(){
+  const box=document.getElementById("dnaWardrobeMatch");if(!box)return;
+  const data=matchedItems();
+  if(!data.length){box.innerHTML=`<div class="dna-empty" style="grid-column:1/-1">衣橱暂无单品</div>`;return}
+  const offset=dnaMatchSeed%data.length;
+  const pick=[...data.slice(offset),...data.slice(0,offset)].slice(0,Math.min(6,data.length));
+  box.innerHTML=pick.map(x=>`<div class="match-item"><img src="${x.aiImage||x.image}"><b>${esc(x.name)}</b><small>${esc(x.category)}</small></div>`).join("");
+}
+function shuffleDNAMatches(){dnaMatchSeed++;renderDNAMatches()}
+function typeBucket(item){
+  const c=(item.category||"").toLowerCase();
+  if(/裙|裤|半裙|短裤|牛仔/.test(c))return "bottom";
+  if(/鞋/.test(c))return "shoe";
+  if(/包/.test(c))return "bag";
+  if(/外套/.test(c))return "outer";
+  return "top";
+}
+function generateDNAOutfits(){
+  const data=matchedItems(), box=document.getElementById("dnaOutfitSets");
+  if(!data.length){box.innerHTML="";return}
+  const buckets={top:[],bottom:[],shoe:[],bag:[],outer:[]};
+  data.forEach(x=>buckets[typeBucket(x)].push(x));
+  const sets=[];
+  for(let i=0;i<3;i++){
+    const top=buckets.top[(i+dnaMatchSeed)%Math.max(1,buckets.top.length)];
+    const bottom=buckets.bottom[(i)%Math.max(1,buckets.bottom.length)];
+    const shoe=buckets.shoe[(i)%Math.max(1,buckets.shoe.length)];
+    sets.push([top,bottom,shoe]);
+  }
+  box.innerHTML=sets.map(set=>`<div class="outfit-set">${set.map((x,i)=>x?`<div class="slot"><img src="${x.aiImage||x.image}"><b>${esc(x.name)}</b></div>`:`<div class="slot"><div class="outfit-missing">${["上装","下装","鞋履"][i]}待补充</div></div>`).join("")}</div>`).join("");
+}
+function getSearchTerms(){
+  const dna=getStyleDNA();
+  let terms=(dna?.terms||[]).filter(Boolean);
+  if(!terms.length && dna?.styles?.length){
+    terms=dna.styles.flatMap(st=>STYLE_LIBRARY.find(x=>x.name===st.name)?.terms||[]);
+  }
+  return [...new Set(terms)].slice(0,6);
+}
+function renderSearchLinks(){
+  const terms=getSearchTerms();
+  const wrap=document.getElementById("dnaSearchTerms");if(!wrap)return;
+  wrap.innerHTML=terms.map(t=>`<span class="dna-keyword">${esc(t)}</span>`).join("");
+  const q=encodeURIComponent(terms[0]||"fashion outfit");
+  const hash=encodeURIComponent((terms[0]||"fashion outfit").replace(/\s+/g,""));
+  document.getElementById("searchInstagram").href=`https://www.instagram.com/explore/tags/${hash}/`;
+  document.getElementById("searchXHS").href=`https://www.xiaohongshu.com/search_result?keyword=${q}`;
+  document.getElementById("searchDouyin").href=`https://www.douyin.com/search/${q}`;
+}
+function openStyleSearch(e,platform,url){
+  return openExternalPlatform(e,platform,url);
+}
+document.getElementById("styleInput").addEventListener("change",async e=>{
+  const f=e.target.files;e.target.value="";
+  await addStyleFiles(f);
+  toast(`已加入 ${f.length} 张风格样本`);
+});
+document.getElementById("styleDNAInput").addEventListener("change",async e=>{
+  const f=e.target.files[0];e.target.value="";if(!f)return;
+  try{
+    const obj=JSON.parse(await f.text());
+    saveStyleDNA(normalizedDNA(obj));
+    renderStyleDNA();
+    toast("Style DNA 已导入");
+  }catch(err){alert("Style DNA 文件格式不正确")}
+});
+const BRAND_LIBRARY=[
+  {name:"CHANEL",country:"France",subtitle:"Fashion Collections",url:"https://www.chanel.com/us/fashion/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.chanel.com/us/fashion/"},
+  {name:"DIOR",country:"France",subtitle:"Women’s Fashion",url:"https://www.dior.com/en_us/fashion/womens-fashion",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.dior.com/en_us/fashion/womens-fashion"},
+  {name:"LOUIS VUITTON",country:"France",subtitle:"Women’s Fashion Shows",url:"https://us.louisvuitton.com/eng-us/magazine/fashion-shows/_/N-t1qypv3",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://us.louisvuitton.com/eng-us/magazine/fashion-shows/_/N-t1qypv3"},
+  {name:"SAINT LAURENT",country:"France",subtitle:"Collections",url:"https://www.ysl.com/en-us",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.ysl.com/en-us"},
+  {name:"CELINE",country:"France",subtitle:"Collections",url:"https://www.celine.com/en-us/celine-women/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.celine.com/en-us/celine-women/"},
+  {name:"GIVENCHY",country:"France",subtitle:"Collections",url:"https://www.givenchy.com/us/en-US/collections/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.givenchy.com/us/en-US/collections/"},
+  {name:"BALENCIAGA",country:"France",subtitle:"All Collections",url:"https://www.balenciaga.com/en-us/discover/explore-collections",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.balenciaga.com/en-us/discover/explore-collections"},
+  {name:"VALENTINO",country:"Italy",subtitle:"Fashion Shows",url:"https://www.valentino.com/en-ad/v-universe/fashion-shows",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.valentino.com/en-ad/v-universe/fashion-shows"},
+  {name:"ALEXANDER MCQUEEN",country:"United Kingdom",subtitle:"Collections 2026",url:"https://www.alexandermcqueen.com/en-us/preaw23-womenswear-campaign",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.alexandermcqueen.com/en-us/preaw23-womenswear-campaign"},
+  {name:"LOEWE",country:"Spain",subtitle:"Collections",url:"https://www.loewe.com/usa/en/stories-collection",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.loewe.com/usa/en/stories-collection"},
+  {name:"HERMÈS",country:"France",subtitle:"Women’s Universe",url:"https://www.hermes.com/us/en/category/women/ready-wear/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.hermes.com/us/en/category/women/ready-wear/"},
+  {name:"SCHIAPARELLI",country:"France",subtitle:"Collections",url:"https://www.schiaparelli.com/en/collections",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.schiaparelli.com/en/collections"},
+  {name:"ALAÏA",country:"France",subtitle:"Collections",url:"https://www.maison-alaia.com/us",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.maison-alaia.com/us"},
+  {name:"CHLOÉ",country:"France",subtitle:"Collections",url:"https://www.chloe.com/us/chloe/shop-online/women/ready-to-wear",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.chloe.com/us/chloe/shop-online/women/ready-to-wear"},
+  {name:"COURRÈGES",country:"France",subtitle:"Collections",url:"https://www.courreges.com/us",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.courreges.com/us"},
+  {name:"RABANNE",country:"France",subtitle:"Collections",url:"https://fashion.rabanne.com/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://fashion.rabanne.com/"},
+  {name:"JACQUEMUS",country:"France",subtitle:"Collections",url:"https://www.jacquemus.com/en_us",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.jacquemus.com/en_us"},
+  {name:"MUGLER",country:"France",subtitle:"Fashion",url:"https://fashion.mugler.com/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://fashion.mugler.com/"},
+  {name:"JEAN PAUL GAULTIER",country:"France",subtitle:"Collections",url:"https://www.jeanpaulgaultier.com/us/en/collections",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.jeanpaulgaultier.com/us/en/collections"},
+  {name:"MAISON MARGIELA",country:"France",subtitle:"Collections",url:"https://www.maisonmargiela.com/en-us/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.maisonmargiela.com/en-us/"},
+  {name:"PRADA",country:"Italy",subtitle:"Women’s Collections",url:"https://www.prada.com/us/en/womens/ready-to-wear.html",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.prada.com/us/en/womens/ready-to-wear.html"},
+  {name:"MIU MIU",country:"Italy",subtitle:"Collections",url:"https://www.miumiu.com/us/en/collections/c/10195US",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.miumiu.com/us/en/collections/c/10195US"},
+  {name:"GUCCI",country:"Italy",subtitle:"Women’s Fashion",url:"https://www.gucci.com/us/en/ca/women/ready-to-wear-for-women-c-women-readytowear",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.gucci.com/us/en/ca/women/ready-to-wear-for-women-c-women-readytowear"},
+  {name:"FENDI",country:"Italy",subtitle:"Women’s Collections",url:"https://www.fendi.com/us-en/woman/ready-to-wear",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.fendi.com/us-en/woman/ready-to-wear"},
+  {name:"BOTTEGA VENETA",country:"Italy",subtitle:"Women’s Collection",url:"https://www.bottegaveneta.com/en-us/women/womens-ready-to-wear",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.bottegaveneta.com/en-us/women/womens-ready-to-wear"},
+  {name:"VERSACE",country:"Italy",subtitle:"Women’s Collection",url:"https://www.versace.com/us/en/women/clothing/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.versace.com/us/en/women/clothing/"},
+  {name:"DOLCE & GABBANA",country:"Italy",subtitle:"Women’s Fashion",url:"https://www.dolcegabbana.com/en-us/fashion/women/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.dolcegabbana.com/en-us/fashion/women/"},
+  {name:"GIORGIO ARMANI",country:"Italy",subtitle:"Women’s Collection",url:"https://www.armani.com/en-us/giorgio-armani/women",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.armani.com/en-us/giorgio-armani/women"},
+  {name:"FERRAGAMO",country:"Italy",subtitle:"Women’s Collection",url:"https://www.ferragamo.com/shop/us/en/women",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.ferragamo.com/shop/us/en/women"},
+  {name:"JIL SANDER",country:"Italy",subtitle:"Women’s Collection",url:"https://www.jilsander.com/en-us/women/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.jilsander.com/en-us/women/"},
+  {name:"MARNI",country:"Italy",subtitle:"Women’s Collection",url:"https://www.marni.com/en-us/women/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.marni.com/en-us/women/"},
+  {name:"MAX MARA",country:"Italy",subtitle:"Women’s Collection",url:"https://us.maxmara.com/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://us.maxmara.com/"},
+  {name:"ETRO",country:"Italy",subtitle:"Women’s Collection",url:"https://www.etro.com/us-en/women/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.etro.com/us-en/women/"},
+  {name:"MOSCHINO",country:"Italy",subtitle:"Women’s Collection",url:"https://us.moschino.com/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://us.moschino.com/"},
+  {name:"LORO PIANA",country:"Italy",subtitle:"Women’s Collection",url:"https://us.loropiana.com/en/woman",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://us.loropiana.com/en/woman"},
+  {name:"BRUNELLO CUCINELLI",country:"Italy",subtitle:"Women’s Collection",url:"https://shop.brunellocucinelli.com/en-us/women/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://shop.brunellocucinelli.com/en-us/women/"},
+  {name:"BURBERRY",country:"United Kingdom",subtitle:"Women’s Collection",url:"https://us.burberry.com/womens/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://us.burberry.com/womens/"},
+  {name:"JW ANDERSON",country:"United Kingdom",subtitle:"Collections",url:"https://www.jwanderson.com/us/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.jwanderson.com/us/"},
+  {name:"STELLA MCCARTNEY",country:"United Kingdom",subtitle:"Women’s Collection",url:"https://www.stellamccartney.com/us/en/women/ready-to-wear",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.stellamccartney.com/us/en/women/ready-to-wear"},
+  {name:"VICTORIA BECKHAM",country:"United Kingdom",subtitle:"Ready-to-Wear",url:"https://www.victoriabeckham.com/collections/ready-to-wear",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.victoriabeckham.com/collections/ready-to-wear"},
+  {name:"THE ROW",country:"United States",subtitle:"Collections",url:"https://www.therow.com/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.therow.com/"},
+  {name:"TOM FORD",country:"United States",subtitle:"Women’s Collection",url:"https://www.tomfordfashion.com/women/ready-to-wear/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.tomfordfashion.com/women/ready-to-wear/"},
+  {name:"RICK OWENS",country:"United States",subtitle:"Women’s Collection",url:"https://www.rickowens.eu/en/US/women/section/all",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.rickowens.eu/en/US/women/section/all"},
+  {name:"COMME DES GARÇONS",country:"Japan",subtitle:"Official",url:"https://www.comme-des-garcons.com/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.comme-des-garcons.com/"},
+  {name:"YOHJI YAMAMOTO",country:"Japan",subtitle:"Collections",url:"https://www.yohjiyamamoto.co.jp/en/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.yohjiyamamoto.co.jp/en/"},
+  {name:"ISSEY MIYAKE",country:"Japan",subtitle:"Collections",url:"https://www.isseymiyake.com/en/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.isseymiyake.com/en/"},
+  {name:"SACAI",country:"Japan",subtitle:"Collections",url:"https://www.sacai.jp/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.sacai.jp/"},
+  {name:"UNDERCOVER",country:"Japan",subtitle:"Collections",url:"https://undercoverism.com/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://undercoverism.com/"}
+];
+
 const TREND_DATA={
   regions:[
-    {
-      name:"Tokyo / 日本",
-      subtitle:"Rakuten Fashion Week TOKYO",
-      url:"https://rakutenfashionweektokyo.com/jp/",
-      thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://rakutenfashionweektokyo.com/jp/"
-    },
-    {
-      name:"Seoul / 韩国",
-      subtitle:"Seoul Fashion Week · 2027 S/S",
-      url:"https://www.seoulfashionweek.org/hmpg/fawk/main.do",
-      thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.seoulfashionweek.org/hmpg/fawk/main.do"
-    },
-    {
-      name:"Shanghai / 中国",
-      subtitle:"Shanghai Fashion Week · AW2026",
-      url:"https://shanghaifashionweek.com/page/shfw",
-      thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://shanghaifashionweek.com/page/shfw"
-    },
-    {
-      name:"Paris / 法国",
-      subtitle:"Paris Fashion Week · 2026/27",
-      url:"https://www.fhcm.paris/en/paris-fashion-week",
-      thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.fhcm.paris/en/paris-fashion-week"
-    },
-    {
-      name:"Milano / 意大利",
-      subtitle:"Milano Fashion Week",
-      url:"https://www.cameramoda.it/en/",
-      thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.cameramoda.it/en/"
-    },
-    {
-      name:"New York / 美国",
-      subtitle:"Official NYFW · Sep 2026",
-      url:"https://cfda.com/news/view-the-preliminary-september-2026-official-nyfw-schedule/",
-      thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://cfda.com/news/view-the-preliminary-september-2026-official-nyfw-schedule/"
-    },
-    {
-      name:"London / 英国",
-      subtitle:"London Fashion Week · Sep 2026",
-      url:"https://www.britishfashioncouncil.co.uk/London-Fashion-Week",
-      thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.britishfashioncouncil.co.uk/London-Fashion-Week"
-    }
-  ],
-  luxury:[
-    {
-      name:"CHANEL",
-      subtitle:"Fall Winter 2026 Pre-Collection",
-      url:"https://www.chanel.com/us/fashion/collection/fall-winter-pre-collection-2026/",
-      thumb:"https://www.chanel.com/images/as/f_auto%2Cq_auto%3Agood%2Cdpr_1.1/w_3200/-83376284.jpg"
-    },
-    {
-      name:"DIOR",
-      subtitle:"Women’s Fall 2026",
-      url:"https://www.dior.com/en_us/fashion/womens-fashion/fall-collection",
-      thumb:"https://hips.hearstapps.com/hmg-prod/images/dior-woman-fall26-press-look-055-6942d0fae5c82.jpg?crop=1.00xw%3A0.668xh%3B0%2C0.178xh&resize=1200%3A%2A"
-    },
-    {
-      name:"PRADA",
-      subtitle:"Fall Winter 2026",
-      url:"https://www.prada.com/us/en.html",
-      thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.prada.com/us/en.html"
-    },
-    {
-      name:"MIU MIU",
-      subtitle:"Fall / Winter 2026 · Mindful Intimacy",
-      url:"https://www.miumiu.com/us/en/collections/c/10195US",
-      thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.miumiu.com/us/en/collections/c/10195US"
-    },
-    {
-      name:"LOEWE",
-      subtitle:"Fall Winter 2026",
-      url:"https://www.loewe.com/usa/en/pd/stories-collection/fw26-runway.html",
-      thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.loewe.com/usa/en/pd/stories-collection/fw26-runway.html"
-    },
-    {
-      name:"LOUIS VUITTON",
-      subtitle:"Women’s Fall-Winter 2026",
-      url:"https://us.louisvuitton.com/eng-us/magazine/articles/women-fall-winter-2026-show",
-      thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://us.louisvuitton.com/eng-us/magazine/articles/women-fall-winter-2026-show"
-    },
-    {
-      name:"SAINT LAURENT",
-      subtitle:"Women Fall 26",
-      url:"https://www.ysl.com/en-us",
-      thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.ysl.com/en-us"
-    }
+    {name:"Tokyo / 日本",subtitle:"Rakuten Fashion Week TOKYO",url:"https://rakutenfashionweektokyo.com/jp/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://rakutenfashionweektokyo.com/jp/"},
+    {name:"Seoul / 韩国",subtitle:"Seoul Fashion Week",url:"https://www.seoulfashionweek.org/hmpg/fawk/main.do",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.seoulfashionweek.org/hmpg/fawk/main.do"},
+    {name:"Shanghai / 中国",subtitle:"Shanghai Fashion Week",url:"https://shanghaifashionweek.com/page/shfw",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://shanghaifashionweek.com/page/shfw"},
+    {name:"Paris / 法国",subtitle:"Paris Fashion Week",url:"https://www.fhcm.paris/en/paris-fashion-week",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.fhcm.paris/en/paris-fashion-week"},
+    {name:"Milano / 意大利",subtitle:"Milano Fashion Week",url:"https://www.cameramoda.it/en/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.cameramoda.it/en/"},
+    {name:"New York / 美国",subtitle:"Official NYFW",url:"https://cfda.com/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://cfda.com/"},
+    {name:"London / 英国",subtitle:"London Fashion Week",url:"https://www.britishfashioncouncil.co.uk/London-Fashion-Week",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.britishfashioncouncil.co.uk/London-Fashion-Week"}
   ]
 };
+
+const BRAND_FAV_KEY="today_wear_luxury_favorites_v25";
+const CUSTOM_BRAND_KEY="today_wear_custom_luxury_brands_v25";
+const DEFAULT_FAVORITES=["CHANEL","DIOR","PRADA","MIU MIU","LOEWE","LOUIS VUITTON","SAINT LAURENT"];
+
+function getCustomBrands(){
+  try{return JSON.parse(localStorage.getItem(CUSTOM_BRAND_KEY)||"[]")}catch(e){return[]}
+}
+function allBrandLibrary(){
+  return [...BRAND_LIBRARY,...getCustomBrands()];
+}
+function getFavoriteBrandNames(){
+  try{
+    const v=JSON.parse(localStorage.getItem(BRAND_FAV_KEY)||"null");
+    return Array.isArray(v)?v:DEFAULT_FAVORITES;
+  }catch(e){return DEFAULT_FAVORITES}
+}
+function saveFavoriteBrandNames(arr){
+  localStorage.setItem(BRAND_FAV_KEY,JSON.stringify([...new Set(arr)]));
+}
+function getFavoriteBrands(){
+  const fav=getFavoriteBrandNames();
+  const lib=allBrandLibrary();
+  return fav.map(n=>lib.find(b=>b.name===n)).filter(Boolean);
+}
+function toggleFavoriteBrand(name){
+  const fav=getFavoriteBrandNames();
+  const next=fav.includes(name)?fav.filter(x=>x!==name):[...fav,name];
+  saveFavoriteBrandNames(next);
+  renderBrandLibrary();
+  renderTrendGrid();
+}
+function removeLuxuryBrand(name,e){
+  if(e){e.preventDefault();e.stopPropagation();}
+  saveFavoriteBrandNames(getFavoriteBrandNames().filter(x=>x!==name));
+  renderTrendGrid();
+  toast(`已移除 ${name}`);
+}
+function openBrandManager(){
+  document.getElementById("brandManagerModal").classList.add("show");
+  document.getElementById("brandSearchInput").value="";
+  renderBrandLibrary();
+}
+function closeBrandManager(){
+  document.getElementById("brandManagerModal").classList.remove("show");
+}
+function renderBrandLibrary(){
+  const box=document.getElementById("brandLibrary");
+  if(!box)return;
+  const q=(document.getElementById("brandSearchInput")?.value||"").trim().toLowerCase();
+  const fav=getFavoriteBrandNames();
+  const list=allBrandLibrary().filter(b=>!q || `${b.name} ${b.country}`.toLowerCase().includes(q));
+  box.innerHTML=list.map(b=>`
+    <button class="brand-choice ${fav.includes(b.name)?"selected":""}" onclick="toggleFavoriteBrand('${esc(b.name)}')">
+      <div><b>${esc(b.name)}</b><small>${esc(b.country||"")}</small></div>
+      <span class="brand-plus">${fav.includes(b.name)?"✓":"＋"}</span>
+    </button>`).join("");
+}
+function addCustomBrand(){
+  const name=document.getElementById("customBrandName").value.trim().toUpperCase();
+  const url=document.getElementById("customBrandUrl").value.trim();
+  if(!name||!url){toast("请填写品牌和官方链接");return}
+  const custom=getCustomBrands().filter(x=>x.name!==name);
+  custom.push({
+    name,
+    country:"Custom",
+    subtitle:"Official Collections",
+    url,
+    thumb:`https://image.thum.io/get/width/900/crop/1100/noanimate/${url}`
+  });
+  localStorage.setItem(CUSTOM_BRAND_KEY,JSON.stringify(custom));
+  const fav=getFavoriteBrandNames();
+  if(!fav.includes(name)) saveFavoriteBrandNames([...fav,name]);
+  document.getElementById("customBrandName").value="";
+  document.getElementById("customBrandUrl").value="";
+  renderBrandLibrary();
+  renderTrendGrid();
+  toast(`已加入 ${name}`);
+}
+
 
 function setTrendMode(mode){
   trendMode=mode;
   document.getElementById("trendTabRegions")?.classList.toggle("active",mode==="regions");
   document.getElementById("trendTabLuxury")?.classList.toggle("active",mode==="luxury");
+  const tools=document.getElementById("luxuryTools");
+  if(tools) tools.style.display=mode==="luxury"?"flex":"none";
   renderTrendGrid();
 }
 function renderTrendGrid(){
   const box=document.getElementById("liveTrendGrid");
   if(!box)return;
-  const data=TREND_DATA[trendMode]||[];
+  const data=trendMode==="luxury"?getFavoriteBrands():(TREND_DATA.regions||[]);
+  const count=document.getElementById("brandCount");
+  if(count && trendMode==="luxury") count.textContent=`${data.length} 个品牌`;
+
+  if(!data.length && trendMode==="luxury"){
+    box.innerHTML=`<div class="empty" style="grid-column:1/-1"><b>还没有选择品牌</b>点击「管理品牌」添加。</div>`;
+    return;
+  }
   box.innerHTML=data.map(x=>`
     <a class="live-trend-card" href="${x.url}" onclick="return openExternalPlatform(event,'${esc(x.name)}',this.href)">
       <span class="source-badge">OFFICIAL</span>
       <span class="open-badge">↗</span>
+      ${trendMode==="luxury"?`<button class="brand-card-remove" onclick="removeLuxuryBrand('${esc(x.name)}',event)">×</button>`:""}
       <img src="${x.thumb}" loading="lazy" alt="${esc(x.name)}"
         onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(145deg,#eee6e1,#d9d4cf)'">
       <div class="trend-body">
@@ -913,28 +1361,8 @@ function renderTrendGrid(){
     </a>`).join("");
 }
 
-function renderStylePreview(files){
-  const box=document.getElementById("stylePreview");
-  if(!box)return;
-  box.innerHTML="";
-  [...files].slice(0,8).forEach(file=>{
-    const r=new FileReader();
-    r.onload=()=>{
-      const img=document.createElement("img");
-      img.src=r.result;
-      box.appendChild(img);
-    };
-    r.readAsDataURL(file);
-  });
-}
 
-document.getElementById("styleInput").addEventListener("change",e=>{
-  const n=e.target.files.length;
-  localStorage.setItem(PREF_KEY,String(n));
-  document.getElementById("styleCount").textContent=`${n} 张近期审美`;
-  renderStylePreview(e.target.files);
-  toast(`已加入 ${n} 张审美样本`);
-});
+
 
 
 
@@ -1305,8 +1733,8 @@ window.addEventListener("focus",()=>{
 render();
 renderLiveInspiration();
 renderTrendGrid();
+renderStyleDNA();
 const stored = localStorage.getItem(PREF_KEY);
-if(stored) document.getElementById("styleCount").textContent=`已保存 ${stored} 张近期审美样本记录。`;
 </script>
 </body>
 </html>
