@@ -1247,7 +1247,7 @@ body.category-modal-open .nav{
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v3.8 STYLE DNA</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v3.9 STYLE DNA</small></div>
       <button class="iconbtn" onclick="toast('基础版设置已保留')">⋯</button>
     </div>
   </header>
@@ -1525,6 +1525,56 @@ body.category-modal-open .nav{
 <div class="toast" id="toast"></div>
 
 <script>
+
+const IMPORT_CATEGORY_MODE_KEY="today_wear_import_category_mode_v39";
+
+function currentUserCategories(){
+  // Use the user's saved category order as the single source of truth.
+  // Do NOT append built-in/default categories during import.
+  let cats=[];
+  try{
+    const raw=JSON.parse(localStorage.getItem(CAT_ORDER_KEY)||"[]");
+    if(Array.isArray(raw)) cats=raw.filter(Boolean);
+  }catch(e){}
+  return [...new Set(cats)];
+}
+
+function normalizeImportedCategory(item){
+  const cats=currentUserCategories();
+  if(!cats.length){
+    // If the user has not created categories yet, do not invent one.
+    return "";
+  }
+
+  const incoming=(item.category||"").trim();
+  if(incoming && cats.includes(incoming)){
+    return incoming;
+  }
+
+  // Try exact subtype/name hints only against the user's own categories.
+  const text=`${item.name||""} ${item.subtype||""} ${incoming}`.toLowerCase();
+  const matched=cats.find(c=>text.includes(String(c).toLowerCase()));
+  if(matched) return matched;
+
+  // Fall back to the user's first existing category.
+  // This keeps every imported item inside the user's custom system,
+  // instead of reviving app defaults such as 上衣/背心/T恤.
+  return cats[0];
+}
+
+function normalizeImportedItemsToUserCategories(arr){
+  return (arr||[]).map(x=>({
+    ...x,
+    category: normalizeImportedCategory(x)
+  }));
+}
+
+function rebuildCategoryOrderFromUserOnly(){
+  const cats=currentUserCategories();
+  saveCategoryOrder(cats);
+  return cats;
+}
+
 const LS_KEY = "today_wear_items_v1";
 const PREF_KEY = "today_wear_style_samples_v1";
 let activeCategory = "全部";
@@ -2103,7 +2153,7 @@ document.getElementById("batchInput").addEventListener("change", async e=>{
     pendingBatch=arr.map((x,i)=>({
       id:x.id||("pkg_"+Date.now().toString(36)+"_"+i),
       name:x.name||"未命名单品",
-      category:x.category||"其他",
+      category:normalizeImportedCategory(x),
       seasons:Array.isArray(x.seasons)&&x.seasons.length?x.seasons:["春","秋"],
       image:x.original_image||x.image||x.ai_image,
       aiImage:x.ai_image||x.image,
@@ -2235,14 +2285,12 @@ function getSavedCategoryOrderExact(){
 }
 
 function getCategoryOrder(){
-  const exact=getSavedCategoryOrderExact();
-  if(exact.length)return exact;
-  if(localStorage.getItem(CAT_INIT_KEY)==="1")return [];
-  // 仅首次升级时从当前素材标签迁移一次，之后分类表独立运行。
-  const fromItems=[...new Set(items().map(x=>x.category).filter(Boolean))];
-  const initial=fromItems.length?fromItems:defaultCategories();
-  saveCategoryOrder(initial);
-  return initial;
+  try{
+    const saved=JSON.parse(localStorage.getItem(CAT_ORDER_KEY)||"[]");
+    return Array.isArray(saved)?saved.filter(Boolean):[];
+  }catch(e){
+    return [];
+  }
 }
 function saveCategoryOrder(arr){
   localStorage.setItem(CAT_ORDER_KEY,JSON.stringify(arr));
@@ -2430,36 +2478,7 @@ function renameCategoryEverywhere(oldName,next){
   data.forEach(x=>{if(x.category===oldName)x.category=next});
   saveItems(data);
 
-  const order=getCategoryOrder().map(c=>c===oldName?next:c);
-  saveCategoryOrder([...new Set(order)]);
-  if(activeCategory===oldName)activeCategory=next;
-  render();
-  renderCategoryManager();
-  toast(`已改为「${next}」`);
-}
-
-function moveCategoryOrder(index,delta){
-  const cats=[...getSavedCategoryOrderExact()];
-  const j=index+delta;
-  if(j<0||j>=cats.length)return;
-  [cats[index],cats[j]]=[cats[j],cats[index]];
-  saveCategoryOrder(cats);
-  render();
-  renderCategoryManager();
-}
-
-
-function deleteCategory(category){
-  const affected=items().filter(x=>x.category===category).length;
-  const msg=affected>0
-    ? `删除分类「${category}」？
-
-这个操作只删除分类入口；其中 ${affected} 件素材会继续完整保存在衣橱“全部”中，不会移动到未分类，也不会被删除。`
-    : `删除分类「${category}」？`;
-  if(!confirm(msg))return;
-
-  const order=getSavedCategoryOrderExact().filter(c=>c!==category);
-  saveCategoryOrder(order);
+  rebuildCategoryOrderFromUserOnly();
   if(activeCategory===category) activeCategory="全部";
   render();
   renderCategoryManager();
