@@ -1346,7 +1346,7 @@ body.category-modal-open .nav{
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v4.7 STYLE DNA</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v4.8 STYLE DNA</small></div>
       <button class="iconbtn" onclick="openDataSettings()">⋯</button>
     </div>
   </header>
@@ -1447,11 +1447,11 @@ body.category-modal-open .nav{
             <span class="style-dna-badge" id="styleSampleCount">0 张</span>
           </div>
           <div class="style-upload-actions">
-            <label class="btn secondary" for="styleInput" style="cursor:pointer">＋ 导入图片</label>
+            <button type="button" class="btn secondary" id="stylePickBtn">＋ 导入图片</button>
             <label class="btn secondary" for="styleDNAInput" style="cursor:pointer">导入 Style DNA</label>
             <button class="tiny-btn" onclick="clearStyleSamples()">清空</button>
           </div>
-          <input id="styleInput" type="file" multiple accept="image/*" style="display:none"/>
+          <input id="styleInput" type="file" multiple accept="image/*,.heic,.heif,.jpg,.jpeg,.png,.webp" style="display:none"/>
           <input id="styleDNAInput" type="file" accept=".json,application/json" style="display:none"/>
           <div class="style-strip" id="stylePreview"></div>
         </div>
@@ -1462,7 +1462,7 @@ body.category-modal-open .nav{
             <span class="style-dna-badge" id="dnaModeBadge">近期审美识别</span>
           </div>
           <div id="dnaResult"></div>
-          <div class="dna-local-note">近期导入权重更高；样本保存在 IndexedDB，不再限制 20 张。</div>
+          <div class="dna-local-note">近期导入权重更高；样本保存在 IndexedDB，不限制张数。V4.8 已修复旧数据库无法创建风格样本库的问题。</div>
         </div>
 
         <div class="style-dna-panel">
@@ -1764,7 +1764,7 @@ function rebuildCategoryOrderFromUserOnly(){
 
 const LS_KEY = "today_wear_items_v1"; // legacy only: migrated once into IndexedDB
 const DB_NAME = "today_wear_db_v44";
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 const ITEM_STORE = "wardrobe_items";
 const META_STORE = "meta";
 const STYLE_STORE = "style_samples";
@@ -2047,21 +2047,34 @@ function getStyleDNA(){
 function saveStyleDNA(dna){
   localStorage.setItem(STYLE_DNA_KEY,JSON.stringify(dna));
 }
-function fileToCompressedDataURL(file,max=420,q=.78){
+function fileToDataURL(file){
   return new Promise((resolve,reject)=>{
     const r=new FileReader();
-    r.onload=()=>{
-      const img=new Image();
-      img.onload=()=>{
-        const scale=Math.min(1,max/Math.max(img.width,img.height));
-        const w=Math.max(1,Math.round(img.width*scale)),h=Math.max(1,Math.round(img.height*scale));
+    r.onload=()=>resolve(r.result);
+    r.onerror=()=>reject(r.error||new Error("读取图片失败"));
+    r.readAsDataURL(file);
+  });
+}
+function fileToCompressedDataURL(file,max=520,q=.80){
+  return new Promise(async(resolve,reject)=>{
+    let raw;
+    try{ raw=await fileToDataURL(file); }catch(err){ reject(err); return; }
+    const img=new Image();
+    img.onload=()=>{
+      try{
+        const scale=Math.min(1,max/Math.max(img.width||1,img.height||1));
+        const w=Math.max(1,Math.round((img.width||1)*scale)),h=Math.max(1,Math.round((img.height||1)*scale));
         const c=document.createElement("canvas");c.width=w;c.height=h;
-        const ctx=c.getContext("2d");ctx.drawImage(img,0,0,w,h);
+        const ctx=c.getContext("2d");
+        if(!ctx) throw new Error("Canvas unavailable");
+        ctx.drawImage(img,0,0,w,h);
         resolve(c.toDataURL("image/jpeg",q));
-      };
-      img.onerror=reject;img.src=r.result;
+      }catch(err){
+        resolve(raw); // iOS/HEIC 等压缩失败时保留原图，确保至少能导入
+      }
     };
-    r.onerror=reject;r.readAsDataURL(file);
+    img.onerror=()=>resolve(raw); // Safari 无法解码预压缩时也不阻断导入
+    img.src=raw;
   });
 }
 function avgPalette(dataUrl){
@@ -2255,10 +2268,22 @@ function renderSearchLinks(){
 function openStyleSearch(e,platform,url){
   return openExternalPlatform(e,platform,url);
 }
+document.getElementById("stylePickBtn")?.addEventListener("click",()=>document.getElementById("styleInput")?.click());
 document.getElementById("styleInput").addEventListener("change",async e=>{
-  const f=e.target.files;e.target.value="";
-  await addStyleFiles(f);
-  toast(`已加入 ${f.length} 张风格样本`);
+  const files=Array.from(e.target.files||[]);
+  e.target.value="";
+  if(!files.length) return;
+  const badge=document.getElementById("styleSampleCount");
+  const oldText=badge?.textContent||"";
+  if(badge) badge.textContent="导入中…";
+  try{
+    await addStyleFiles(files);
+    toast(`已加入 ${files.length} 张风格样本`);
+  }catch(err){
+    console.error("STYLE DNA image import failed",err);
+    if(badge) badge.textContent=oldText;
+    alert("图片导入失败："+(err?.message||err)+"\n\n已在 V4.8 修复 IndexedDB 升级与 iPhone 图片兼容；如仍出现此提示，请截图发我。 ");
+  }
 });
 document.getElementById("styleDNAInput").addEventListener("change",async e=>{
   const f=e.target.files[0];e.target.value="";if(!f)return;
