@@ -1462,7 +1462,7 @@ body.category-modal-open .nav{
             <span class="style-dna-badge" id="dnaModeBadge">近期审美识别</span>
           </div>
           <div id="dnaResult"></div>
-          <div class="dna-local-note">近期导入权重更高；样本保存在 IndexedDB，不限制张数。V4.8 已修复旧数据库无法创建风格样本库的问题。</div>
+          <div class="dna-local-note">近期导入权重更高；样本保存在 IndexedDB，不限制张数。V4.9 已修复旧数据库无法创建风格样本库的问题。</div>
         </div>
 
         <div class="style-dna-panel">
@@ -2282,7 +2282,7 @@ document.getElementById("styleInput").addEventListener("change",async e=>{
   }catch(err){
     console.error("STYLE DNA image import failed",err);
     if(badge) badge.textContent=oldText;
-    alert("图片导入失败："+(err?.message||err)+"\n\n已在 V4.8 修复 IndexedDB 升级与 iPhone 图片兼容；如仍出现此提示，请截图发我。 ");
+    alert("图片导入失败："+(err?.message||err)+"\n\n已在 V4.9 修复 IndexedDB 升级与 iPhone 图片兼容；如仍出现此提示，请截图发我。 ");
   }
 });
 document.getElementById("styleDNAInput").addEventListener("change",async e=>{
@@ -2617,8 +2617,43 @@ document.getElementById("batchInput").addEventListener("change", async e=>{
   try{
     const txt=await f.text();
     const obj=JSON.parse(txt);
+
+    // V4.9: 兼容 V4.6 / V4.7 导出的「完整备份」文件。
+    // 完整备份结构是 { app, backupVersion, wardrobe, localStorage }，
+    // 与 ChatGPT 素材包的 { items:[...] } 不是同一种结构。
+    if(obj && obj.app==="今天穿什么" && Array.isArray(obj.wardrobe)){
+      const valid=obj.wardrobe.filter(x=>x && (x.image||x.aiImage||x.ai_image));
+      if(!valid.length) throw new Error("完整备份中没有可恢复的衣服图片");
+      const ok=confirm(`检测到旧版完整备份（${obj.appVersion||"旧版本"}），共 ${valid.length} 件衣服。\n\n将覆盖当前衣橱，但会保留 V4.9 的 STYLE DNA / 风格样本。是否继续？`);
+      if(!ok) return;
+
+      await idbReplaceAllItems(valid);
+      await verifyIndexedDBWrite(valid);
+
+      // 只恢复衣橱/分类相关设置；不要让 V4.6 的空 STYLE DNA 覆盖 V4.9 新数据。
+      if(obj.localStorage && typeof obj.localStorage==="object"){
+        Object.entries(obj.localStorage).forEach(([k,v])=>{
+          if(!k.startsWith("today_wear_")) return;
+          if(/style_samples|style_dna/i.test(k)) return;
+          if(v!==null && v!==undefined) localStorage.setItem(k,String(v));
+        });
+      }
+
+      __itemsCache=await idbGetAllItems();
+      activeCategory="全部";
+      activeSeason="全部";
+      render();
+      renderLiveInspiration();
+      renderTrendGrid();
+      renderStyleDNA();
+      toast(`旧版备份恢复完成：${__itemsCache.length} 件衣服`);
+      activateTab("wardrobe");
+      return;
+    }
+
+    // 普通 ChatGPT 素材包仍按原逻辑导入。
     const arr=Array.isArray(obj)?obj:obj.items;
-    if(!Array.isArray(arr)||!arr.length) throw new Error("素材包中没有衣服");
+    if(!Array.isArray(arr)||!arr.length) throw new Error("文件中没有可导入的衣服；如果这是旧版完整备份，请使用 V4.9 再试");
     pendingBatch=arr.map((x,i)=>({
       id:x.id||("pkg_"+Date.now().toString(36)+"_"+i),
       name:x.name||"未命名单品",
@@ -2626,12 +2661,16 @@ document.getElementById("batchInput").addEventListener("change", async e=>{
       seasons:Array.isArray(x.seasons)&&x.seasons.length?x.seasons:["春","秋"],
       image:x.original_image||x.image||x.ai_image,
       aiImage:x.ai_image||x.image,
-      tag:"白底素材",
-      createdAt:Date.now()+i
+      tag:x.tag||"白底素材",
+      createdAt:x.createdAt||Date.now()+i
     })).filter(x=>x.aiImage);
     if(!pendingBatch.length) throw new Error("素材包里没有有效图片");
     renderBatchPreview();
-  }catch(err){toast("素材包读取失败");alert("素材包读取失败："+(err.message||"格式错误"))}
+  }catch(err){
+    console.error("batch import failed",err);
+    toast("素材包读取失败");
+    alert("素材包读取失败："+(err.message||"格式错误"));
+  }
 });
 
 function renderBatchPreview(){
