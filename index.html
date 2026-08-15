@@ -1343,7 +1343,7 @@ body.category-modal-open .nav{
 
 
 <style>
-/* V4.10.0 STYLE DNA：画像占比 + 全球穿搭账号 */
+/* V4.10.1 STYLE DNA：画像占比 + 全球穿搭账号 */
 .dna-distribution{margin-top:14px;padding:14px;border-radius:20px;background:#faf6f3;border:1px solid #eee6e1}
 .dna-distribution-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .dna-distribution-title b{font-size:12px;color:#514a45}.dna-distribution-title span{font-size:9px;color:#9a9089}
@@ -1364,7 +1364,7 @@ body.category-modal-open .nav{
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · V4.10.0 STYLE DNA</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · V4.10.1 STYLE DNA</small></div>
       <button class="iconbtn" onclick="openDataSettings()">⋯</button>
     </div>
   </header>
@@ -2275,8 +2275,8 @@ const STYLE_CREATORS=[
   {name:"dewgi_net",platform:"Instagram",url:"https://www.instagram.com/dewgi_net/",keys:["korean","minimal","soft","model off-duty","韩系","简约"],tags:["Korean","Off-duty"]},
   {name:"wonyoungcloset",platform:"Instagram",url:"https://www.instagram.com/wonyoungcloset/",keys:["feminine","romantic","korean","ballet","女性感","浪漫"],tags:["Feminine","K-style"]},
   {name:"jennierubyjanik",platform:"Instagram",url:"https://www.instagram.com/jennierubyjanik/",keys:["y2k","feminine","mini","女性感"],tags:["Y2K","Girly"]},
-  {name:"满妈 · 穿搭",platform:"小红书",url:"https://www.xiaohongshu.com/search_result?keyword=%E6%BB%A1%E5%A6%88%20%E7%A9%BF%E6%90%AD",keys:["casual","minimal","sporty","松弛","简约"],tags:["松弛","实穿"]},
-  {name:"Soft Y2K 穿搭",platform:"小红书",url:"https://www.xiaohongshu.com/search_result?keyword=Soft%20Y2K%20%E7%A9%BF%E6%90%AD",keys:["soft y2k","y2k","轻y2k"],tags:["Soft Y2K","全球灵感"]},
+  {name:"Relaxed minimal",platform:"Pinterest",url:"https://www.pinterest.com/search/pins/?q=relaxed%20minimal%20outfit",keys:["casual","minimal","sporty","松弛","简约"],tags:["松弛","实穿"]},
+  {name:"Soft Y2K inspiration",platform:"Pinterest",url:"https://www.pinterest.com/search/pins/?q=soft%20y2k%20outfit",keys:["soft y2k","y2k","轻y2k"],tags:["Soft Y2K","全球灵感"]},
   {name:"Korean feminine",platform:"Pinterest",url:"https://www.pinterest.com/search/pins/?q=korean%20feminine%20outfit",keys:["korean","feminine","romantic","韩系"],tags:["Korean","Feminine"]},
   {name:"Model off-duty",platform:"Pinterest",url:"https://www.pinterest.com/search/pins/?q=model%20off%20duty%20outfit",keys:["model off-duty","minimal","casual","模特"],tags:["Off-duty","Minimal"]},
   {name:"Soft feminine outfit",platform:"TikTok",url:"https://www.tiktok.com/search?q=soft%20feminine%20outfit",keys:["feminine","soft","romantic"],tags:["Feminine","Trend"]},
@@ -2288,7 +2288,7 @@ function creatorScore(c,dna){
 }
 function renderCreators(){
   const box=document.getElementById("dnaCreators");if(!box)return;
-  const dna=getStyleDNA(); if(!dna?.styles?.length){box.innerHTML='<div class="dna-empty" style="grid-column:1/-1">导入 STYLE DNA 后匹配全球相似穿搭账号</div>';return;}
+  const dna=getStyleDNA()||{styles:[],keywords:[],terms:[]};
   const picks=[...STYLE_CREATORS].sort((a,b)=>creatorScore(b,dna)-creatorScore(a,dna)).slice(0,6);
   box.innerHTML=picks.map((c,i)=>`<a class="creator-card" href="${c.url}" target="_blank" rel="noopener" onclick="return openExternalPlatform(event,'${esc(c.platform)} · ${esc(c.name)}',this.href)"><span class="creator-arrow">↗</span><div class="creator-platform">${esc(c.platform)}</div><div class="creator-name">${esc(c.name)}</div><div class="creator-match">与近期画像 ${Math.max(72,94-i*3)}% 相邻</div><div class="creator-tags">${c.tags.map(t=>`<span>${esc(t)}</span>`).join("")}</div></a>`).join("");
 }
@@ -2299,9 +2299,8 @@ function renderTrendLooks(){
   const picks=[]; for(let i=0;i<4;i++) picks.push(styles[(i+dnaTrendSeed)%styles.length]||styles[0]);
   box.innerHTML=picks.map((st,i)=>{
     const term=(STYLE_LIBRARY.find(x=>x.name===st.name)?.terms||[st.cn||st.name])[0];
-    const q=encodeURIComponent(term||'fashion outfit');
     const match=Math.max(68,Math.min(98,Math.round((st.score||60)+(3-i)*5)));
-    return `<a class="live-trend-card" href="https://www.xiaohongshu.com/search_result?keyword=${q}" target="_blank" rel="noopener"><img src="${TREND_LOOK_IMAGES[(i+dnaTrendSeed)%TREND_LOOK_IMAGES.length]}" alt="${esc(st.cn||st.name)}"><span class="source-badge">${match}% MATCH</span><span class="open-badge">↗</span><div class="trend-body"><h3>${esc(st.cn||st.name)}</h3><p>${esc(term||'相似风格穿搭')}</p></div></a>`;
+    return `<div class="live-trend-card" role="group"><img src="${TREND_LOOK_IMAGES[(i+dnaTrendSeed)%TREND_LOOK_IMAGES.length]}" alt="${esc(st.cn||st.name)}"><span class="source-badge">${match}% MATCH</span><div class="trend-body"><h3>${esc(st.cn||st.name)}</h3><p>${esc(term||'相似风格穿搭')} · App 内画像预览</p></div></div>`;
   }).join('');
 }
 function shuffleTrendLooks(){dnaTrendSeed++;renderTrendLooks();renderCreators();}
