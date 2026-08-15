@@ -1346,7 +1346,7 @@ body.category-modal-open .nav{
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · V4.9.1 STYLE DNA</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · V4.9.2 STYLE DNA</small></div>
       <button class="iconbtn" onclick="openDataSettings()">⋯</button>
     </div>
   </header>
@@ -1386,10 +1386,10 @@ body.category-modal-open .nav{
 
       <div class="batch-panel">
         <div class="kicker">ONE-TAP BATCH IMPORT</div>
-        <h3>从 ChatGPT 素材包一键导入</h3>
+        <h3>从 ChatGPT 素材包 / 旧备份一键导入</h3>
         <p>你一次把多张衣服原图发给 ChatGPT，我帮你生成 1:1 白底纯衣物素材、名称、类别和季节，并打包成一个 <b>.json 素材包</b>。回到这里选择一次文件，即可整批加入衣橱，不用逐件输入。</p>
         <div class="batch-actions">
-          <label class="btn" for="batchInput" style="cursor:pointer">导入素材包</label>
+          <label class="btn" for="batchInput" style="cursor:pointer">导入素材包 / 旧备份</label>
           <button class="btn secondary" onclick="showPackageHelp()">查看素材包说明</button>
         </div>
         <input id="batchInput" type="file" accept=".json,application/json" style="display:none">
@@ -2650,21 +2650,37 @@ document.getElementById("batchInput").addEventListener("change", async e=>{
   try{
     const txt=await f.text();
     const obj=JSON.parse(txt);
-    const arr=Array.isArray(obj)?obj:obj.items;
-    if(!Array.isArray(arr)||!arr.length) throw new Error("素材包中没有衣服");
+
+    // V4.9.2：自动识别「今天穿什么」旧版/新版完整备份。
+    // 旧备份的数据字段是 wardrobe，而 ChatGPT 素材包通常是 items。
+    // 之前这里仅识别 items，所以会误报“素材包中没有衣服”。
+    if(obj && obj.app==="今天穿什么" && Array.isArray(obj.wardrobe)){
+      const n=obj.wardrobe.length;
+      const ok=confirm(`检测到「今天穿什么」完整备份，共 ${n} 件衣服。\n\n将按完整备份方式恢复衣橱、分类和可用的 Style DNA 数据，而不是当作 ChatGPT 素材包读取。是否继续？`);
+      if(!ok) return;
+      await restoreFullBackupFromFile(new File([txt],f.name,{type:f.type||"application/json"}));
+      return;
+    }
+
+    const arr=Array.isArray(obj)?obj:(Array.isArray(obj.items)?obj.items:null);
+    if(!Array.isArray(arr)||!arr.length) throw new Error("未识别到衣服数据：请选择 ChatGPT 素材包，或「今天穿什么」完整备份 JSON");
     pendingBatch=arr.map((x,i)=>({
       id:x.id||("pkg_"+Date.now().toString(36)+"_"+i),
       name:x.name||"未命名单品",
       category:normalizeImportedCategory(x),
       seasons:Array.isArray(x.seasons)&&x.seasons.length?x.seasons:["春","秋"],
       image:x.original_image||x.image||x.ai_image,
-      aiImage:x.ai_image||x.image,
-      tag:"白底素材",
-      createdAt:Date.now()+i
+      aiImage:x.ai_image||x.image||x.original_image,
+      tag:x.tag||"白底素材",
+      createdAt:x.createdAt||Date.now()+i
     })).filter(x=>x.aiImage);
-    if(!pendingBatch.length) throw new Error("素材包里没有有效图片");
+    if(!pendingBatch.length) throw new Error("文件里有衣服记录，但没有可用图片");
     renderBatchPreview();
-  }catch(err){toast("素材包读取失败");alert("素材包读取失败："+(err.message||"格式错误"))}
+  }catch(err){
+    console.error("batch import failed",err);
+    toast("导入文件读取失败");
+    alert("导入失败："+(err.message||"格式错误"));
+  }
 });
 
 function renderBatchPreview(){
@@ -3336,7 +3352,7 @@ async function exportFullBackup(){
     const backup={
       app:"今天穿什么",
       backupVersion:2,
-      appVersion:"4.9.1",
+      appVersion:"4.9.2",
       createdAt:new Date().toISOString(),
       wardrobe,
       styleSamples,
@@ -3348,7 +3364,7 @@ async function exportFullBackup(){
     const a=document.createElement("a");
     const d=new Date();
     const pad=n=>String(n).padStart(2,"0");
-    const name=`今天穿什么_完整备份_V4.9.1_${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}.json`;
+    const name=`今天穿什么_完整备份_V4.9.2_${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}.json`;
     a.href=url;
     a.download=name;
     document.body.appendChild(a);
