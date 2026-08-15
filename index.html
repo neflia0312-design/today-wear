@@ -1307,7 +1307,7 @@ body.category-modal-open .nav{
 </style>
 
 <style>
-/* V4.9 完整备份 / 恢复：包含衣橱、分类、Style DNA 与风格样本 */
+/* V4.9.1 完整备份 / 恢复：包含衣橱、分类、Style DNA 与风格样本 */
 #dataSettingsModal{
   position:fixed;inset:0;z-index:10080;display:none;
   background:rgba(53,48,44,.26);backdrop-filter:blur(12px);
@@ -1346,7 +1346,7 @@ body.category-modal-open .nav{
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v4.8 STYLE DNA</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · V4.9.1 STYLE DNA</small></div>
       <button class="iconbtn" onclick="openDataSettings()">⋯</button>
     </div>
   </header>
@@ -1462,7 +1462,7 @@ body.category-modal-open .nav{
             <span class="style-dna-badge" id="dnaModeBadge">近期审美识别</span>
           </div>
           <div id="dnaResult"></div>
-          <div class="dna-local-note">近期导入权重更高；样本保存在 IndexedDB，不限制张数。V4.9：风格样本导入与完整备份均已修复；样本保存在 IndexedDB，不限制张数。</div>
+          <div class="dna-local-note">近期导入权重更高；样本保存在 IndexedDB，不限制张数。V4.9.1：风格样本导入与完整备份均已修复；样本保存在 IndexedDB，不限制张数。</div>
         </div>
 
         <div class="style-dna-panel">
@@ -2315,7 +2315,7 @@ document.getElementById("styleInput").addEventListener("change",async e=>{
   }catch(err){
     console.error("STYLE DNA image import failed",err);
     if(badge) badge.textContent=oldText;
-    alert("图片导入失败："+(err?.message||err)+"\n\nV4.9 已修复 IndexedDB、iPhone 图片解码等待与完整备份；如仍出现此提示，请截图发我。 ");
+    alert("图片导入失败："+(err?.message||err)+"\n\nV4.9.1 已修复 IndexedDB、iPhone 图片解码等待与完整备份；如仍出现此提示，请截图发我。 ");
   }
 });
 document.getElementById("styleDNAInput").addEventListener("change",async e=>{
@@ -3336,7 +3336,7 @@ async function exportFullBackup(){
     const backup={
       app:"今天穿什么",
       backupVersion:2,
-      appVersion:"4.9",
+      appVersion:"4.9.1",
       createdAt:new Date().toISOString(),
       wardrobe,
       styleSamples,
@@ -3348,7 +3348,7 @@ async function exportFullBackup(){
     const a=document.createElement("a");
     const d=new Date();
     const pad=n=>String(n).padStart(2,"0");
-    const name=`今天穿什么_完整备份_V4.9_${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}.json`;
+    const name=`今天穿什么_完整备份_V4.9.1_${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}.json`;
     a.href=url;
     a.download=name;
     document.body.appendChild(a);
@@ -3473,7 +3473,7 @@ window.addEventListener("pageshow", async e=>{
       <label class="data-restore-btn" for="fullBackupInput" style="text-align:center;cursor:pointer">导入备份并恢复</label>
       <input id="fullBackupInput" type="file" accept=".json,application/json" style="display:none">
     </div>
-    <div class="data-settings-meta" id="backupMetaText">V4.9 完整备份会同时保存衣橱、分类、Style DNA 与全部风格样本；文件只保存在你自己选择的位置，不会上传服务器。</div>
+    <div class="data-settings-meta" id="backupMetaText">V4.9.1 完整备份会同时保存衣橱、分类、Style DNA 与全部风格样本；文件只保存在你自己选择的位置，不会上传服务器。</div>
   </div>
 </div>
 
