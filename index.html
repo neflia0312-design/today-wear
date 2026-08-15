@@ -1346,7 +1346,7 @@ body.category-modal-open .nav{
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v4.6 STYLE DNA</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · v4.7 STYLE DNA</small></div>
       <button class="iconbtn" onclick="openDataSettings()">⋯</button>
     </div>
   </header>
@@ -1459,9 +1459,19 @@ body.category-modal-open .nav{
         <div class="style-dna-panel">
           <div class="style-dna-head">
             <h2>风格画像</h2>
-            <span class="style-dna-badge" id="dnaModeBadge">本地初筛</span>
+            <span class="style-dna-badge" id="dnaModeBadge">近期审美识别</span>
           </div>
           <div id="dnaResult"></div>
+          <div class="dna-local-note">近期导入权重更高；样本保存在 IndexedDB，不再限制 20 张。</div>
+        </div>
+
+        <div class="style-dna-panel">
+          <div class="style-dna-head">
+            <h2>流行画像 · 相似推荐</h2>
+            <button class="tiny-btn" onclick="shuffleTrendLooks()">换一组</button>
+          </div>
+          <div class="live-trend-grid" id="dnaTrendLooks"></div>
+          <div class="dna-local-note">根据你的近期 STYLE DNA 匹配相邻流行风格；点击卡片可继续搜索同类穿搭。</div>
         </div>
 
         <div class="style-dna-panel">
@@ -1754,9 +1764,10 @@ function rebuildCategoryOrderFromUserOnly(){
 
 const LS_KEY = "today_wear_items_v1"; // legacy only: migrated once into IndexedDB
 const DB_NAME = "today_wear_db_v44";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const ITEM_STORE = "wardrobe_items";
 const META_STORE = "meta";
+const STYLE_STORE = "style_samples";
 const PREF_KEY = "today_wear_style_samples_v1";
 let activeCategory = "全部";
 let activeSeason = "全部";
@@ -1799,6 +1810,7 @@ function openWardrobeDB(){
       const db=req.result;
       if(!db.objectStoreNames.contains(ITEM_STORE)) db.createObjectStore(ITEM_STORE,{keyPath:"id"});
       if(!db.objectStoreNames.contains(META_STORE)) db.createObjectStore(META_STORE,{keyPath:"key"});
+      if(!db.objectStoreNames.contains(STYLE_STORE)) db.createObjectStore(STYLE_STORE,{keyPath:"id"});
     };
     req.onsuccess=()=>resolve(req.result);
     req.onerror=()=>reject(req.error||new Error("IndexedDB open failed"));
@@ -2002,14 +2014,32 @@ const STYLE_LIBRARY=[
   {name:"Romantic Utility",cn:"浪漫机能",keys:["灰","黑","绑带","金属","蕾丝"],terms:["romantic utility outfit","浪漫机能穿搭","utility lace outfit"]}
 ];
 
-function getStyleSamples(){
-  try{return JSON.parse(localStorage.getItem(STYLE_SAMPLES_KEY)||"[]")}catch(e){return[]}
+let __styleSamplesCache=[];
+function getStyleSamples(){ return __styleSamplesCache; }
+async function idbGetStyleSamples(){
+  const db=await openWardrobeDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(STYLE_STORE,"readonly");
+    const req=tx.objectStore(STYLE_STORE).getAll();
+    req.onsuccess=()=>resolve((req.result||[]).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)));
+    req.onerror=()=>reject(req.error);
+  });
 }
-function saveStyleSamples(arr){
-  try{localStorage.setItem(STYLE_SAMPLES_KEY,JSON.stringify(arr))}catch(e){
-    toast("图片较多，已保留部分样本");
-    localStorage.setItem(STYLE_SAMPLES_KEY,JSON.stringify(arr.slice(-8)));
+async function saveStyleSamples(arr){
+  __styleSamplesCache=Array.isArray(arr)?arr:[];
+  const db=await openWardrobeDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(STYLE_STORE,"readwrite"),store=tx.objectStore(STYLE_STORE);
+    store.clear(); __styleSamplesCache.forEach(x=>store.put(x));
+    tx.oncomplete=()=>resolve(true); tx.onerror=()=>reject(tx.error); tx.onabort=()=>reject(tx.error);
+  });
+}
+async function loadStyleSamples(){
+  let arr=await idbGetStyleSamples();
+  if(!arr.length){
+    try{ const legacy=JSON.parse(localStorage.getItem(STYLE_SAMPLES_KEY)||"[]"); if(Array.isArray(legacy)&&legacy.length){ arr=legacy.map((x,i)=>({...x,createdAt:x.createdAt||Date.now()-legacy.length+i})); await saveStyleSamples(arr); localStorage.removeItem(STYLE_SAMPLES_KEY); } }catch(e){}
   }
+  __styleSamplesCache=arr; return arr;
 }
 function getStyleDNA(){
   try{return JSON.parse(localStorage.getItem(STYLE_DNA_KEY)||"null")}catch(e){return null}
@@ -2050,34 +2080,33 @@ function avgPalette(dataUrl){
   });
 }
 async function addStyleFiles(files){
-  const existing=getStyleSamples();
+  const existing=[...getStyleSamples()];
   const incoming=[];
-  for(const f of [...files].slice(0,20)){
-    const image=await fileToCompressedDataURL(f);
+  for(const f of [...files]){
+    const image=await fileToCompressedDataURL(f,520,.80);
     const palette=await avgPalette(image);
-    incoming.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),image,palette,name:f.name||""});
+    incoming.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),image,palette,name:f.name||"",createdAt:Date.now()+incoming.length});
   }
-  saveStyleSamples([...existing,...incoming].slice(-20));
-  // 深度分析包不存在时，重新做本地初筛
-  if(!getStyleDNA()?.deep) saveStyleDNA(buildLocalDNA([...existing,...incoming].slice(-20)));
+  const all=[...existing,...incoming];
+  await saveStyleSamples(all);
+  if(!getStyleDNA()?.deep) saveStyleDNA(buildLocalDNA(all));
   renderStyleDNA();
 }
-function removeStyleSample(id){
-  const arr=getStyleSamples().filter(x=>x.id!==id);saveStyleSamples(arr);
+async function removeStyleSample(id){
+  const arr=getStyleSamples().filter(x=>x.id!==id); await saveStyleSamples(arr);
   if(!getStyleDNA()?.deep) saveStyleDNA(buildLocalDNA(arr));
   renderStyleDNA();
 }
-function clearStyleSamples(){
-  if(!confirm("清空近期审美图片？"))return;
-  localStorage.removeItem(STYLE_SAMPLES_KEY);
-  localStorage.removeItem(STYLE_DNA_KEY);
-  renderStyleDNA();
+async function clearStyleSamples(){
+  if(!confirm("清空全部审美图片？"))return;
+  await saveStyleSamples([]); localStorage.removeItem(STYLE_DNA_KEY); renderStyleDNA();
 }
 function buildLocalDNA(samples){
   if(!samples.length)return {deep:false,styles:[],palette:[],keywords:[],terms:[]};
   let ar=0,ag=0,ab=0;
-  samples.forEach(x=>{ar+=x.palette?.r||0;ag+=x.palette?.g||0;ab+=x.palette?.b||0});
-  ar/=samples.length;ag/=samples.length;ab/=samples.length;
+  let totalW=0;
+  samples.forEach((x,i)=>{ const w=.35+.65*((i+1)/samples.length); ar+=(x.palette?.r||0)*w;ag+=(x.palette?.g||0)*w;ab+=(x.palette?.b||0)*w;totalW+=w; });
+  ar/=totalW;ag/=totalW;ab/=totalW;
   const max=Math.max(ar,ag,ab),min=Math.min(ar,ag,ab),sat=max-min,light=(max+min)/2;
   let names=[];
   if(sat<38) names.push("Grey Feminine","90s Minimal","Korean Minimal");
@@ -2114,7 +2143,7 @@ function renderStyleDNA(){
 
   let dna=getStyleDNA();
   if(!dna && samples.length){dna=buildLocalDNA(samples);saveStyleDNA(dna)}
-  document.getElementById("dnaModeBadge").textContent=dna?.deep?"深度分析":"本地初筛";
+  document.getElementById("dnaModeBadge").textContent=dna?.deep?"深度分析":"近期审美识别";
   const result=document.getElementById("dnaResult");
   if(!dna||!dna.styles?.length){
     result.innerHTML=`<div class="dna-empty">导入图片后建立你的 STYLE DNA</div>`;
@@ -2128,7 +2157,30 @@ function renderStyleDNA(){
   }
   renderDNAMatches();
   renderSearchLinks();
+  renderTrendLooks();
 }
+let dnaTrendSeed=0;
+const TREND_LOOK_IMAGES=[
+  "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=700&q=80",
+  "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=700&q=80",
+  "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=700&q=80",
+  "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=700&q=80",
+  "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=700&q=80",
+  "https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=700&q=80"
+];
+function renderTrendLooks(){
+  const box=document.getElementById("dnaTrendLooks"); if(!box)return;
+  const dna=getStyleDNA(), styles=(dna?.styles||[]);
+  if(!styles.length){box.innerHTML='<div class="dna-empty" style="grid-column:1/-1">导入风格样本后生成相似流行画像</div>';return;}
+  const picks=[]; for(let i=0;i<4;i++) picks.push(styles[(i+dnaTrendSeed)%styles.length]||styles[0]);
+  box.innerHTML=picks.map((st,i)=>{
+    const term=(STYLE_LIBRARY.find(x=>x.name===st.name)?.terms||[st.cn||st.name])[0];
+    const q=encodeURIComponent(term||'fashion outfit');
+    const match=Math.max(68,Math.min(98,Math.round((st.score||60)+(3-i)*5)));
+    return `<a class="live-trend-card" href="https://www.xiaohongshu.com/search_result?keyword=${q}" target="_blank" rel="noopener"><img src="${TREND_LOOK_IMAGES[(i+dnaTrendSeed)%TREND_LOOK_IMAGES.length]}" alt="${esc(st.cn||st.name)}"><span class="source-badge">${match}% MATCH</span><span class="open-badge">↗</span><div class="trend-body"><h3>${esc(st.cn||st.name)}</h3><p>${esc(term||'相似风格穿搭')}</p></div></a>`;
+  }).join('');
+}
+function shuffleTrendLooks(){dnaTrendSeed++;renderTrendLooks();}
 function dnaTopNames(){
   const dna=getStyleDNA();
   return (dna?.styles||[]).map(x=>`${x.name||""} ${x.cn||""}`.toLowerCase());
@@ -3294,6 +3346,8 @@ async function restoreFullBackupFromFile(file){
 }
 document.addEventListener("DOMContentLoaded", async ()=>{
   await initAppStorage();
+  await loadStyleSamples();
+  renderStyleDNA();
   const m=document.getElementById("dataSettingsModal");
   if(m) m.addEventListener("click",closeDataSettings);
   const input=document.getElementById("fullBackupInput");
