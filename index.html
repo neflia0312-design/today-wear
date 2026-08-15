@@ -1341,12 +1341,30 @@ body.category-modal-open .nav{
 }
 </style>
 
+
+<style>
+/* V4.10.0 STYLE DNA：画像占比 + 全球穿搭账号 */
+.dna-distribution{margin-top:14px;padding:14px;border-radius:20px;background:#faf6f3;border:1px solid #eee6e1}
+.dna-distribution-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.dna-distribution-title b{font-size:12px;color:#514a45}.dna-distribution-title span{font-size:9px;color:#9a9089}
+.dna-chart-row{display:grid;grid-template-columns:118px 1fr;gap:14px;align-items:center}
+.dna-donut{width:118px;height:118px;border-radius:50%;position:relative;box-shadow:inset 0 0 0 1px rgba(90,80,72,.05)}
+.dna-donut:after{content:"";position:absolute;inset:28px;border-radius:50%;background:#faf6f3;box-shadow:0 0 0 1px rgba(90,80,72,.04)}
+.dna-legend{display:grid;gap:7px}.dna-legend-item{display:grid;grid-template-columns:9px minmax(0,1fr) auto;gap:7px;align-items:center;font-size:9px;color:#776e67}
+.dna-legend-dot{width:9px;height:9px;border-radius:50%}.dna-legend-item b{font-size:9px;color:#514a45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dna-legend-item span:last-child{font-weight:800;color:#81776f}
+.creator-section{margin-top:16px;border-top:1px solid #eee6e1;padding-top:14px}.creator-head{display:flex;align-items:end;justify-content:space-between;margin-bottom:10px}.creator-head h3{margin:0;font-size:13px;color:#4c4641}.creator-head small{font-size:9px;color:#9b918a}
+.creator-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.creator-card{position:relative;min-width:0;background:#faf7f4;border:1px solid #eee7e2;border-radius:18px;padding:11px;text-decoration:none;color:inherit;display:block;overflow:hidden}.creator-card:active{transform:scale(.985)}
+.creator-platform{font-size:8px;font-weight:900;letter-spacing:.08em;color:#a0968f;text-transform:uppercase}.creator-name{font-size:12px;font-weight:900;color:#4f4944;margin:5px 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.creator-match{font-size:9px;color:#8d837b;line-height:1.45}.creator-arrow{position:absolute;right:10px;top:10px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:#eee7e2;color:#6d655f;font-size:12px}
+.creator-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}.creator-tags span{font-size:7px;padding:4px 6px;border-radius:999px;background:#f0e9e4;color:#81776f}
+@media(max-width:390px){.dna-chart-row{grid-template-columns:104px 1fr}.dna-donut{width:104px;height:104px}.dna-donut:after{inset:25px}.creator-grid{gap:7px}}
+</style>
+
 </head>
 <body>
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · V4.9.2 STYLE DNA</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · V4.10.0 STYLE DNA</small></div>
       <button class="iconbtn" onclick="openDataSettings()">⋯</button>
     </div>
   </header>
@@ -1471,6 +1489,10 @@ body.category-modal-open .nav{
             <button class="tiny-btn" onclick="shuffleTrendLooks()">换一组</button>
           </div>
           <div class="live-trend-grid" id="dnaTrendLooks"></div>
+          <div class="creator-section">
+            <div class="creator-head"><h3>全球相似穿搭博主</h3><small>点击直接打开账号 / 同类穿搭</small></div>
+            <div class="creator-grid" id="dnaCreators"></div>
+          </div>
           <div class="dna-local-note">根据你的近期 STYLE DNA 匹配相邻流行风格；点击卡片可继续搜索同类穿搭。</div>
         </div>
 
@@ -2170,15 +2192,46 @@ function buildLocalDNA(samples){
   return {deep:false,styles,palette,keywords:styles.map(x=>x.cn),terms};
 }
 function normalizedDNA(obj){
-  const styles=Array.isArray(obj.styles)?obj.styles.map((x,i)=>typeof x==="string"?{name:x,cn:x,score:70-i*10}:{name:x.name||x.label||"Style",cn:x.cn||x.name||x.label||"Style",score:Number(x.score||x.weight||60)}):[];
+  const src=(obj&&obj.styleDNA&&typeof obj.styleDNA==="object")?obj.styleDNA:(obj||{});
+  const rawStyles=Array.isArray(src.styles)?src.styles:(Array.isArray(src.coreStyles)?src.coreStyles:[]);
+  const fallbackScores=[30,25,20,15,10,8,6,4];
+  let styles=rawStyles.map((x,i)=>{
+    if(typeof x==="string") return {name:x,cn:x,score:fallbackScores[i]||Math.max(4,24-i*3)};
+    let raw=Number(x.score ?? x.weight ?? x.percent ?? fallbackScores[i] ?? 10);
+    if(raw>0 && raw<=1) raw*=100;
+    return {name:x.name||x.label||x.cn||"Style",cn:x.cn||x.label||x.name||"Style",score:raw};
+  }).filter(x=>x.name);
+  if(styles.length){
+    const sum=styles.reduce((a,b)=>a+(Number(b.score)||0),0);
+    if(sum>0 && (sum<95||sum>105)) styles=styles.map(x=>({...x,score:(Number(x.score)||0)/sum*100}));
+  }
+  const paletteRaw=Array.isArray(src.palette)?src.palette:(Array.isArray(src.colors)?src.colors:[]);
+  const palette=paletteRaw.map(x=>typeof x==="string"?x:(x?.hex||x?.color||"")).filter(Boolean).slice(0,8);
+  let keywords=Array.isArray(src.keywords)?src.keywords:[];
+  if(!keywords.length) keywords=[...(src.keyItems||[]),...(src.details||[]),...(src.silhouette||[])];
+  let terms=Array.isArray(src.search_terms)?src.search_terms:(Array.isArray(src.terms)?src.terms:(Array.isArray(src.recommendationKeywords)?src.recommendationKeywords:[]));
   return {
     deep:true,
     styles,
-    palette:Array.isArray(obj.palette)?obj.palette.slice(0,6):[],
-    keywords:Array.isArray(obj.keywords)?obj.keywords.slice(0,10):styles.map(x=>x.cn),
-    terms:Array.isArray(obj.search_terms)?obj.search_terms:(Array.isArray(obj.terms)?obj.terms:[]),
-    outfitHints:Array.isArray(obj.outfit_hints)?obj.outfit_hints:[]
+    palette,
+    keywords:[...new Set(keywords.filter(Boolean))].slice(0,14),
+    terms:[...new Set(terms.filter(Boolean))].slice(0,12),
+    outfitHints:Array.isArray(src.outfit_hints)?src.outfit_hints:[...(src.silhouette||[]),...(src.keyItems||[])].slice(0,12),
+    summary:src.summary||obj?.name||""
   };
+}
+
+const DNA_CHART_COLORS=["#81776f","#b6a9a0","#d8c7bd","#eadbd4","#c7bbb2","#9f9188","#eee5df","#6f6660"];
+function normalizedStyleShares(styles){
+  const arr=(styles||[]).slice(0,6).map((x,i)=>({name:x.cn||x.name||`风格${i+1}`,score:Math.max(0,Number(x.score)||0)}));
+  let sum=arr.reduce((a,b)=>a+b.score,0); if(!sum) sum=1;
+  return arr.map(x=>({...x,pct:x.score/sum*100}));
+}
+function renderDNAChart(styles){
+  const arr=normalizedStyleShares(styles); if(!arr.length)return "";
+  let acc=0; const stops=[];
+  arr.forEach((x,i)=>{const a=acc,b=acc+x.pct;stops.push(`${DNA_CHART_COLORS[i%DNA_CHART_COLORS.length]} ${a.toFixed(1)}% ${b.toFixed(1)}%`);acc=b});
+  return `<div class="dna-distribution"><div class="dna-distribution-title"><b>我的画像 · 风格占比</b><span>近期样本加权</span></div><div class="dna-chart-row"><div class="dna-donut" style="background:conic-gradient(${stops.join(",")})"></div><div class="dna-legend">${arr.map((x,i)=>`<div class="dna-legend-item"><span class="dna-legend-dot" style="background:${DNA_CHART_COLORS[i%DNA_CHART_COLORS.length]}"></span><b>${esc(x.name)}</b><span>${x.pct.toFixed(1)}%</span></div>`).join("")}</div></div></div>`;
 }
 function renderStyleDNA(){
   const samples=getStyleSamples();
@@ -2195,7 +2248,8 @@ function renderStyleDNA(){
     result.innerHTML=`<div class="dna-empty">导入图片后建立你的 STYLE DNA</div>`;
   }else{
     result.innerHTML=`
-      <div class="dna-style-list">${dna.styles.slice(0,5).map(x=>`<div class="dna-style"><div><b>${esc(x.cn||x.name)}</b><small>${esc(x.name||"")}</small></div><span class="dna-score">${Math.round(x.score||0)}%</span></div>`).join("")}</div>
+      <div class="dna-style-list">${dna.styles.slice(0,6).map(x=>`<div class="dna-style"><div><b>${esc(x.cn||x.name)}</b><small>${esc(x.name||"")}</small></div><span class="dna-score">${Math.round(x.score||0)}%</span></div>`).join("")}</div>
+      ${renderDNAChart(dna.styles)}
       <div class="dna-palette">${(dna.palette||[]).map(c=>`<span class="dna-color" style="background:${c}"></span>`).join("")}</div>
       <div class="dna-keywords">${(dna.keywords||[]).map(k=>`<span class="dna-keyword">${esc(k)}</span>`).join("")}</div>
       ${!dna.deep?`<div class="dna-local-note">本地版只做配色与已有衣橱关键词初筛；把同一批图片发给 ChatGPT 后，可导入 Style DNA JSON 获得更准确的廓形 / 材质 / 风格权重。</div>`:""}
@@ -2204,6 +2258,7 @@ function renderStyleDNA(){
   renderDNAMatches();
   renderSearchLinks();
   renderTrendLooks();
+  renderCreators();
 }
 let dnaTrendSeed=0;
 const TREND_LOOK_IMAGES=[
@@ -2214,6 +2269,29 @@ const TREND_LOOK_IMAGES=[
   "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=700&q=80",
   "https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=700&q=80"
 ];
+
+const STYLE_CREATORS=[
+  {name:"fair_mua",platform:"Instagram",url:"https://www.instagram.com/fair_mua/",keys:["soft y2k","feminine","romantic","minimal","轻y2k","女性感"],tags:["Soft Y2K","Feminine"]},
+  {name:"dewgi_net",platform:"Instagram",url:"https://www.instagram.com/dewgi_net/",keys:["korean","minimal","soft","model off-duty","韩系","简约"],tags:["Korean","Off-duty"]},
+  {name:"wonyoungcloset",platform:"Instagram",url:"https://www.instagram.com/wonyoungcloset/",keys:["feminine","romantic","korean","ballet","女性感","浪漫"],tags:["Feminine","K-style"]},
+  {name:"jennierubyjanik",platform:"Instagram",url:"https://www.instagram.com/jennierubyjanik/",keys:["y2k","feminine","mini","女性感"],tags:["Y2K","Girly"]},
+  {name:"满妈 · 穿搭",platform:"小红书",url:"https://www.xiaohongshu.com/search_result?keyword=%E6%BB%A1%E5%A6%88%20%E7%A9%BF%E6%90%AD",keys:["casual","minimal","sporty","松弛","简约"],tags:["松弛","实穿"]},
+  {name:"Soft Y2K 穿搭",platform:"小红书",url:"https://www.xiaohongshu.com/search_result?keyword=Soft%20Y2K%20%E7%A9%BF%E6%90%AD",keys:["soft y2k","y2k","轻y2k"],tags:["Soft Y2K","全球灵感"]},
+  {name:"Korean feminine",platform:"Pinterest",url:"https://www.pinterest.com/search/pins/?q=korean%20feminine%20outfit",keys:["korean","feminine","romantic","韩系"],tags:["Korean","Feminine"]},
+  {name:"Model off-duty",platform:"Pinterest",url:"https://www.pinterest.com/search/pins/?q=model%20off%20duty%20outfit",keys:["model off-duty","minimal","casual","模特"],tags:["Off-duty","Minimal"]},
+  {name:"Soft feminine outfit",platform:"TikTok",url:"https://www.tiktok.com/search?q=soft%20feminine%20outfit",keys:["feminine","soft","romantic"],tags:["Feminine","Trend"]},
+  {name:"低饱和轻Y2K",platform:"抖音",url:"https://www.douyin.com/search/%E4%BD%8E%E9%A5%B1%E5%92%8C%E8%BD%BBY2K%E7%A9%BF%E6%90%AD",keys:["soft y2k","低饱和","轻y2k"],tags:["低饱和","Y2K"]}
+];
+function creatorScore(c,dna){
+  const text=[...(dna?.styles||[]).map(x=>`${x.name} ${x.cn}`),...(dna?.keywords||[]),...(dna?.terms||[])].join(" ").toLowerCase();
+  return c.keys.reduce((n,k)=>n+(text.includes(k.toLowerCase())?18:0),0)+Math.random()*2;
+}
+function renderCreators(){
+  const box=document.getElementById("dnaCreators");if(!box)return;
+  const dna=getStyleDNA(); if(!dna?.styles?.length){box.innerHTML='<div class="dna-empty" style="grid-column:1/-1">导入 STYLE DNA 后匹配全球相似穿搭账号</div>';return;}
+  const picks=[...STYLE_CREATORS].sort((a,b)=>creatorScore(b,dna)-creatorScore(a,dna)).slice(0,6);
+  box.innerHTML=picks.map((c,i)=>`<a class="creator-card" href="${c.url}" target="_blank" rel="noopener" onclick="return openExternalPlatform(event,'${esc(c.platform)} · ${esc(c.name)}',this.href)"><span class="creator-arrow">↗</span><div class="creator-platform">${esc(c.platform)}</div><div class="creator-name">${esc(c.name)}</div><div class="creator-match">与近期画像 ${Math.max(72,94-i*3)}% 相邻</div><div class="creator-tags">${c.tags.map(t=>`<span>${esc(t)}</span>`).join("")}</div></a>`).join("");
+}
 function renderTrendLooks(){
   const box=document.getElementById("dnaTrendLooks"); if(!box)return;
   const dna=getStyleDNA(), styles=(dna?.styles||[]);
@@ -2226,7 +2304,7 @@ function renderTrendLooks(){
     return `<a class="live-trend-card" href="https://www.xiaohongshu.com/search_result?keyword=${q}" target="_blank" rel="noopener"><img src="${TREND_LOOK_IMAGES[(i+dnaTrendSeed)%TREND_LOOK_IMAGES.length]}" alt="${esc(st.cn||st.name)}"><span class="source-badge">${match}% MATCH</span><span class="open-badge">↗</span><div class="trend-body"><h3>${esc(st.cn||st.name)}</h3><p>${esc(term||'相似风格穿搭')}</p></div></a>`;
   }).join('');
 }
-function shuffleTrendLooks(){dnaTrendSeed++;renderTrendLooks();}
+function shuffleTrendLooks(){dnaTrendSeed++;renderTrendLooks();renderCreators();}
 function dnaTopNames(){
   const dna=getStyleDNA();
   return (dna?.styles||[]).map(x=>`${x.name||""} ${x.cn||""}`.toLowerCase());
@@ -2322,10 +2400,18 @@ document.getElementById("styleDNAInput").addEventListener("change",async e=>{
   const f=e.target.files[0];e.target.value="";if(!f)return;
   try{
     const obj=JSON.parse(await f.text());
-    saveStyleDNA(normalizedDNA(obj));
+    const dna=normalizedDNA(obj);
+    if(!dna.styles.length) throw new Error("文件中未识别到风格画像");
+    saveStyleDNA(dna);
+    const packed=[...(Array.isArray(obj.samples)?obj.samples:[]),...(Array.isArray(obj.styleSamples)?obj.styleSamples:[]),...(Array.isArray(obj.images)?obj.images:[])];
+    if(packed.length){
+      const current=getStyleSamples(); const map=new Map();
+      [...current,...packed].forEach((x,i)=>{if(!x||!x.image)return;const id=x.id||`dna-${Date.now()}-${i}`;map.set(x.image,{...x,id});});
+      await saveStyleSamples([...map.values()]);
+    }
     renderStyleDNA();
-    toast("Style DNA 已导入");
-  }catch(err){alert("Style DNA 文件格式不正确")}
+    toast(`Style DNA 已导入${packed.length?` · 含 ${new Set(packed.map(x=>x?.image).filter(Boolean)).size} 张样本`:""}`);
+  }catch(err){console.error(err);alert("Style DNA 文件读取失败："+(err?.message||"格式不正确"))}
 });
 const BRAND_LIBRARY=[
   {name:"CHANEL",country:"France",subtitle:"Fashion Collections",url:"https://www.chanel.com/us/fashion/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.chanel.com/us/fashion/"},
