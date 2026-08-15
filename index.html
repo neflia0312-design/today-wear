@@ -1307,7 +1307,7 @@ body.category-modal-open .nav{
 </style>
 
 <style>
-/* V4.5 一键备份 / 恢复 */
+/* V4.9 完整备份 / 恢复：包含衣橱、分类、Style DNA 与风格样本 */
 #dataSettingsModal{
   position:fixed;inset:0;z-index:10080;display:none;
   background:rgba(53,48,44,.26);backdrop-filter:blur(12px);
@@ -1462,7 +1462,7 @@ body.category-modal-open .nav{
             <span class="style-dna-badge" id="dnaModeBadge">近期审美识别</span>
           </div>
           <div id="dnaResult"></div>
-          <div class="dna-local-note">近期导入权重更高；样本保存在 IndexedDB，不限制张数。V4.9 已修复旧数据库无法创建风格样本库的问题。</div>
+          <div class="dna-local-note">近期导入权重更高；样本保存在 IndexedDB，不限制张数。V4.9：风格样本导入与完整备份均已修复；样本保存在 IndexedDB，不限制张数。</div>
         </div>
 
         <div class="style-dna-panel">
@@ -1764,7 +1764,7 @@ function rebuildCategoryOrderFromUserOnly(){
 
 const LS_KEY = "today_wear_items_v1"; // legacy only: migrated once into IndexedDB
 const DB_NAME = "today_wear_db_v44";
-const DB_VERSION = 3;
+const DB_VERSION = 5;
 const ITEM_STORE = "wardrobe_items";
 const META_STORE = "meta";
 const STYLE_STORE = "style_samples";
@@ -2079,31 +2079,64 @@ function fileToCompressedDataURL(file,max=520,q=.80){
 }
 function avgPalette(dataUrl){
   return new Promise(resolve=>{
+    const fallback={r:160,g:156,b:152,hex:"#a09c98"};
     const img=new Image();
+    const done=v=>resolve(v||fallback);
     img.onload=()=>{
-      const c=document.createElement("canvas");c.width=40;c.height=40;
-      const ctx=c.getContext("2d");ctx.drawImage(img,0,0,40,40);
-      const d=ctx.getImageData(0,0,40,40).data;
-      let r=0,g=0,b=0,n=0;
-      for(let i=0;i<d.length;i+=16){r+=d[i];g+=d[i+1];b+=d[i+2];n++}
-      r=Math.round(r/n);g=Math.round(g/n);b=Math.round(b/n);
-      resolve({r,g,b,hex:"#"+[r,g,b].map(x=>x.toString(16).padStart(2,"0")).join("")});
+      try{
+        const c=document.createElement("canvas");c.width=40;c.height=40;
+        const ctx=c.getContext("2d");
+        if(!ctx) return done(fallback);
+        ctx.drawImage(img,0,0,40,40);
+        const d=ctx.getImageData(0,0,40,40).data;
+        let r=0,g=0,b=0,n=0;
+        for(let i=0;i<d.length;i+=16){r+=d[i];g+=d[i+1];b+=d[i+2];n++}
+        if(!n) return done(fallback);
+        r=Math.round(r/n);g=Math.round(g/n);b=Math.round(b/n);
+        done({r,g,b,hex:"#"+[r,g,b].map(x=>x.toString(16).padStart(2,"0")).join("")});
+      }catch(err){
+        console.warn("palette analysis fallback",err);
+        done(fallback);
+      }
     };
-    img.src=dataUrl;
+    // 关键：iPhone/HEIC 等无法被 Image 解码时不能无限等待
+    img.onerror=()=>done(fallback);
+    try{ img.src=dataUrl; }catch(e){ done(fallback); }
   });
 }
 async function addStyleFiles(files){
   const existing=[...getStyleSamples()];
   const incoming=[];
+  const failures=[];
   for(const f of [...files]){
-    const image=await fileToCompressedDataURL(f,520,.80);
-    const palette=await avgPalette(image);
-    incoming.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),image,palette,name:f.name||"",createdAt:Date.now()+incoming.length});
+    try{
+      const image=await fileToCompressedDataURL(f,520,.80);
+      if(!image) throw new Error("图片读取结果为空");
+      const palette=await avgPalette(image);
+      incoming.push({
+        id:Date.now().toString(36)+Math.random().toString(36).slice(2,8),
+        image,palette,name:f.name||"",type:f.type||"",size:Number(f.size||0),
+        createdAt:Date.now()+incoming.length
+      });
+    }catch(err){
+      failures.push({name:f?.name||"未命名图片",error:String(err?.message||err)});
+      console.error("style sample skipped",f?.name,err);
+    }
+  }
+  if(!incoming.length){
+    throw new Error(failures.length?`所选图片均未能读取：${failures[0].error}`:"没有可导入的图片");
   }
   const all=[...existing,...incoming];
   await saveStyleSamples(all);
-  if(!getStyleDNA()?.deep) saveStyleDNA(buildLocalDNA(all));
+  const verified=await idbGetStyleSamples();
+  if(verified.length!==all.length){
+    throw new Error(`风格样本写入校验失败：应有 ${all.length} 张，实际 ${verified.length} 张`);
+  }
+  __styleSamplesCache=verified;
+  if(!getStyleDNA()?.deep) saveStyleDNA(buildLocalDNA(verified));
   renderStyleDNA();
+  if(failures.length) toast(`成功 ${incoming.length} 张，跳过 ${failures.length} 张`);
+  return {added:incoming.length,failed:failures.length};
 }
 async function removeStyleSample(id){
   const arr=getStyleSamples().filter(x=>x.id!==id); await saveStyleSamples(arr);
@@ -2282,7 +2315,7 @@ document.getElementById("styleInput").addEventListener("change",async e=>{
   }catch(err){
     console.error("STYLE DNA image import failed",err);
     if(badge) badge.textContent=oldText;
-    alert("图片导入失败："+(err?.message||err)+"\n\n已在 V4.9 修复 IndexedDB 升级与 iPhone 图片兼容；如仍出现此提示，请截图发我。 ");
+    alert("图片导入失败："+(err?.message||err)+"\n\nV4.9 已修复 IndexedDB、iPhone 图片解码等待与完整备份；如仍出现此提示，请截图发我。 ");
   }
 });
 document.getElementById("styleDNAInput").addEventListener("change",async e=>{
@@ -2617,43 +2650,8 @@ document.getElementById("batchInput").addEventListener("change", async e=>{
   try{
     const txt=await f.text();
     const obj=JSON.parse(txt);
-
-    // V4.9: 兼容 V4.6 / V4.7 导出的「完整备份」文件。
-    // 完整备份结构是 { app, backupVersion, wardrobe, localStorage }，
-    // 与 ChatGPT 素材包的 { items:[...] } 不是同一种结构。
-    if(obj && obj.app==="今天穿什么" && Array.isArray(obj.wardrobe)){
-      const valid=obj.wardrobe.filter(x=>x && (x.image||x.aiImage||x.ai_image));
-      if(!valid.length) throw new Error("完整备份中没有可恢复的衣服图片");
-      const ok=confirm(`检测到旧版完整备份（${obj.appVersion||"旧版本"}），共 ${valid.length} 件衣服。\n\n将覆盖当前衣橱，但会保留 V4.9 的 STYLE DNA / 风格样本。是否继续？`);
-      if(!ok) return;
-
-      await idbReplaceAllItems(valid);
-      await verifyIndexedDBWrite(valid);
-
-      // 只恢复衣橱/分类相关设置；不要让 V4.6 的空 STYLE DNA 覆盖 V4.9 新数据。
-      if(obj.localStorage && typeof obj.localStorage==="object"){
-        Object.entries(obj.localStorage).forEach(([k,v])=>{
-          if(!k.startsWith("today_wear_")) return;
-          if(/style_samples|style_dna/i.test(k)) return;
-          if(v!==null && v!==undefined) localStorage.setItem(k,String(v));
-        });
-      }
-
-      __itemsCache=await idbGetAllItems();
-      activeCategory="全部";
-      activeSeason="全部";
-      render();
-      renderLiveInspiration();
-      renderTrendGrid();
-      renderStyleDNA();
-      toast(`旧版备份恢复完成：${__itemsCache.length} 件衣服`);
-      activateTab("wardrobe");
-      return;
-    }
-
-    // 普通 ChatGPT 素材包仍按原逻辑导入。
     const arr=Array.isArray(obj)?obj:obj.items;
-    if(!Array.isArray(arr)||!arr.length) throw new Error("文件中没有可导入的衣服；如果这是旧版完整备份，请使用 V4.9 再试");
+    if(!Array.isArray(arr)||!arr.length) throw new Error("素材包中没有衣服");
     pendingBatch=arr.map((x,i)=>({
       id:x.id||("pkg_"+Date.now().toString(36)+"_"+i),
       name:x.name||"未命名单品",
@@ -2661,16 +2659,12 @@ document.getElementById("batchInput").addEventListener("change", async e=>{
       seasons:Array.isArray(x.seasons)&&x.seasons.length?x.seasons:["春","秋"],
       image:x.original_image||x.image||x.ai_image,
       aiImage:x.ai_image||x.image,
-      tag:x.tag||"白底素材",
-      createdAt:x.createdAt||Date.now()+i
+      tag:"白底素材",
+      createdAt:Date.now()+i
     })).filter(x=>x.aiImage);
     if(!pendingBatch.length) throw new Error("素材包里没有有效图片");
     renderBatchPreview();
-  }catch(err){
-    console.error("batch import failed",err);
-    toast("素材包读取失败");
-    alert("素材包读取失败："+(err.message||"格式错误"));
-  }
+  }catch(err){toast("素材包读取失败");alert("素材包读取失败："+(err.message||"格式错误"))}
 });
 
 function renderBatchPreview(){
@@ -3335,13 +3329,18 @@ function getAppLocalStorageSnapshot(){
 }
 async function exportFullBackup(){
   try{
+    await __saveQueue;
     const wardrobe=await idbGetAllItems();
+    const styleSamples=await idbGetStyleSamples();
+    const styleDNA=getStyleDNA();
     const backup={
       app:"今天穿什么",
-      backupVersion:1,
-      appVersion:"4.6",
+      backupVersion:2,
+      appVersion:"4.9",
       createdAt:new Date().toISOString(),
       wardrobe,
+      styleSamples,
+      styleDNA,
       localStorage:getAppLocalStorageSnapshot()
     };
     const blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json;charset=utf-8"});
@@ -3349,14 +3348,14 @@ async function exportFullBackup(){
     const a=document.createElement("a");
     const d=new Date();
     const pad=n=>String(n).padStart(2,"0");
-    const name=`今天穿什么_完整备份_${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}.json`;
+    const name=`今天穿什么_完整备份_V4.9_${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}.json`;
     a.href=url;
     a.download=name;
     document.body.appendChild(a);
     a.click();
     a.remove();
     setTimeout(()=>URL.revokeObjectURL(url),1200);
-    toast(`已备份 ${wardrobe.length} 件衣服`);
+    toast(`已备份 ${wardrobe.length} 件衣服 + ${styleSamples.length} 张风格样本`);
   }catch(err){
     console.error("backup failed",err);
     alert("备份失败："+(err.message||err));
@@ -3370,13 +3369,15 @@ async function restoreFullBackupFromFile(file){
     if(!backup || backup.app!=="今天穿什么" || !Array.isArray(backup.wardrobe)){
       throw new Error("不是有效的「今天穿什么」完整备份文件");
     }
-    const ok=confirm(`将恢复 ${backup.wardrobe.length} 件衣服，并覆盖当前衣橱与分类设置。是否继续？`);
+    const styleCount=Array.isArray(backup.styleSamples)?backup.styleSamples.length:
+      (()=>{try{return JSON.parse(backup.localStorage?.[STYLE_SAMPLES_KEY]||"[]").length||0}catch(e){return 0}})();
+    const ok=confirm(`将恢复 ${backup.wardrobe.length} 件衣服${styleCount?`、${styleCount} 张风格样本`:""}，并覆盖当前衣橱、分类与 Style DNA。是否继续？`);
     if(!ok) return;
 
     await idbReplaceAllItems(backup.wardrobe);
     await verifyIndexedDBWrite(backup.wardrobe);
 
-    // Clear only app-owned localStorage keys, then restore the snapshot.
+    // 先恢复所有属于本 App 的 localStorage。
     const toDelete=[];
     for(let i=0;i<localStorage.length;i++){
       const k=localStorage.key(i);
@@ -3390,6 +3391,20 @@ async function restoreFullBackupFromFile(file){
         }
       });
     }
+    if(backup.styleDNA && typeof backup.styleDNA==="object"){
+      localStorage.setItem(STYLE_DNA_KEY,JSON.stringify(backup.styleDNA));
+    }
+
+    // V4.9 backupVersion 2：风格样本直接保存在 IndexedDB 备份字段。
+    // 旧备份没有该字段时，仍兼容旧 localStorage 风格样本并自动迁移。
+    if(Array.isArray(backup.styleSamples)){
+      await saveStyleSamples(backup.styleSamples);
+    }else{
+      await saveStyleSamples([]);
+      await loadStyleSamples();
+    }
+    const restoredStyles=await idbGetStyleSamples();
+    __styleSamplesCache=restoredStyles;
 
     __itemsCache=await idbGetAllItems();
     activeCategory="全部";
@@ -3399,7 +3414,7 @@ async function restoreFullBackupFromFile(file){
     renderLiveInspiration();
     renderTrendGrid();
     renderStyleDNA();
-    toast(`恢复完成：${__itemsCache.length} 件衣服`);
+    toast(`恢复完成：${__itemsCache.length} 件衣服 + ${restoredStyles.length} 张风格样本`);
   }catch(err){
     console.error("restore failed",err);
     alert("恢复失败："+(err.message||err));
@@ -3425,7 +3440,9 @@ document.addEventListener("visibilitychange", async ()=>{
     try{
       await __saveQueue;
       __itemsCache = await idbGetAllItems();
+      try{ __styleSamplesCache = await idbGetStyleSamples(); }catch(e){ console.warn("style samples resume reload failed",e); }
       render();
+      renderStyleDNA();
     }catch(e){ console.error("resume reload failed",e); }
   }
 });
@@ -3456,7 +3473,7 @@ window.addEventListener("pageshow", async e=>{
       <label class="data-restore-btn" for="fullBackupInput" style="text-align:center;cursor:pointer">导入备份并恢复</label>
       <input id="fullBackupInput" type="file" accept=".json,application/json" style="display:none">
     </div>
-    <div class="data-settings-meta" id="backupMetaText">备份文件只保存在你自己选择的位置，不会上传服务器。</div>
+    <div class="data-settings-meta" id="backupMetaText">V4.9 完整备份会同时保存衣橱、分类、Style DNA 与全部风格样本；文件只保存在你自己选择的位置，不会上传服务器。</div>
   </div>
 </div>
 
