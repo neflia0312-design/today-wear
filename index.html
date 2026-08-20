@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="app-build" content="V5.0.8-20260816">
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -1298,6 +1302,18 @@ body.category-modal-open .nav{
 }
 
 @media(min-width:700px){body{padding:20px 0}.app{min-height:calc(100vh - 40px);border-radius:36px;overflow:hidden;box-shadow:0 20px 80px rgba(74,64,58,.16)}.nav{bottom:20px}.modal{align-items:center}.sheet{border-radius:30px;max-height:80vh}}
+
+/* V5.0.8 精准穿搭拆解 */
+.lookbook-anatomy{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.lookbook-anatomy-item{background:var(--soft,#f6f0ed);border-radius:16px;padding:10px;min-width:0}
+.lookbook-anatomy-item .swatch{width:100%;height:42px;border-radius:11px;border:1px solid rgba(60,50,46,.08);margin-bottom:8px}
+.lookbook-anatomy-item b{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lookbook-anatomy-item small{display:block;margin-top:3px;color:var(--muted,#8b817c);font-size:10px}
+.lookbook-anatomy-item em{display:inline-block;margin-top:6px;font-style:normal;font-size:10px;padding:4px 7px;border-radius:999px;background:#fff}
+.lookbook-anatomy-item em.have{color:#6f655f}.lookbook-anatomy-item em.missing{color:#9a625f;background:#f8e8e5}
+.precise-title{margin:14px 0 6px;font-size:12px;font-weight:800;letter-spacing:.04em}
+.lookbook-exact-note{font-size:11px;color:var(--muted,#8b817c);line-height:1.6;margin-top:7px}
+@media(max-width:430px){.lookbook-anatomy{grid-template-columns:repeat(3,minmax(0,1fr))}.lookbook-anatomy-item{padding:8px}}
 </style>
 
 <style>
@@ -1343,7 +1359,7 @@ body.category-modal-open .nav{
 
 
 <style>
-/* V4.10.1 STYLE DNA：画像占比 + 全球穿搭账号 */
+/* V5.0.8 COLOR ATLAS：画像占比 + 全球穿搭账号 */
 .dna-distribution{margin-top:14px;padding:14px;border-radius:20px;background:#faf6f3;border:1px solid #eee6e1}
 .dna-distribution-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .dna-distribution-title b{font-size:12px;color:#514a45}.dna-distribution-title span{font-size:9px;color:#9a9089}
@@ -1359,12 +1375,843 @@ body.category-modal-open .nav{
 @media(max-width:390px){.dna-chart-row{grid-template-columns:104px 1fr}.dna-donut{width:104px;height:104px}.dna-donut:after{inset:25px}.creator-grid{gap:7px}}
 </style>
 
+
+<style>
+/* V5.0.8 搭配图鉴 */
+.navinner{grid-template-columns:repeat(5,1fr)!important}
+.nav button{min-width:0}
+.lookbook-entry{width:100%;border:0;background:linear-gradient(135deg,#4a443f,#746b64);color:#fff;border-radius:24px;padding:17px 18px;margin:2px 0 14px;display:flex;align-items:center;justify-content:space-between;text-align:left;box-shadow:0 12px 30px rgba(65,56,50,.16)}
+.lookbook-entry span{display:grid;gap:5px}.lookbook-entry b{font-size:15px}.lookbook-entry small{font-size:9px;line-height:1.55;color:rgba(255,255,255,.72);max-width:290px}.lookbook-entry i{font-style:normal;font-size:20px}
+.lookbook-intro,.lookbook-panel,.lookbook-reference-card{background:rgba(255,255,255,.94);border:1px solid #eee7e2;border-radius:25px;padding:18px;margin-bottom:12px;box-shadow:0 12px 30px rgba(75,65,58,.05)}
+.lookbook-intro h3{font-size:19px;margin:4px 0 8px;color:#433d38}.lookbook-intro p{font-size:10px;line-height:1.75;color:#8b8179;margin:0}.lookbook-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+.lookbook-reference-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.lookbook-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.lookbook-card-head b{font-size:13px;color:#4a443f}.lookbook-card-head span{font-size:8px;color:#9a9088;background:#f3ece8;border-radius:999px;padding:6px 8px}
+.lookbook-reference-preview{aspect-ratio:4/5;border-radius:18px;overflow:hidden;background:#f8f4f1;display:grid;place-items:center}.lookbook-reference-preview img{width:100%;height:100%;object-fit:cover}.lookbook-placeholder{font-size:9px;color:#aaa19a;text-align:center;padding:18px;line-height:1.6}
+.lookbook-target-dna{display:grid;gap:8px}.lookbook-target-style{display:flex;justify-content:space-between;gap:8px;padding:9px 10px;border-radius:14px;background:#faf7f4}.lookbook-target-style b{font-size:10px;color:#554e49}.lookbook-target-style span{font-size:9px;color:#8d837b}.lookbook-palette{display:flex;gap:5px;margin-top:4px}.lookbook-palette i{width:22px;height:22px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #eee5df}
+.lookbook-outfit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.lookbook-outfit{border-radius:20px;background:#faf7f4;padding:10px;min-width:0}.lookbook-outfit-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.lookbook-outfit-head b{font-size:10px;color:#514a45}.lookbook-outfit-head span{font-size:8px;font-weight:800;color:#8b8179}.lookbook-slots{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}.lookbook-slot{background:#fff;border-radius:13px;padding:5px;min-width:0}.lookbook-slot img{width:100%;aspect-ratio:1/1;object-fit:contain;border-radius:9px;background:#fff}.lookbook-slot b{font-size:8px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:4px}.lookbook-slot small{font-size:7px;color:#a0968e}.lookbook-slot.missing{display:grid;place-items:center;min-height:94px;border:1px dashed #d9cec7;color:#9d9188;font-size:8px;text-align:center;line-height:1.45}
+.lookbook-outfit-reason{font-size:8px;line-height:1.55;color:#948981;margin-top:8px}.lookbook-fit-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px}.lookbook-stat{background:#faf7f4;border-radius:15px;padding:10px;text-align:center}.lookbook-stat b{font-size:16px;color:#4f4944;display:block}.lookbook-stat span{font-size:7px;color:#9b918a}.lookbook-fit-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.lookbook-fit-item{background:#faf7f4;border-radius:16px;padding:6px;position:relative}.lookbook-fit-item img{width:100%;aspect-ratio:1/1;object-fit:contain;background:#fff;border-radius:11px}.lookbook-fit-item b{font-size:8px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:5px 2px 1px}.lookbook-fit-item small{font-size:7px;color:#9a9088}.lookbook-fit-badge{position:absolute;top:10px;left:10px;background:rgba(67,61,56,.86);color:#fff;border-radius:999px;padding:4px 6px;font-size:7px;font-weight:800}
+.lookbook-gap-note{font-size:8px;color:#9a9088;line-height:1.55;margin:-4px 0 10px}.lookbook-gap-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.lookbook-gap{background:#faf7f4;border-radius:16px;padding:11px}.lookbook-gap b{font-size:10px;color:#514a45;display:block}.lookbook-gap small{font-size:8px;line-height:1.55;color:#958b84;display:block;margin-top:4px}.lookbook-gap em{font-style:normal;font-size:7px;color:#8a7f78;background:#eee6e1;border-radius:999px;padding:4px 6px;display:inline-block;margin-top:7px}
+.lookbook-formula{display:grid;gap:8px}.lookbook-formula-row{background:#faf7f4;border-radius:15px;padding:11px;font-size:9px;color:#665e58;line-height:1.55}.lookbook-formula-row b{color:#4a443f}.lookbook-empty{grid-column:1/-1;border:1px dashed #ded3cc;border-radius:18px;padding:20px;text-align:center;font-size:9px;color:#9c928b;line-height:1.6}
+@media(max-width:390px){.lookbook-reference-grid{grid-template-columns:1fr}.lookbook-outfit-grid{grid-template-columns:1fr}.lookbook-fit-grid{grid-template-columns:repeat(2,1fr)}.nav button{font-size:8px}.nav button .ico{font-size:17px}}
+</style>
+
+
+<style>
+/* ===== V5.0.8 MOBILE + COLOR ATLAS FINAL OVERRIDES ===== */
+
+/* 1. 强制整个 App 始终等于手机可视宽度，彻底禁止横向撑开 */
+html{
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden;
+  -webkit-text-size-adjust:100%;
+}
+body{
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden !important;
+  padding:0 !important;
+}
+.app{
+  width:100% !important;
+  max-width:520px !important;
+  min-width:0 !important;
+  margin:0 auto !important;
+  overflow-x:hidden !important;
+  border-radius:0 !important;
+}
+main,.page,.page.active,#lookbook{
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  overflow-x:hidden !important;
+}
+.page{padding-left:14px !important;padding-right:14px !important}
+.topbar{width:100%;max-width:100%;overflow:hidden}
+.brandrow,.sectionhead,.lookbook-intro,.lookbook-panel{
+  min-width:0 !important;
+  max-width:100% !important;
+}
+.lookbook-intro,.lookbook-panel{
+  width:100% !important;
+  overflow:hidden !important;
+}
+
+/* 桌面才恢复卡片式外框 */
+@media(min-width:700px){
+  body{padding:20px 0 !important}
+  .app{width:min(520px,100%) !important;border-radius:36px !important}
+}
+
+/* 2. 参考穿搭区域手机布局 */
+.reference-color-row{
+  display:grid !important;
+  grid-template-columns:112px minmax(0,1fr) !important;
+  gap:12px !important;
+  width:100% !important;
+  min-width:0 !important;
+  align-items:start !important;
+  margin-top:14px !important;
+}
+.reference-color-info{min-width:0 !important;overflow:hidden}
+.color-atlas-reference{
+  width:112px !important;
+  max-width:100% !important;
+  aspect-ratio:4/5 !important;
+}
+.reference-color-chips{
+  display:flex !important;
+  flex-wrap:wrap !important;
+  gap:7px !important;
+  min-width:0 !important;
+}
+.reference-color-chip{
+  max-width:100% !important;
+  min-width:0 !important;
+  border:1px solid var(--line) !important;
+  background:#fff !important;
+  border-radius:999px !important;
+  padding:7px 9px !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:7px !important;
+  color:var(--ink) !important;
+  font-size:9px !important;
+}
+.reference-color-chip i{
+  flex:0 0 18px !important;
+  width:18px !important;height:18px !important;border-radius:50% !important;
+  border:1px solid rgba(60,50,45,.08) !important;
+}
+.reference-color-chip span{min-width:0;white-space:normal}
+.reference-color-chip small{display:block;font-size:7px;color:var(--muted);margin-top:1px}
+
+/* 3. 像衣橱一样的「分栏点击模式」 */
+.atlas-filter-title{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:10px !important;
+  margin:12px 1px 7px !important;
+}
+.atlas-filter-title b{font-size:12px !important;color:var(--ink) !important}
+.atlas-filter-title span{font-size:8px !important;color:var(--muted) !important}
+.atlas-color-title{margin-top:8px !important}
+
+.atlas-type-tabs,
+.atlas-color-tabs{
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  gap:7px !important;
+  width:100% !important;
+  max-width:100% !important;
+  overflow-x:auto !important;
+  overflow-y:hidden !important;
+  padding:1px 1px 8px !important;
+  scrollbar-width:none !important;
+  -webkit-overflow-scrolling:touch !important;
+  scroll-snap-type:x proximity;
+}
+.atlas-type-tabs::-webkit-scrollbar,
+.atlas-color-tabs::-webkit-scrollbar{display:none !important}
+
+.atlas-tab,
+.atlas-color-tab{
+  appearance:none !important;
+  -webkit-appearance:none !important;
+  flex:0 0 auto !important;
+  white-space:nowrap !important;
+  min-width:auto !important;
+  min-height:38px !important;
+  border:1px solid var(--line) !important;
+  background:#fff !important;
+  border-radius:999px !important;
+  padding:9px 13px !important;
+  font-size:10px !important;
+  font-weight:760 !important;
+  color:#746c65 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:6px !important;
+  box-shadow:none !important;
+  scroll-snap-align:start;
+}
+.atlas-tab.active,
+.atlas-color-tab.active{
+  background:var(--active,#6f6862) !important;
+  color:#fff !important;
+  border-color:var(--active,#6f6862) !important;
+}
+.atlas-color-tab i{
+  width:24px !important;
+  height:14px !important;
+  flex:0 0 24px !important;
+  border-radius:999px !important;
+  border:1px solid rgba(60,50,45,.10) !important;
+}
+.atlas-color-tab.active i{
+  border-color:rgba(255,255,255,.58) !important;
+}
+.atlas-color-tab span{font-size:10px !important}
+.atlas-color-tab small{
+  font-size:8px !important;
+  color:#a29a93 !important;
+}
+.atlas-color-tab.active small{color:rgba(255,255,255,.72) !important}
+
+/* 浅 → 深的可视刻度 */
+.atlas-shade-scale{
+  width:100% !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:7px !important;
+  min-height:25px !important;
+  margin:1px 0 11px !important;
+}
+.atlas-shade-scale span{flex:0 0 auto;font-size:8px !important;color:var(--muted) !important}
+.atlas-shade-scale .scale{
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  height:9px !important;
+  border-radius:999px !important;
+  border:1px solid rgba(70,60,55,.07) !important;
+}
+
+/* 4. 衣服卡片：绝不允许原图尺寸撑破布局 */
+.atlas-grid{
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:9px !important;
+  overflow:hidden !important;
+}
+.atlas-item{
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  overflow:hidden !important;
+  position:relative !important;
+  background:#faf7f4 !important;
+  border:1px solid #eee7e2 !important;
+  border-radius:18px !important;
+  padding:6px !important;
+}
+.atlas-item img{
+  display:block !important;
+  width:100% !important;
+  max-width:100% !important;
+  height:auto !important;
+  aspect-ratio:1/1 !important;
+  object-fit:contain !important;
+  border-radius:13px !important;
+  background:#fff !important;
+}
+.atlas-item b{
+  display:block !important;
+  min-width:0 !important;
+  padding:0 2px !important;
+  margin-top:5px !important;
+  font-size:9px !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+.atlas-item small{display:block;font-size:7px !important;color:var(--muted) !important;padding:0 2px 2px}
+.atlas-item .shade-badge{
+  position:absolute !important;
+  z-index:2 !important;
+  top:10px !important;
+  left:10px !important;
+  padding:4px 6px !important;
+  border-radius:999px !important;
+  font-size:7px !important;
+  line-height:1 !important;
+  font-weight:800 !important;
+  color:#fff !important;
+  background:rgba(70,63,58,.78) !important;
+}
+.atlas-empty{
+  grid-column:1/-1 !important;
+  width:100% !important;
+  border:1px dashed #ded3cc !important;
+  border-radius:18px !important;
+  padding:22px 12px !important;
+  text-align:center !important;
+  font-size:9px !important;
+  color:#9c928b !important;
+  line-height:1.7 !important;
+}
+
+/* 5. 色系分布也保持双栏手机卡片 */
+.atlas-summary{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:8px !important;
+  width:100% !important;
+}
+.atlas-summary-row{
+  min-width:0 !important;
+  background:#faf7f4 !important;
+  border-radius:15px !important;
+  padding:10px !important;
+}
+.atlas-summary-head{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.atlas-summary-head b{font-size:9px !important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.atlas-summary-head span{font-size:7px !important;color:var(--muted) !important;white-space:nowrap}
+.atlas-summary-bar{height:6px;border-radius:999px;background:#eee8e4;overflow:hidden;margin-top:7px}
+.atlas-summary-bar i{display:block;height:100%;border-radius:999px;background:#81776f}
+
+/* 超窄屏 */
+@media(max-width:360px){
+  .page{padding-left:11px !important;padding-right:11px !important}
+  .reference-color-row{grid-template-columns:96px minmax(0,1fr) !important}
+  .color-atlas-reference{width:96px !important}
+  .atlas-tab,.atlas-color-tab{padding:8px 11px !important;font-size:9px !important}
+}
+
+/* 横屏/大屏仍然保持 App 自身宽度，不让图鉴铺满整个浏览器 */
+@media(orientation:landscape) and (max-height:500px){
+  .app{max-width:520px !important}
+}
+</style>
+
+
+<style>
+/* ===== V5.0.8 CLEAN UI + MANUAL COLOR CORRECTION ===== */
+.color-atlas-intro p,
+.color-atlas-note{display:none !important}
+
+.color-atlas-intro{
+  padding-bottom:14px !important;
+}
+.color-atlas-intro h3{
+  margin-bottom:10px !important;
+}
+
+.atlas-filter-title{
+  margin-top:10px !important;
+  margin-bottom:6px !important;
+}
+.atlas-filter-title span{display:none !important}
+
+.atlas-open{
+  width:100% !important;
+  display:block !important;
+  padding:0 !important;
+  margin:0 !important;
+  border:0 !important;
+  background:transparent !important;
+}
+.atlas-open img{
+  pointer-events:none;
+}
+
+.atlas-color-edit{
+  width:100% !important;
+  margin-top:6px !important;
+  height:31px !important;
+  padding:0 26px 0 9px !important;
+  border-radius:10px !important;
+  border:1px solid #e8e0da !important;
+  background:#fff !important;
+  color:#746b65 !important;
+  font-size:8px !important;
+  font-weight:700 !important;
+  outline:none !important;
+  -webkit-appearance:auto !important;
+  appearance:auto !important;
+}
+
+@media(max-width:390px){
+  .atlas-color-edit{
+    font-size:8px !important;
+    height:30px !important;
+  }
+}
+</style>
+
+
+<style>
+/* ===== V5.0.8 MULTI COLOR TAGS ===== */
+.atlas-color-edit{display:none!important}
+.atlas-color-multi{position:relative;margin-top:6px}
+.atlas-color-multi>summary{
+  list-style:none;cursor:pointer;width:100%;min-height:31px;padding:7px 9px;
+  border:1px solid #e8e0da;border-radius:10px;background:#fff;color:#746b65;
+  font-size:8px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.atlas-color-multi>summary::-webkit-details-marker{display:none}
+.atlas-color-pop{
+  position:absolute;z-index:30;left:0;right:0;top:36px;padding:9px;border:1px solid #e5dcd6;
+  border-radius:13px;background:rgba(255,255,255,.98);box-shadow:0 12px 30px rgba(77,65,58,.14)
+}
+.atlas-color-pop-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px}
+.atlas-color-pop-head b{margin:0!important;font-size:8px!important;color:#756c65!important}
+.atlas-color-pop-head button{border:0;background:#f4efeb;border-radius:999px;padding:5px 7px;font-size:7px;color:#756c65;font-weight:700}
+.atlas-color-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+.atlas-color-check{min-width:0;display:flex;align-items:center;gap:5px;padding:6px;border-radius:9px;background:#faf7f4;font-size:7px;color:#655e59}
+.atlas-color-check input{width:13px;height:13px;margin:0;accent-color:#766d66}
+.atlas-color-check i{width:15px;height:10px;flex:0 0 15px;border-radius:999px;border:1px solid rgba(60,50,45,.08)}
+.atlas-color-check span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+</style>
+
+
+<style>
+/* ===== V5.0.8 CATEGORY SYNC + TRUE MULTI COLOR PICKER ===== */
+.atlas-color-multi{display:none!important}
+.atlas-color-picker-btn{
+  width:100%;
+  min-height:34px;
+  margin-top:7px;
+  padding:8px 10px;
+  border:1px solid #e6ddd7;
+  border-radius:12px;
+  background:#fff;
+  color:#625b56;
+  font-size:9px;
+  font-weight:800;
+  text-align:left;
+}
+.atlas-picker-sheet{
+  width:min(92vw,430px)!important;
+  max-height:min(78dvh,720px)!important;
+  padding:16px!important;
+  border-radius:24px!important;
+  overflow:auto!important;
+}
+.atlas-picker-head{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+  position:sticky;top:-16px;z-index:3;background:rgba(252,250,248,.97);
+  margin:-16px -16px 8px;padding:16px 16px 10px;
+}
+.atlas-picker-head small{font-size:9px;letter-spacing:.18em;color:#9a928c;font-weight:800}
+.atlas-picker-head h2{font-size:20px;margin:4px 0 0}
+.atlas-picker-count{font-size:10px;color:#8a827b;margin:6px 0 10px}
+.atlas-picker-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.atlas-picker-chip{
+  min-width:0;display:grid;grid-template-columns:28px 1fr 18px;align-items:center;gap:8px;
+  min-height:48px;padding:9px 10px;border:1px solid #e7dfd9;border-radius:15px;background:#fff;
+  color:#615a55;text-align:left;font-size:10px;font-weight:800;
+}
+.atlas-picker-chip i{width:28px;height:18px;border-radius:999px;border:1px solid rgba(0,0,0,.06)}
+.atlas-picker-chip b{text-align:center;font-size:13px}
+.atlas-picker-chip.selected{
+  background:#756d66;color:#fff;border-color:#756d66;
+}
+.atlas-picker-actions{
+  position:sticky;bottom:-16px;display:grid;grid-template-columns:1fr 1fr;gap:8px;
+  margin:14px -16px -16px;padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+  background:rgba(252,250,248,.97);backdrop-filter:blur(16px);
+}
+#atlasTypeTabs{scroll-padding-left:2px}
+@media(max-width:390px){
+  .atlas-picker-options{grid-template-columns:1fr 1fr}
+  .atlas-picker-chip{font-size:9px;padding:8px}
+}
+</style>
+
+
+<style>
+/* ===== V5.0.8 FIXED MODAL + CATEGORY/COLOR LIVE SYNC ===== */
+body.atlas-modal-lock{
+  position:fixed!important;
+  left:0;right:0;width:100%;
+  overflow:hidden!important;
+  touch-action:none;
+}
+#atlasColorPickerModal.show,
+#atlasColorManagerModal.show{
+  display:flex!important;
+  position:fixed!important;
+  inset:0!important;
+  z-index:99999!important;
+  align-items:flex-end!important;
+  justify-content:center!important;
+  overflow:hidden!important;
+  overscroll-behavior:contain!important;
+  background:rgba(45,40,37,.38)!important;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+}
+#atlasColorPickerModal .atlas-picker-sheet,
+#atlasColorManagerModal .atlas-manager-sheet{
+  position:relative!important;
+  width:100%!important;
+  max-width:520px!important;
+  height:min(78dvh,760px)!important;
+  max-height:min(78dvh,760px)!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+  border-radius:28px 28px 0 0!important;
+  background:#fcfaf8!important;
+  display:flex!important;
+  flex-direction:column!important;
+}
+#atlasColorPickerModal .atlas-picker-head,
+#atlasColorManagerModal .atlas-picker-head{
+  position:relative!important;
+  top:auto!important;
+  flex:0 0 auto!important;
+  margin:0!important;
+  padding:18px 18px 10px!important;
+  background:#fcfaf8!important;
+}
+#atlasPickerCount{
+  flex:0 0 auto;
+  padding:0 18px 8px;
+  margin:0!important;
+}
+#atlasColorPickerOptions{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior:contain!important;
+  touch-action:pan-y!important;
+  padding:6px 18px 16px!important;
+}
+#atlasColorPickerModal .atlas-picker-actions{
+  position:relative!important;
+  bottom:auto!important;
+  flex:0 0 auto!important;
+  margin:0!important;
+  padding:10px 18px calc(12px + env(safe-area-inset-bottom))!important;
+  background:#fcfaf8!important;
+  border-top:1px solid #eee6e0;
+  z-index:5;
+}
+.atlas-filter-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.atlas-manage-color-btn{
+  border:1px solid #e4dcd6;
+  background:#f6f1ed;
+  color:#756d67;
+  border-radius:999px;
+  padding:7px 10px;
+  font-size:9px;
+  font-weight:800;
+}
+.atlas-manager-add{
+  flex:0 0 auto;
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:8px;
+  padding:6px 18px 12px;
+}
+.atlas-manager-add input{
+  min-width:0;
+  border:1px solid #e5ddd7;
+  border-radius:13px;
+  background:#fff;
+  padding:11px 12px;
+  font-size:11px;
+}
+.atlas-manager-add button{
+  border:0;
+  border-radius:13px;
+  background:#756d66;
+  color:#fff;
+  padding:0 14px;
+  font-weight:800;
+}
+.atlas-manager-list{
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  padding:0 18px 12px;
+}
+.atlas-manager-row{
+  display:grid;
+  grid-template-columns:42px 1fr auto;
+  align-items:center;
+  gap:9px;
+  padding:9px 0;
+  border-bottom:1px solid #eee7e2;
+}
+.atlas-manager-row i{
+  width:42px;height:24px;border-radius:999px;border:1px solid rgba(0,0,0,.06);
+}
+.atlas-manager-row input{
+  min-width:0;
+  border:1px solid #e5ddd7;
+  border-radius:11px;
+  padding:9px 10px;
+  background:#fff;
+  font-size:10px;
+  font-weight:750;
+  color:#5f5853;
+}
+.atlas-manager-row button{
+  border:0;background:#f2ece8;color:#8a7770;border-radius:10px;
+  padding:8px 9px;font-size:9px;font-weight:750;
+}
+.atlas-manager-row button:disabled{opacity:.35}
+.atlas-manager-foot{
+  flex:0 0 auto;
+  padding:10px 18px calc(12px + env(safe-area-inset-bottom));
+  color:#9a918b;font-size:9px;line-height:1.5;border-top:1px solid #eee7e2;
+}
+</style>
+
+
+<style>
+/* ===== V5.0.8 AUTO COLOR CLASSIFICATION + MULTI FILTER ===== */
+.atlas-color-tab.multi-active{
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.72),0 0 0 1px #756d66;
+}
+.atlas-color-tab.multi-active small{
+  background:rgba(255,255,255,.18);
+}
+</style>
+
+
+<style>
+/* ===== V5.0.8 COLOR → CATEGORY WARDROBE ===== */
+#atlasGrid:has(.atlas-category-wardrobe){
+  display:block!important;
+}
+.atlas-category-wardrobe{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  width:100%;
+}
+.atlas-category-section{
+  width:100%;
+  background:rgba(255,255,255,.72);
+  border:1px solid #eee5df;
+  border-radius:22px;
+  padding:12px;
+}
+.atlas-category-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+}
+.atlas-category-head b{
+  font-size:14px;
+  color:#4f4945;
+}
+.atlas-category-head span{
+  font-size:9px;
+  color:#9a918b;
+  background:#f5efeb;
+  border-radius:999px;
+  padding:6px 9px;
+}
+.atlas-category-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.atlas-category-grid .atlas-item{
+  min-width:0;
+}
+.trend-creator-entry{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin:10px 0 14px;
+  padding:14px 16px;
+  border:1px solid #e9e0da;
+  border-radius:18px;
+  background:rgba(255,255,255,.82);
+  color:#4f4945;
+  text-align:left;
+}
+.trend-creator-entry b{
+  display:block;
+  font-size:13px;
+  margin-bottom:3px;
+}
+.trend-creator-entry small{
+  display:block;
+  font-size:9px;
+  color:#918780;
+  line-height:1.45;
+}
+.trend-creator-entry>span{
+  flex:0 0 auto;
+  font-size:18px;
+}
+@media(max-width:390px){
+  .atlas-category-section{padding:10px}
+  .atlas-category-grid{gap:8px}
+}
+</style>
+
+
+<style>
+/* ===== V5.0.8 首页衣橱手机屏幕适配 ===== */
+
+/* 首页衣橱本身绝不产生横向宽度 */
+#wardrobe{
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  overflow-x:hidden !important;
+  box-sizing:border-box !important;
+}
+
+/* P1 那种真正自适应的双栏：两列共同吃满当前可用宽度 */
+#wardrobe #wardrobeGrid{
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:9px !important;
+  box-sizing:border-box !important;
+  overflow:hidden !important;
+}
+
+/* 单品卡不能再被图片、文字、标签反向撑宽 */
+#wardrobe #wardrobeGrid > .item{
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  box-sizing:border-box !important;
+  overflow:hidden !important;
+  padding:9px !important;
+  border-radius:22px !important;
+}
+
+#wardrobe #wardrobeGrid .pic{
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  aspect-ratio:1/1.08 !important;
+  overflow:hidden !important;
+  box-sizing:border-box !important;
+}
+
+#wardrobe #wardrobeGrid .pic img{
+  display:block !important;
+  width:100% !important;
+  max-width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+}
+
+/* 名称 + 白底素材标签保持在卡片内部 */
+#wardrobe #wardrobeGrid .meta{
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) auto !important;
+  align-items:end !important;
+  gap:6px !important;
+  box-sizing:border-box !important;
+  padding:9px 2px 2px !important;
+}
+
+#wardrobe #wardrobeGrid .meta > div{
+  min-width:0 !important;
+  max-width:100% !important;
+  overflow:hidden !important;
+}
+
+#wardrobe #wardrobeGrid .meta b{
+  display:block !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+
+#wardrobe #wardrobeGrid .meta small{
+  display:block !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+
+#wardrobe #wardrobeGrid .smallpill{
+  flex:0 0 auto !important;
+  max-width:58px !important;
+  padding:6px 7px !important;
+  font-size:8px !important;
+  line-height:1.15 !important;
+  white-space:normal !important;
+  text-align:center !important;
+  overflow-wrap:anywhere !important;
+}
+
+/* 修改分类、删除按钮也限制在各自卡片里面 */
+#wardrobe #wardrobeGrid .card-edit{
+  max-width:74px !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+#wardrobe #wardrobeGrid .delete{
+  right:12px !important;
+  top:12px !important;
+}
+
+/* 季节 / 品类只允许自身横向滑动，不再把整个首页撑宽 */
+#wardrobe .chips,
+#wardrobe .seasonbar{
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  box-sizing:border-box !important;
+}
+
+/* 小屏继续保持双栏，但缩小间距，效果与 P1 一致 */
+@media(max-width:390px){
+  #wardrobe #wardrobeGrid{
+    gap:8px !important;
+  }
+  #wardrobe #wardrobeGrid > .item{
+    padding:8px !important;
+    border-radius:20px !important;
+  }
+  #wardrobe #wardrobeGrid .meta{
+    gap:4px !important;
+    padding-top:8px !important;
+  }
+  #wardrobe #wardrobeGrid .smallpill{
+    max-width:52px !important;
+    padding:5px 6px !important;
+    font-size:7px !important;
+  }
+}
+
+@media(max-width:340px){
+  #wardrobe #wardrobeGrid{
+    gap:7px !important;
+  }
+  #wardrobe #wardrobeGrid > .item{
+    padding:7px !important;
+  }
+}
+</style>
+
 </head>
 <body>
+<div id="buildBadge" style="position:fixed;right:10px;top:calc(env(safe-area-inset-top,0px) + 8px);z-index:99999;background:rgba(40,36,33,.78);color:#fff;padding:5px 8px;border-radius:999px;font:600 11px/1 -apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;letter-spacing:.04em;pointer-events:none">V5.0.8</div>
 <div class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · V4.10.1 STYLE DNA</small></div>
+      <div class="brand">今天穿什么 <small>WHAT TO WEAR TODAY · V5.0.8 COLOR ATLAS</small></div>
       <button class="iconbtn" onclick="openDataSettings()">⋯</button>
     </div>
   </header>
@@ -1377,6 +2224,7 @@ body.category-modal-open .nav{
         <div class="hero-actions">
           <button class="btn" onclick="openImporter()">＋ 导入</button>
           <button class="btn secondary" onclick="activateTab('inspiration')">灵感</button>
+          <button class="btn secondary" onclick="openLookbook()">色系图鉴</button>
         </div>
       </div>
 
@@ -1407,7 +2255,7 @@ body.category-modal-open .nav{
         <h3>从 ChatGPT 素材包 / 旧备份一键导入</h3>
         <p>你一次把多张衣服原图发给 ChatGPT，我帮你生成 1:1 白底纯衣物素材、名称、类别和季节，并打包成一个 <b>.json 素材包</b>。回到这里选择一次文件，即可整批加入衣橱，不用逐件输入。</p>
         <div class="batch-actions">
-          <label class="btn" for="batchInput" style="cursor:pointer">导入素材包 / 旧备份</label>
+          <label class="btn" for="batchInput" style="cursor:pointer">导入素材包 / 恢复旧备份</label>
           <button class="btn secondary" onclick="showPackageHelp()">查看素材包说明</button>
         </div>
         <input id="batchInput" type="file" accept=".json,application/json" style="display:none">
@@ -1458,6 +2306,11 @@ body.category-modal-open .nav{
     <section id="inspiration" class="page">
       <div class="sectionhead"><h2>STYLE DNA</h2><span>近期审美</span></div>
 
+      <button class="lookbook-entry" onclick="openLookbook()">
+        <span><b>色系图鉴</b><small>按颜色与品类整理全部衣橱；导入参考穿搭后可一键查看对应色系</small></span>
+        <i>↗</i>
+      </button>
+
       <div class="style-dna-shell">
         <div class="style-dna-panel">
           <div class="style-dna-head">
@@ -1490,7 +2343,7 @@ body.category-modal-open .nav{
           </div>
           <div class="live-trend-grid" id="dnaTrendLooks"></div>
           <div class="creator-section">
-            <div class="creator-head"><h3>全球相似穿搭博主</h3><small>点击直接打开账号 / 同类穿搭</small></div>
+            <div class="creator-head"><h3>相似穿搭博主 · 小红书 / Instagram</h3><small>点击直接打开账号 / 同类穿搭</small></div>
             <div class="creator-grid" id="dnaCreators"></div>
           </div>
           <div class="dna-local-note">根据你的近期 STYLE DNA 匹配相邻流行风格；点击卡片可继续搜索同类穿搭。</div>
@@ -1518,9 +2371,53 @@ body.category-modal-open .nav{
           <div class="search-platforms">
             <a class="search-platform" id="searchInstagram" href="#" onclick="return openStyleSearch(event,'Instagram',this.href)">Instagram</a>
             <a class="search-platform" id="searchXHS" href="#" onclick="return openStyleSearch(event,'小红书',this.href)">小红书</a>
-            <a class="search-platform" id="searchDouyin" href="#" onclick="return openStyleSearch(event,'抖音',this.href)">抖音</a>
           </div>
         </div>
+      </div>
+    </section>
+
+    
+    <section id="lookbook" class="page">
+      <div class="sectionhead"><h2>色系图鉴</h2><span>COLOR ATLAS · MY CLOSET</span></div>
+
+      <div class="lookbook-intro color-atlas-intro">
+        <div class="eyebrow">REFERENCE OUTFIT</div>
+        <h3>参考穿搭</h3>
+        <div class="lookbook-actions">
+          <button class="btn" id="lookbookPickBtn">＋ 导入喜欢的穿搭</button>
+          <button class="btn secondary" onclick="clearReferenceLook()">清除参考图</button>
+        </div>
+        <input id="lookbookInput" type="file" accept="image/*,.heic,.heif,.jpg,.jpeg,.png,.webp" style="display:none">
+
+        <div class="reference-color-row">
+          <div class="lookbook-reference-preview color-atlas-reference" id="lookbookReferencePreview">
+            <div class="lookbook-placeholder">导入一张穿搭图</div>
+          </div>
+          <div class="reference-color-info">
+            <div class="lookbook-card-head"><b>参考穿搭色系</b><span id="lookbookReferenceStatus">未导入</span></div>
+            <div id="referenceColorChips" class="reference-color-chips">
+              <div class="lookbook-placeholder">识别结果会出现在这里；点击色系即可筛选你的衣橱。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lookbook-panel color-atlas-panel">
+        <div class="lookbook-card-head"><b>我的衣橱 · 按色系浏览</b><span id="colorAtlasCount">0 件</span></div>
+        <div class="atlas-filter-title"><b>按品类</b></div>
+        <div class="atlas-type-tabs" id="atlasTypeTabs"></div>
+        <div class="atlas-filter-title atlas-color-title">
+          <b>按色系</b>
+          <button class="atlas-manage-color-btn" onclick="openAtlasColorManager()">管理色系</button>
+        </div>
+        <div class="atlas-color-tabs" id="atlasColorTabs"></div>
+        <div class="atlas-shade-scale" id="atlasShadeScale"></div>
+        <div class="atlas-grid" id="atlasGrid"></div>
+      </div>
+
+      <div class="lookbook-panel atlas-summary-panel">
+        <div class="lookbook-card-head"><b>色系分布</b></div>
+        <div id="atlasSummary" class="atlas-summary"></div>
       </div>
     </section>
 
@@ -1531,6 +2428,14 @@ body.category-modal-open .nav{
         <button class="trend-tab active" id="trendTabRegions" onclick="setTrendMode('regions')">国家 / 地区</button>
         <button class="trend-tab" id="trendTabLuxury" onclick="setTrendMode('luxury')">奢侈品牌</button>
       </div>
+
+      <button class="trend-creator-entry" onclick="activateTab('inspiration');setTimeout(()=>document.getElementById('dnaCreators')?.scrollIntoView({behavior:'smooth',block:'center'}),180)">
+        <div>
+          <b>相似穿搭博主</b>
+          <small>保留原入口 · 小红书 / Instagram · 按近期 Style DNA 推荐</small>
+        </div>
+        <span>→</span>
+      </button>
 
       <div class="luxury-tools" id="luxuryTools" style="display:none">
         <span class="brand-count" id="brandCount">0 个品牌</span>
@@ -1576,6 +2481,7 @@ body.category-modal-open .nav{
       <button class="active" data-tab="wardrobe" onclick="activateTab('wardrobe')"><span class="ico">◫</span><span>衣橱</span></button>
       <button data-tab="import" onclick="activateTab('import')"><span class="ico">＋</span><span>导入</span></button>
       <button data-tab="inspiration" onclick="activateTab('inspiration')"><span class="ico">✦</span><span>灵感</span></button>
+      <button data-tab="lookbook" onclick="openLookbook()"><span class="ico">◇</span><span>色系</span></button>
       <button data-tab="trends" onclick="activateTab('trends')"><span class="ico">◎</span><span>趋势</span></button>
     </div>
   </nav>
@@ -1653,6 +2559,46 @@ body.category-modal-open .nav{
   </div>
 </div>
 
+
+<div class="modal" id="atlasColorPickerModal" onclick="if(event.target===this)closeAtlasColorPicker()">
+  <div class="sheet atlas-picker-sheet">
+    <div class="atlas-picker-head">
+      <div>
+        <small>COLOR TAGS</small>
+        <h2 id="atlasColorPickerTitle">选择色系</h2>
+      </div>
+      <button class="category-sheet-close" onclick="closeAtlasColorPicker()">×</button>
+    </div>
+    <div id="atlasPickerCount" class="atlas-picker-count">已选 0 个色系</div>
+    <div id="atlasColorPickerOptions" class="atlas-picker-options"></div>
+    <div class="atlas-picker-actions">
+      <button class="btn secondary" onclick="resetAtlasColorPicker()">恢复自动识别</button>
+      <button class="btn" onclick="saveAtlasColorPicker()">保存多色分类</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal" id="atlasColorManagerModal" onclick="if(event.target===this)closeAtlasColorManager()">
+  <div class="sheet atlas-manager-sheet">
+    <div class="atlas-picker-head">
+      <div>
+        <small>COLOR SYSTEM</small>
+        <h2>管理色系</h2>
+      </div>
+      <button class="category-sheet-close" onclick="closeAtlasColorManager()">×</button>
+    </div>
+    <div class="atlas-manager-add">
+      <input id="atlasNewColorName" placeholder="例如：薄荷色 / 奶油黄">
+      <button onclick="addAtlasColor()">+ 新增</button>
+    </div>
+    <div id="atlasColorManagerList" class="atlas-manager-list"></div>
+    <div class="atlas-manager-foot">
+      修改名称或新增后，会立即同步到“按色系”、单品多选和色系统计。
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1667,12 +2613,13 @@ const IMPORT_CATEGORY_MODE_KEY="today_wear_import_category_mode_v42";
   App 不再创建/恢复任何写死的默认分类。
 */
 function currentUserCategories(){
+  let ordered=[];
   try{
     const raw=JSON.parse(localStorage.getItem(CAT_ORDER_KEY)||"[]");
-    return Array.isArray(raw) ? [...new Set(raw.filter(Boolean))] : [];
-  }catch(e){
-    return [];
-  }
+    ordered=Array.isArray(raw)?raw.filter(Boolean):[];
+  }catch(e){}
+  const actual=items().map(x=>String(x.category||"").trim()).filter(Boolean);
+  return [...new Set([...ordered,...actual])];
 }
 
 function categoryMatchScore(category,item){
@@ -1863,6 +2810,60 @@ async function idbReplaceAllItems(arr){
   });
 }
 
+async function idbGetMetaValue(key){
+  const db=await openWardrobeDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(META_STORE,"readonly");
+    const req=tx.objectStore(META_STORE).get(key);
+    req.onsuccess=()=>resolve(req.result?.value);
+    req.onerror=()=>reject(req.error);
+  });
+}
+async function idbSetMetaValue(key,value){
+  const db=await openWardrobeDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(META_STORE,"readwrite");
+    tx.objectStore(META_STORE).put({key,value,updatedAt:Date.now()});
+    tx.oncomplete=()=>resolve(true);
+    tx.onerror=()=>reject(tx.error||new Error("meta save failed"));
+  });
+}
+async function persistAtlasSettings(){
+  if(!__storageReady)return;
+  try{
+    const payload={
+      categoryOrder:(()=>{try{return JSON.parse(localStorage.getItem(CAT_ORDER_KEY)||"[]")}catch(e){return []}})(),
+      colorGroups:ATLAS_COLOR_GROUPS,
+      overrides:atlasOverrideRead(),
+      cache:atlasCacheRead()
+    };
+    await idbSetMetaValue(ATLAS_SETTINGS_META_KEY,payload);
+  }catch(e){
+    console.warn("persistAtlasSettings failed",e);
+  }
+}
+async function restoreAtlasSettingsFromMeta(){
+  try{
+    const saved=await idbGetMetaValue(ATLAS_SETTINGS_META_KEY);
+    if(!saved||typeof saved!=="object")return;
+    if(!localStorage.getItem(CAT_ORDER_KEY) && Array.isArray(saved.categoryOrder)){
+      localStorage.setItem(CAT_ORDER_KEY,JSON.stringify(saved.categoryOrder));
+    }
+    if(!localStorage.getItem(ATLAS_COLOR_GROUPS_KEY) && Array.isArray(saved.colorGroups) && saved.colorGroups.length){
+      localStorage.setItem(ATLAS_COLOR_GROUPS_KEY,JSON.stringify(saved.colorGroups));
+    }
+    if(!localStorage.getItem(COLOR_ATLAS_OVERRIDE_KEY) && saved.overrides){
+      localStorage.setItem(COLOR_ATLAS_OVERRIDE_KEY,JSON.stringify(saved.overrides));
+    }
+    if(!localStorage.getItem(COLOR_ATLAS_CACHE_KEY) && saved.cache){
+      localStorage.setItem(COLOR_ATLAS_CACHE_KEY,JSON.stringify(saved.cache));
+    }
+    ATLAS_COLOR_GROUPS=loadAtlasColorGroups();
+  }catch(e){
+    console.warn("restoreAtlasSettingsFromMeta failed",e);
+  }
+}
+
 async function initAppStorage(){
   try{
     const db = await openWardrobeDB();
@@ -1889,10 +2890,12 @@ async function initAppStorage(){
     }
 
     __storageReady = true;
+    await restoreAtlasSettingsFromMeta();
+    await ensureAllClosetColorsClassified(false);
     render();
-    renderLiveInspiration();
-    renderTrendGrid();
-    renderStyleDNA();
+    try{renderLiveInspiration();}catch(e){console.warn("renderLiveInspiration skipped",e)}
+    try{renderTrendGrid();}catch(e){console.warn("renderTrendGrid skipped",e)}
+    try{renderStyleDNA();}catch(e){console.warn("renderStyleDNA skipped",e)}
   }catch(err){
     console.error("IndexedDB init failed",err);
     __storageReady = false;
@@ -1912,6 +2915,11 @@ function activateTab(id){
     refreshManualCategorySelect();
     if(pendingBatch.length) renderBatchPreview();
   }
+  if(id==="lookbook"){
+    renderLookbookTarget();
+    renderLookbookWardrobeMap();
+    if(lookbookReference.image) generateLookbookOutfits(false);
+  }
   window.scrollTo({top:0,behavior:"smooth"});
 }
 function openImporter(){activateTab("import");}
@@ -1926,6 +2934,8 @@ async function saveItems(v){
     const verified = await queueWardrobeSave(next);
     __itemsCache = verified;
     try{ localStorage.removeItem(LS_KEY); }catch(e){}
+    await ensureAllClosetColorsClassified(false);
+    await persistAtlasSettings();
     render();
     return true;
   }catch(err){
@@ -1967,6 +2977,7 @@ function render(){
   renderLiveInspiration();
   renderTrendGrid();
   renderStyleDNA();
+  renderLookbookWardrobeMap();
 }
 function setCat(c){activeCategory=c;render();}
 function setSeason(v){activeSeason=v;render();}
@@ -1980,6 +2991,19 @@ function handlePickedFile(f){
 }
 
 let inspirationSeed=0;
+// V5.0.8：趋势区兼容兜底。旧版本中 TREND_DATA 曾被移除，导致完整备份恢复完成后
+// 在 renderTrendGrid() 阶段抛出 "Can't find variable: TREND_DATA"，从而误报“恢复失败”。
+const TREND_DATA = window.TREND_DATA || {
+  regions:[
+    {name:"Tokyo / 日本",subtitle:"Rakuten Fashion Week TOKYO",url:"https://rakutenfashionweektokyo.com/jp/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://rakutenfashionweektokyo.com/jp/"},
+    {name:"Seoul / 韩国",subtitle:"Seoul Fashion Week",url:"https://www.seoulfashionweek.org/hmpg/fawk/main.do",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.seoulfashionweek.org/hmpg/fawk/main.do"},
+    {name:"Shanghai / 中国",subtitle:"Shanghai Fashion Week",url:"https://shanghaifashionweek.com/page/shfw",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://shanghaifashionweek.com/page/shfw"},
+    {name:"Paris / 法国",subtitle:"Paris Fashion Week",url:"https://www.fhcm.paris/en/paris-fashion-week",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.fhcm.paris/en/paris-fashion-week"},
+    {name:"Milano / 意大利",subtitle:"Milano Fashion Week",url:"https://www.cameramoda.it/en/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.cameramoda.it/en/"},
+    {name:"New York / 美国",subtitle:"Official NYFW",url:"https://cfda.com/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://cfda.com/"},
+    {name:"London / 英国",subtitle:"London Fashion Week",url:"https://www.britishfashioncouncil.co.uk/London-Fashion-Week",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.britishfashioncouncil.co.uk/London-Fashion-Week"}
+  ]
+};
 let trendMode="regions";
 
 function pickInspirationItems(){
@@ -2275,12 +3299,10 @@ const STYLE_CREATORS=[
   {name:"dewgi_net",platform:"Instagram",url:"https://www.instagram.com/dewgi_net/",keys:["korean","minimal","soft","model off-duty","韩系","简约"],tags:["Korean","Off-duty"]},
   {name:"wonyoungcloset",platform:"Instagram",url:"https://www.instagram.com/wonyoungcloset/",keys:["feminine","romantic","korean","ballet","女性感","浪漫"],tags:["Feminine","K-style"]},
   {name:"jennierubyjanik",platform:"Instagram",url:"https://www.instagram.com/jennierubyjanik/",keys:["y2k","feminine","mini","女性感"],tags:["Y2K","Girly"]},
-  {name:"Relaxed minimal",platform:"Pinterest",url:"https://www.pinterest.com/search/pins/?q=relaxed%20minimal%20outfit",keys:["casual","minimal","sporty","松弛","简约"],tags:["松弛","实穿"]},
-  {name:"Soft Y2K inspiration",platform:"Pinterest",url:"https://www.pinterest.com/search/pins/?q=soft%20y2k%20outfit",keys:["soft y2k","y2k","轻y2k"],tags:["Soft Y2K","全球灵感"]},
-  {name:"Korean feminine",platform:"Pinterest",url:"https://www.pinterest.com/search/pins/?q=korean%20feminine%20outfit",keys:["korean","feminine","romantic","韩系"],tags:["Korean","Feminine"]},
-  {name:"Model off-duty",platform:"Pinterest",url:"https://www.pinterest.com/search/pins/?q=model%20off%20duty%20outfit",keys:["model off-duty","minimal","casual","模特"],tags:["Off-duty","Minimal"]},
-  {name:"Soft feminine outfit",platform:"TikTok",url:"https://www.tiktok.com/search?q=soft%20feminine%20outfit",keys:["feminine","soft","romantic"],tags:["Feminine","Trend"]},
-  {name:"低饱和轻Y2K",platform:"抖音",url:"https://www.douyin.com/search/%E4%BD%8E%E9%A5%B1%E5%92%8C%E8%BD%BBY2K%E7%A9%BF%E6%90%AD",keys:["soft y2k","低饱和","轻y2k"],tags:["低饱和","Y2K"]}
+  {name:"blacknini尹华夫",platform:"小红书",url:"xhsdiscover://search/result?keyword=blacknini%E5%B0%B9%E5%8D%8E%E5%A4%AB&target_search=users&source=deeplink",fallback:"https://www.xiaohongshu.com/search_result?keyword=blacknini%E5%B0%B9%E5%8D%8E%E5%A4%AB",keys:["minimal","casual","松弛","简约","女性感"],tags:["松弛","质感"]},
+  {name:"轻Y2K穿搭博主",platform:"小红书",url:"xhsdiscover://search/result?keyword=%E8%BD%BBY2K%E7%A9%BF%E6%90%AD%E5%8D%9A%E4%B8%BB&target_search=users&source=deeplink",fallback:"https://www.xiaohongshu.com/search_result?keyword=%E8%BD%BBY2K%E7%A9%BF%E6%90%AD%E5%8D%9A%E4%B8%BB",keys:["soft y2k","y2k","轻y2k"],tags:["Soft Y2K","低饱和"]},
+  {name:"韩系轻熟穿搭博主",platform:"小红书",url:"xhsdiscover://search/result?keyword=%E9%9F%A9%E7%B3%BB%E8%BD%BB%E7%86%9F%E7%A9%BF%E6%90%AD%E5%8D%9A%E4%B8%BB&target_search=users&source=deeplink",fallback:"https://www.xiaohongshu.com/search_result?keyword=%E9%9F%A9%E7%B3%BB%E8%BD%BB%E7%86%9F%E7%A9%BF%E6%90%AD%E5%8D%9A%E4%B8%BB",keys:["korean","feminine","韩系","女性感"],tags:["Korean","Feminine"]},
+  {name:"模特下班风博主",platform:"小红书",url:"xhsdiscover://search/result?keyword=%E6%A8%A1%E7%89%B9%E4%B8%8B%E7%8F%AD%E9%A3%8E%E7%A9%BF%E6%90%AD%E5%8D%9A%E4%B8%BB&target_search=users&source=deeplink",fallback:"https://www.xiaohongshu.com/search_result?keyword=%E6%A8%A1%E7%89%B9%E4%B8%8B%E7%8F%AD%E9%A3%8E%E7%A9%BF%E6%90%AD%E5%8D%9A%E4%B8%BB",keys:["model off-duty","minimal","casual","模特"],tags:["Off-duty","Minimal"]}
 ];
 function creatorScore(c,dna){
   const text=[...(dna?.styles||[]).map(x=>`${x.name} ${x.cn}`),...(dna?.keywords||[]),...(dna?.terms||[])].join(" ").toLowerCase();
@@ -2290,7 +3312,21 @@ function renderCreators(){
   const box=document.getElementById("dnaCreators");if(!box)return;
   const dna=getStyleDNA()||{styles:[],keywords:[],terms:[]};
   const picks=[...STYLE_CREATORS].sort((a,b)=>creatorScore(b,dna)-creatorScore(a,dna)).slice(0,6);
-  box.innerHTML=picks.map((c,i)=>`<a class="creator-card" href="${c.url}" target="_blank" rel="noopener" onclick="return openExternalPlatform(event,'${esc(c.platform)} · ${esc(c.name)}',this.href)"><span class="creator-arrow">↗</span><div class="creator-platform">${esc(c.platform)}</div><div class="creator-name">${esc(c.name)}</div><div class="creator-match">与近期画像 ${Math.max(72,94-i*3)}% 相邻</div><div class="creator-tags">${c.tags.map(t=>`<span>${esc(t)}</span>`).join("")}</div></a>`).join("");
+  box.innerHTML=picks.map((c,i)=>`<a class="creator-card" href="${c.url}" data-fallback="${c.fallback||""}" target="_blank" rel="noopener" onclick="return openCreatorLink(event,this,'${esc(c.platform)} · ${esc(c.name)}')"><span class="creator-arrow">↗</span><div class="creator-platform">${esc(c.platform)}</div><div class="creator-name">${esc(c.name)}</div><div class="creator-match">与近期画像 ${Math.max(72,94-i*3)}% 相邻</div><div class="creator-tags">${c.tags.map(t=>`<span>${esc(t)}</span>`).join("")}</div></a>`).join("");
+}
+function openCreatorLink(e,el,label){
+  e.preventDefault();
+  showExternalReturnLine(label);
+  const url=el.getAttribute("href")||"";
+  const fallback=el.dataset.fallback||"";
+  if(url.startsWith("xhsdiscover://")){
+    window.location.href=url;
+    if(fallback) setTimeout(()=>{ if(document.visibilityState==="visible") window.open(fallback,"_blank","noopener,noreferrer"); },900);
+    return false;
+  }
+  const w=window.open(url,"_blank","noopener,noreferrer");
+  if(!w) window.location.href=url;
+  return false;
 }
 function renderTrendLooks(){
   const box=document.getElementById("dnaTrendLooks"); if(!box)return;
@@ -2373,7 +3409,6 @@ function renderSearchLinks(){
   const hash=encodeURIComponent((terms[0]||"fashion outfit").replace(/\s+/g,""));
   document.getElementById("searchInstagram").href=`https://www.instagram.com/explore/tags/${hash}/`;
   document.getElementById("searchXHS").href=`https://www.xiaohongshu.com/search_result?keyword=${q}`;
-  document.getElementById("searchDouyin").href=`https://www.douyin.com/search/${q}`;
 }
 function openStyleSearch(e,platform,url){
   return openExternalPlatform(e,platform,url);
@@ -2412,68 +3447,765 @@ document.getElementById("styleDNAInput").addEventListener("change",async e=>{
     toast(`Style DNA 已导入${packed.length?` · 含 ${new Set(packed.map(x=>x?.image).filter(Boolean)).size} 张样本`:""}`);
   }catch(err){console.error(err);alert("Style DNA 文件读取失败："+(err?.message||"格式不正确"))}
 });
-const BRAND_LIBRARY=[
-  {name:"CHANEL",country:"France",subtitle:"Fashion Collections",url:"https://www.chanel.com/us/fashion/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.chanel.com/us/fashion/"},
-  {name:"DIOR",country:"France",subtitle:"Women’s Fashion",url:"https://www.dior.com/en_us/fashion/womens-fashion",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.dior.com/en_us/fashion/womens-fashion"},
-  {name:"LOUIS VUITTON",country:"France",subtitle:"Women’s Fashion Shows",url:"https://us.louisvuitton.com/eng-us/magazine/fashion-shows/_/N-t1qypv3",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://us.louisvuitton.com/eng-us/magazine/fashion-shows/_/N-t1qypv3"},
-  {name:"SAINT LAURENT",country:"France",subtitle:"Collections",url:"https://www.ysl.com/en-us",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.ysl.com/en-us"},
-  {name:"CELINE",country:"France",subtitle:"Collections",url:"https://www.celine.com/en-us/celine-women/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.celine.com/en-us/celine-women/"},
-  {name:"GIVENCHY",country:"France",subtitle:"Collections",url:"https://www.givenchy.com/us/en-US/collections/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.givenchy.com/us/en-US/collections/"},
-  {name:"BALENCIAGA",country:"France",subtitle:"All Collections",url:"https://www.balenciaga.com/en-us/discover/explore-collections",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.balenciaga.com/en-us/discover/explore-collections"},
-  {name:"VALENTINO",country:"Italy",subtitle:"Fashion Shows",url:"https://www.valentino.com/en-ad/v-universe/fashion-shows",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.valentino.com/en-ad/v-universe/fashion-shows"},
-  {name:"ALEXANDER MCQUEEN",country:"United Kingdom",subtitle:"Collections 2026",url:"https://www.alexandermcqueen.com/en-us/preaw23-womenswear-campaign",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.alexandermcqueen.com/en-us/preaw23-womenswear-campaign"},
-  {name:"LOEWE",country:"Spain",subtitle:"Collections",url:"https://www.loewe.com/usa/en/stories-collection",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.loewe.com/usa/en/stories-collection"},
-  {name:"HERMÈS",country:"France",subtitle:"Women’s Universe",url:"https://www.hermes.com/us/en/category/women/ready-wear/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.hermes.com/us/en/category/women/ready-wear/"},
-  {name:"SCHIAPARELLI",country:"France",subtitle:"Collections",url:"https://www.schiaparelli.com/en/collections",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.schiaparelli.com/en/collections"},
-  {name:"ALAÏA",country:"France",subtitle:"Collections",url:"https://www.maison-alaia.com/us",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.maison-alaia.com/us"},
-  {name:"CHLOÉ",country:"France",subtitle:"Collections",url:"https://www.chloe.com/us/chloe/shop-online/women/ready-to-wear",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.chloe.com/us/chloe/shop-online/women/ready-to-wear"},
-  {name:"COURRÈGES",country:"France",subtitle:"Collections",url:"https://www.courreges.com/us",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.courreges.com/us"},
-  {name:"RABANNE",country:"France",subtitle:"Collections",url:"https://fashion.rabanne.com/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://fashion.rabanne.com/"},
-  {name:"JACQUEMUS",country:"France",subtitle:"Collections",url:"https://www.jacquemus.com/en_us",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.jacquemus.com/en_us"},
-  {name:"MUGLER",country:"France",subtitle:"Fashion",url:"https://fashion.mugler.com/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://fashion.mugler.com/"},
-  {name:"JEAN PAUL GAULTIER",country:"France",subtitle:"Collections",url:"https://www.jeanpaulgaultier.com/us/en/collections",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.jeanpaulgaultier.com/us/en/collections"},
-  {name:"MAISON MARGIELA",country:"France",subtitle:"Collections",url:"https://www.maisonmargiela.com/en-us/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.maisonmargiela.com/en-us/"},
-  {name:"PRADA",country:"Italy",subtitle:"Women’s Collections",url:"https://www.prada.com/us/en/womens/ready-to-wear.html",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.prada.com/us/en/womens/ready-to-wear.html"},
-  {name:"MIU MIU",country:"Italy",subtitle:"Collections",url:"https://www.miumiu.com/us/en/collections/c/10195US",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.miumiu.com/us/en/collections/c/10195US"},
-  {name:"GUCCI",country:"Italy",subtitle:"Women’s Fashion",url:"https://www.gucci.com/us/en/ca/women/ready-to-wear-for-women-c-women-readytowear",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.gucci.com/us/en/ca/women/ready-to-wear-for-women-c-women-readytowear"},
-  {name:"FENDI",country:"Italy",subtitle:"Women’s Collections",url:"https://www.fendi.com/us-en/woman/ready-to-wear",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.fendi.com/us-en/woman/ready-to-wear"},
-  {name:"BOTTEGA VENETA",country:"Italy",subtitle:"Women’s Collection",url:"https://www.bottegaveneta.com/en-us/women/womens-ready-to-wear",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.bottegaveneta.com/en-us/women/womens-ready-to-wear"},
-  {name:"VERSACE",country:"Italy",subtitle:"Women’s Collection",url:"https://www.versace.com/us/en/women/clothing/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.versace.com/us/en/women/clothing/"},
-  {name:"DOLCE & GABBANA",country:"Italy",subtitle:"Women’s Fashion",url:"https://www.dolcegabbana.com/en-us/fashion/women/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.dolcegabbana.com/en-us/fashion/women/"},
-  {name:"GIORGIO ARMANI",country:"Italy",subtitle:"Women’s Collection",url:"https://www.armani.com/en-us/giorgio-armani/women",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.armani.com/en-us/giorgio-armani/women"},
-  {name:"FERRAGAMO",country:"Italy",subtitle:"Women’s Collection",url:"https://www.ferragamo.com/shop/us/en/women",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.ferragamo.com/shop/us/en/women"},
-  {name:"JIL SANDER",country:"Italy",subtitle:"Women’s Collection",url:"https://www.jilsander.com/en-us/women/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.jilsander.com/en-us/women/"},
-  {name:"MARNI",country:"Italy",subtitle:"Women’s Collection",url:"https://www.marni.com/en-us/women/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.marni.com/en-us/women/"},
-  {name:"MAX MARA",country:"Italy",subtitle:"Women’s Collection",url:"https://us.maxmara.com/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://us.maxmara.com/"},
-  {name:"ETRO",country:"Italy",subtitle:"Women’s Collection",url:"https://www.etro.com/us-en/women/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.etro.com/us-en/women/"},
-  {name:"MOSCHINO",country:"Italy",subtitle:"Women’s Collection",url:"https://us.moschino.com/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://us.moschino.com/"},
-  {name:"LORO PIANA",country:"Italy",subtitle:"Women’s Collection",url:"https://us.loropiana.com/en/woman",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://us.loropiana.com/en/woman"},
-  {name:"BRUNELLO CUCINELLI",country:"Italy",subtitle:"Women’s Collection",url:"https://shop.brunellocucinelli.com/en-us/women/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://shop.brunellocucinelli.com/en-us/women/"},
-  {name:"BURBERRY",country:"United Kingdom",subtitle:"Women’s Collection",url:"https://us.burberry.com/womens/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://us.burberry.com/womens/"},
-  {name:"JW ANDERSON",country:"United Kingdom",subtitle:"Collections",url:"https://www.jwanderson.com/us/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.jwanderson.com/us/"},
-  {name:"STELLA MCCARTNEY",country:"United Kingdom",subtitle:"Women’s Collection",url:"https://www.stellamccartney.com/us/en/women/ready-to-wear",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.stellamccartney.com/us/en/women/ready-to-wear"},
-  {name:"VICTORIA BECKHAM",country:"United Kingdom",subtitle:"Ready-to-Wear",url:"https://www.victoriabeckham.com/collections/ready-to-wear",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.victoriabeckham.com/collections/ready-to-wear"},
-  {name:"THE ROW",country:"United States",subtitle:"Collections",url:"https://www.therow.com/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.therow.com/"},
-  {name:"TOM FORD",country:"United States",subtitle:"Women’s Collection",url:"https://www.tomfordfashion.com/women/ready-to-wear/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.tomfordfashion.com/women/ready-to-wear/"},
-  {name:"RICK OWENS",country:"United States",subtitle:"Women’s Collection",url:"https://www.rickowens.eu/en/US/women/section/all",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.rickowens.eu/en/US/women/section/all"},
-  {name:"COMME DES GARÇONS",country:"Japan",subtitle:"Official",url:"https://www.comme-des-garcons.com/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.comme-des-garcons.com/"},
-  {name:"YOHJI YAMAMOTO",country:"Japan",subtitle:"Collections",url:"https://www.yohjiyamamoto.co.jp/en/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.yohjiyamamoto.co.jp/en/"},
-  {name:"ISSEY MIYAKE",country:"Japan",subtitle:"Collections",url:"https://www.isseymiyake.com/en/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.isseymiyake.com/en/"},
-  {name:"SACAI",country:"Japan",subtitle:"Collections",url:"https://www.sacai.jp/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.sacai.jp/"},
-  {name:"UNDERCOVER",country:"Japan",subtitle:"Collections",url:"https://undercoverism.com/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://undercoverism.com/"}
-];
 
-const TREND_DATA={
-  regions:[
-    {name:"Tokyo / 日本",subtitle:"Rakuten Fashion Week TOKYO",url:"https://rakutenfashionweektokyo.com/jp/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://rakutenfashionweektokyo.com/jp/"},
-    {name:"Seoul / 韩国",subtitle:"Seoul Fashion Week",url:"https://www.seoulfashionweek.org/hmpg/fawk/main.do",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.seoulfashionweek.org/hmpg/fawk/main.do"},
-    {name:"Shanghai / 中国",subtitle:"Shanghai Fashion Week",url:"https://shanghaifashionweek.com/page/shfw",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://shanghaifashionweek.com/page/shfw"},
-    {name:"Paris / 法国",subtitle:"Paris Fashion Week",url:"https://www.fhcm.paris/en/paris-fashion-week",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.fhcm.paris/en/paris-fashion-week"},
-    {name:"Milano / 意大利",subtitle:"Milano Fashion Week",url:"https://www.cameramoda.it/en/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.cameramoda.it/en/"},
-    {name:"New York / 美国",subtitle:"Official NYFW",url:"https://cfda.com/",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://cfda.com/"},
-    {name:"London / 英国",subtitle:"London Fashion Week",url:"https://www.britishfashioncouncil.co.uk/London-Fashion-Week",thumb:"https://image.thum.io/get/width/900/crop/1100/noanimate/https://www.britishfashioncouncil.co.uk/London-Fashion-Week"}
-  ]
-};
+/* ---------- V5.0.8 COLOR ATLAS：衣橱颜色 × 品类自动图鉴 ---------- */
+const LOOKBOOK_REFERENCE_KEY="today_wear_color_atlas_reference_v500";
+const COLOR_ATLAS_CACHE_KEY="today_wear_color_atlas_cache";
+const COLOR_ATLAS_OVERRIDE_KEY="today_wear_color_atlas_override";
+const ATLAS_SETTINGS_META_KEY="atlas_settings_v1";
+let lookbookReference={image:"",createdAt:0,garments:[]};
+let atlasType="all";
+let atlasColor="all";
+
+const ATLAS_COLOR_DEFAULTS=[
+  {id:"black",name:"黑色系",keys:["黑","墨","炭","玄"],from:"#9b9b9b",to:"#111111"},
+  {id:"white",name:"白色系",keys:["白","米白","奶白","象牙"],from:"#ffffff",to:"#d7d2ca"},
+  {id:"gray",name:"灰色系",keys:["灰","银","铅"],from:"#e6e6e6",to:"#555555"},
+  {id:"brown",name:"棕色系",keys:["棕","咖","褐","巧克力","栗"],from:"#d9c1aa",to:"#4a2d20"},
+  {id:"beige",name:"米/卡其",keys:["米","卡其","杏","燕麦","沙","驼"],from:"#f1e6d3",to:"#9e8060"},
+  {id:"blue",name:"蓝色系",keys:["蓝","宝蓝","藏蓝","牛仔蓝","雾蓝","天蓝"],from:"#d9edff",to:"#102a59"},
+  {id:"green",name:"绿色系",keys:["绿","青","薄荷","橄榄","军绿"],from:"#dcebdc",to:"#264a31"},
+  {id:"red",name:"红/粉色",keys:["红","粉","玫红","酒红","桃"],from:"#ffdce5",to:"#741e2b"},
+  {id:"purple",name:"紫色系",keys:["紫","薰衣草","葡萄"],from:"#eadfff",to:"#4f326a"},
+  {id:"yellow",name:"黄/橙色",keys:["黄","橙","姜黄","柠檬"],from:"#fff0b5",to:"#b9651b"},
+  {id:"other",name:"其他色",keys:[],from:"#ece8e4",to:"#8a817b"}
+];
+const ATLAS_COLOR_GROUPS_KEY="today_wear_color_groups";
+let ATLAS_COLOR_GROUPS=loadAtlasColorGroups();
+let atlasSelectedColors=[];
+
+
+function migrateAtlasLegacyStorage(){
+  const migrateOne=(newKey,oldKeys)=>{
+    if(localStorage.getItem(newKey)!=null)return;
+    for(const k of oldKeys){
+      const v=localStorage.getItem(k);
+      if(v!=null){
+        localStorage.setItem(newKey,v);
+        break;
+      }
+    }
+  };
+  migrateOne(COLOR_ATLAS_CACHE_KEY,[
+    "today_wear_color_atlas_cache_v500",
+    "today_wear_color_atlas_cache_v501",
+    "today_wear_color_atlas_cache_v502",
+    "today_wear_color_atlas_cache_v503",
+    "today_wear_color_atlas_cache_v504",
+    "today_wear_color_atlas_cache_v505"
+  ]);
+  migrateOne(COLOR_ATLAS_OVERRIDE_KEY,[
+    "today_wear_color_atlas_override_v503",
+    "today_wear_color_atlas_override_v504",
+    "today_wear_color_atlas_override_v505"
+  ]);
+  migrateOne(ATLAS_COLOR_GROUPS_KEY,[
+    "today_wear_color_groups_v505"
+  ]);
+}
+migrateAtlasLegacyStorage();
+
+function loadAtlasColorGroups(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(ATLAS_COLOR_GROUPS_KEY)||"null");
+    if(Array.isArray(raw)&&raw.length)return raw;
+  }catch(e){}
+  return ATLAS_COLOR_DEFAULTS.map(x=>({...x}));
+}
+function saveAtlasColorGroups(){
+  localStorage.setItem(ATLAS_COLOR_GROUPS_KEY,JSON.stringify(ATLAS_COLOR_GROUPS));
+  persistAtlasSettings();
+}
+function atlasColorId(){
+  return "custom_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,6);
+}
+function openAtlasColorManager(){
+  renderAtlasColorManager();
+  document.getElementById("atlasColorManagerModal")?.classList.add("show");
+  lockAtlasModalScroll();
+}
+function closeAtlasColorManager(){
+  document.getElementById("atlasColorManagerModal")?.classList.remove("show");
+  unlockAtlasModalScroll();
+}
+function renderAtlasColorManager(){
+  const box=document.getElementById("atlasColorManagerList");
+  if(!box)return;
+  box.innerHTML=ATLAS_COLOR_GROUPS.map((g,i)=>`
+    <div class="atlas-manager-row">
+      <i style="background:linear-gradient(90deg,${g.from},${g.to})"></i>
+      <input value="${esc(g.name)}" oninput="renameAtlasColor('${g.id}',this.value)" aria-label="色系名称">
+      <button onclick="removeAtlasColor('${g.id}')" ${ATLAS_COLOR_GROUPS.length<=1?"disabled":""}>删除</button>
+    </div>`).join("");
+}
+function renameAtlasColor(id,name){
+  const g=ATLAS_COLOR_GROUPS.find(x=>x.id===id);
+  if(!g)return;
+  g.name=String(name||"").trim()||g.name;
+  saveAtlasColorGroups();
+  renderColorAtlas();
+}
+function addAtlasColor(){
+  const input=document.getElementById("atlasNewColorName");
+  const name=String(input?.value||"").trim();
+  if(!name){toast("先输入色系名称");return}
+  const palette=[
+    ["#f7e7ef","#ad597e"],["#e4edf8","#44658f"],["#e7f0e2","#54704d"],
+    ["#efe4d8","#765640"],["#f3e8d0","#b58b4a"],["#e8e2ef","#66537c"]
+  ];
+  const pair=palette[ATLAS_COLOR_GROUPS.length%palette.length];
+  ATLAS_COLOR_GROUPS.splice(Math.max(ATLAS_COLOR_GROUPS.length-1,0),0,{
+    id:atlasColorId(),name,keys:[],from:pair[0],to:pair[1]
+  });
+  saveAtlasColorGroups();
+  if(input)input.value="";
+  renderAtlasColorManager();
+  renderColorAtlas();
+  toast("已增加新色系");
+}
+function removeAtlasColor(id){
+  const used=Object.values(atlasOverrideRead()).some(v=>(Array.isArray(v)?v:[v]).includes(id));
+  if(used&&!confirm("有衣物正在使用这个色系。删除后，这些衣物会恢复自动识别。继续吗？"))return;
+  ATLAS_COLOR_GROUPS=ATLAS_COLOR_GROUPS.filter(x=>x.id!==id);
+  const map=atlasOverrideRead();
+  Object.keys(map).forEach(k=>{
+    let arr=Array.isArray(map[k])?map[k]:[map[k]];
+    arr=arr.filter(x=>x!==id);
+    if(arr.length)map[k]=arr; else delete map[k];
+  });
+  atlasOverrideWrite(map);
+  saveAtlasColorGroups();
+  if(atlasColor===id)atlasColor="all";
+  atlasSelectedColors=atlasSelectedColors.filter(x=>x!==id);
+  renderAtlasColorManager();
+  renderColorAtlas();
+}
+
+function atlasCategoryList(data=[]){
+  const own=currentUserCategories();
+  const result=[...own];
+  if(data.some(x=>!x.type||x.type==="未分类")) result.push("未分类");
+  return [...new Set(result.filter(Boolean))];
+}
+
+function openLookbook(){ activateTab("lookbook"); }
+
+function loadLookbookReference(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(LOOKBOOK_REFERENCE_KEY)||"null");
+    if(saved&&saved.image)lookbookReference=saved;
+  }catch(e){}
+}
+function saveLookbookReference(){
+  try{localStorage.setItem(LOOKBOOK_REFERENCE_KEY,JSON.stringify(lookbookReference))}catch(e){}
+}
+function clearReferenceLook(){
+  lookbookReference={image:"",createdAt:0,garments:[]};
+  try{localStorage.removeItem(LOOKBOOK_REFERENCE_KEY)}catch(e){}
+  renderLookbookReference();
+  toast("已清除参考穿搭");
+}
+
+function atlasItemType(item){
+  const cat=String(item?.category||"").trim();
+  return cat || "未分类";
+}
+
+
+
+function atlasOverrideRead(){
+  try{return JSON.parse(localStorage.getItem(COLOR_ATLAS_OVERRIDE_KEY)||"{}")||{}}catch(e){return {}}
+}
+function atlasOverrideWrite(v){
+  try{
+    localStorage.setItem(COLOR_ATLAS_OVERRIDE_KEY,JSON.stringify(v));
+    persistAtlasSettings();
+  }catch(e){}
+}
+function atlasItemKey(item){
+  return String(item.id||item.createdAt||item.name||"unknown");
+}
+function getAtlasOverride(item){
+  const map=atlasOverrideRead();
+  const raw=map[atlasItemKey(item)];
+  if(!raw)return null;
+  if(Array.isArray(raw))return raw.filter(Boolean);
+  return [raw];
+}
+function atlasFamiliesOf(v){
+  if(Array.isArray(v.families)&&v.families.length)return v.families;
+  return v.family?[v.family]:["other"];
+}
+function toggleAtlasOverride(itemId,family,checked){
+  const target=items().find(x=>String(x.id)===String(itemId));
+  if(!target)return;
+  const map=atlasOverrideRead();
+  const key=atlasItemKey(target);
+  let current=getAtlasOverride(target);
+  if(!current){
+    const cached=atlasCacheRead()[key];
+    current=(cached?.families||[cached?.family]).filter(Boolean);
+  }
+  current=[...new Set(current||[])];
+  if(checked){
+    if(!current.includes(family))current.push(family);
+  }else{
+    current=current.filter(x=>x!==family);
+  }
+  if(current.length)map[key]=current;else delete map[key];
+  atlasOverrideWrite(map);
+  renderColorAtlas();
+  toast(current.length?"已更新叠加色系":"已恢复自动识别");
+}
+function clearAtlasOverride(itemId){
+  const target=items().find(x=>String(x.id)===String(itemId));
+  if(!target)return;
+  const map=atlasOverrideRead();
+  delete map[atlasItemKey(target)];
+  atlasOverrideWrite(map);
+  renderColorAtlas();
+  toast("已恢复自动识别");
+}
+
+let atlasModalScrollY=0;
+function lockAtlasModalScroll(){
+  if(document.body.classList.contains("atlas-modal-lock"))return;
+  atlasModalScrollY=window.scrollY||document.documentElement.scrollTop||0;
+  document.body.classList.add("atlas-modal-lock");
+  document.body.style.top=`-${atlasModalScrollY}px`;
+}
+function unlockAtlasModalScroll(){
+  if(!document.body.classList.contains("atlas-modal-lock"))return;
+  document.body.classList.remove("atlas-modal-lock");
+  document.body.style.top="";
+  window.scrollTo(0,atlasModalScrollY);
+}
+let atlasPickerItemId=null;
+let atlasPickerDraft=[];
+
+function openAtlasColorPicker(itemId){
+  const target=items().find(x=>String(x.id)===String(itemId));
+  if(!target)return;
+  atlasPickerItemId=String(itemId);
+  const manual=getAtlasOverride(target);
+  const cached=atlasCacheRead()[atlasItemKey(target)];
+  atlasPickerDraft=[...new Set((manual?.length?manual:(cached?.families||[cached?.family]).filter(Boolean))||[])];
+  renderAtlasColorPicker();
+  document.getElementById("atlasColorPickerModal")?.classList.add("show");
+  lockAtlasModalScroll();
+}
+function closeAtlasColorPicker(){
+  document.getElementById("atlasColorPickerModal")?.classList.remove("show");
+  unlockAtlasModalScroll();
+  atlasPickerItemId=null;
+  atlasPickerDraft=[];
+}
+function toggleAtlasPickerDraft(family){
+  if(atlasPickerDraft.includes(family)){
+    atlasPickerDraft=atlasPickerDraft.filter(x=>x!==family);
+  }else{
+    atlasPickerDraft=[...atlasPickerDraft,family];
+  }
+  renderAtlasColorPicker();
+}
+function renderAtlasColorPicker(){
+  const target=items().find(x=>String(x.id)===String(atlasPickerItemId));
+  const box=document.getElementById("atlasColorPickerOptions");
+  const title=document.getElementById("atlasColorPickerTitle");
+  if(!box||!target)return;
+  if(title)title.textContent=target.name||"选择色系";
+  box.innerHTML=ATLAS_COLOR_GROUPS.map(g=>{
+    const on=atlasPickerDraft.includes(g.id);
+    return `<button type="button" class="atlas-picker-chip ${on?"selected":""}" onclick="toggleAtlasPickerDraft('${g.id}')">
+      <i style="background:linear-gradient(90deg,${g.from},${g.to})"></i>
+      <span>${g.name}</span>
+      <b>${on?"✓":""}</b>
+    </button>`;
+  }).join("");
+  const count=document.getElementById("atlasPickerCount");
+  if(count)count.textContent=`已选 ${atlasPickerDraft.length} 个色系`;
+}
+function saveAtlasColorPicker(){
+  const target=items().find(x=>String(x.id)===String(atlasPickerItemId));
+  if(!target)return;
+  if(!atlasPickerDraft.length){
+    toast("至少选择一个色系");
+    return;
+  }
+  const map=atlasOverrideRead();
+  map[atlasItemKey(target)]=[...new Set(atlasPickerDraft)];
+  atlasOverrideWrite(map);
+  closeAtlasColorPicker();
+  renderColorAtlas();
+  toast("多色分类已保存");
+}
+function resetAtlasColorPicker(){
+  const target=items().find(x=>String(x.id)===String(atlasPickerItemId));
+  if(!target)return;
+  const map=atlasOverrideRead();
+  delete map[atlasItemKey(target)];
+  atlasOverrideWrite(map);
+  closeAtlasColorPicker();
+  renderColorAtlas();
+  toast("已恢复自动识别");
+}
+
+
+
+function atlasTextColor(item){
+  const s=((item.name||"")+" "+(item.color||"")+" "+(item.note||"")).toLowerCase();
+  const hits=[];
+  const push=id=>{if(id&&!hits.includes(id))hits.push(id)};
+  if(/黑|black|炭黑|墨黑/.test(s))push("black");
+  if(/白|white|奶白|米白|象牙/.test(s))push("white");
+  if(/灰|grey|gray|银灰|炭灰/.test(s))push("gray");
+  if(/棕|brown|咖|褐|巧克力|摩卡/.test(s))push("brown");
+  if(/米色|卡其|khaki|燕麦|驼|杏色|杏/.test(s))push("beige");
+  if(/蓝|blue|藏蓝|宝蓝|天蓝|牛仔蓝|雾霾蓝/.test(s))push("blue");
+  if(/绿|green|橄榄|军绿|薄荷/.test(s))push("green");
+  if(/红|red|粉|pink|玫红|酒红|桃红/.test(s))push("red");
+  if(/紫|purple|薰衣草/.test(s))push("purple");
+  if(/黄|yellow|橙|orange|姜黄/.test(s))push("yellow");
+  return hits.length?hits:null;
+}
+
+
+function rgbToHsl(r,g,b){
+  r/=255;g/=255;b/=255;
+  const max=Math.max(r,g,b),min=Math.min(r,g,b);
+  let h=0,s=0,l=(max+min)/2;
+  const d=max-min;
+  if(d){
+    s=l>.5?d/(2-max-min):d/(max+min);
+    switch(max){case r:h=(g-b)/d+(g<b?6:0);break;case g:h=(b-r)/d+2;break;default:h=(r-g)/d+4}
+    h/=6;
+  }
+  return {h:h*360,s:s*100,l:l*100};
+}
+
+function classifyRgbColor(c){
+  const {r,g,b}=c;const hsl=rgbToHsl(r,g,b);
+  const lum=.2126*r+.7152*g+.0722*b;
+  const spread=Math.max(r,g,b)-Math.min(r,g,b);
+  let family="other";
+  if(lum<58)family="black";
+  else if(hsl.s<10&&lum>220)family="white";
+  else if(hsl.s<12&&lum<210)family="gray";
+  else if(hsl.s<18&&lum>165)family="beige";
+  else if(hsl.h>=18&&hsl.h<55&&hsl.s>18)family=lum<145?"brown":"beige";
+  else if(hsl.h>=55&&hsl.h<165)family="green";
+  else if(hsl.h>=165&&hsl.h<255)family="blue";
+  else if(hsl.h>=255&&hsl.h<320)family="purple";
+  else if(hsl.h>=320||hsl.h<18)family="red";
+  if(hsl.h>=40&&hsl.h<65&&hsl.s>35&&lum>125)family="yellow";
+  return {family,lum,hsl};
+}
+
+function sampleItemImageColor(dataURL){
+  return new Promise((resolve)=>{
+    if(!dataURL)return resolve({family:"other",lum:128,rgb:{r:150,g:145,b:140},source:"fallback"});
+    const im=new Image();
+    im.onload=()=>{
+      try{
+        const size=96,c=document.createElement("canvas");c.width=size;c.height=size;
+        const ctx=c.getContext("2d",{willReadFrequently:true});ctx.drawImage(im,0,0,size,size);
+        const d=ctx.getImageData(0,0,size,size).data;
+        const pts=[];
+        for(let y=7;y<size-7;y+=3){
+          for(let x=7;x<size-7;x+=3){
+            const i=(y*size+x)*4,r=d[i],g=d[i+1],b=d[i+2],a=d[i+3];
+            if(a<180)continue;
+            const lum=.2126*r+.7152*g+.0722*b;
+            const spread=Math.max(r,g,b)-Math.min(r,g,b);
+            // Skip near-white product background.
+            if(lum>242&&spread<18)continue;
+            pts.push([r,g,b]);
+          }
+        }
+        if(!pts.length)return resolve({family:"other",lum:128,rgb:{r:150,g:145,b:140},source:"fallback"});
+        // Median channels are much more stable than raw dominant color for white-background clothing images.
+        const med=k=>{const a=pts.map(p=>p[k]).sort((a,b)=>a-b);return a[Math.floor(a.length/2)]};
+        const rgb={r:med(0),g:med(1),b:med(2)};
+        const cls=classifyRgbColor(rgb);
+        resolve({...cls,rgb,source:"image"});
+      }catch(e){resolve({family:"other",lum:128,rgb:{r:150,g:145,b:140},source:"fallback"})}
+    };
+    im.onerror=()=>resolve({family:"other",lum:128,rgb:{r:150,g:145,b:140},source:"fallback"});
+    im.src=dataURL;
+  });
+}
+
+function atlasCacheRead(){
+  try{return JSON.parse(localStorage.getItem(COLOR_ATLAS_CACHE_KEY)||"{}")||{}}catch(e){return {}}
+}
+function atlasCacheWrite(v){
+  try{
+    localStorage.setItem(COLOR_ATLAS_CACHE_KEY,JSON.stringify(v));
+    persistAtlasSettings();
+  }catch(e){}
+}
+
+async function classifyAtlasItem(item){
+  const manual=getAtlasOverride(item);
+  if(manual?.length){
+    const prev=atlasCacheRead()[atlasItemKey(item)];
+    return {family:manual[0],families:manual,shade:prev?.shade??50,source:"manual"};
+  }
+
+  const key=atlasItemKey(item);
+  const fingerprint=`${item.image?.length||0}:${item.aiImage?.length||0}`;
+  const cache=atlasCacheRead();
+  const cached=cache[key];
+
+  // 1. 名称/备注里明确写出的颜色优先，而且支持多色。
+  const textHit=atlasTextColor(item);
+  if(textHit?.length){
+    const result={
+      family:textHit[0],
+      families:textHit,
+      shade:cached?.shade??50,
+      source:"name",
+      fingerprint
+    };
+    cache[key]=result;
+    atlasCacheWrite(cache);
+    return result;
+  }
+
+  // 2. 旧缓存如果结构完整且图片没变，直接复用。
+  if(
+    cached &&
+    cached.fingerprint===fingerprint &&
+    cached.family &&
+    colorGroupById(cached.family)
+  ){
+    const families=(cached.families?.length?cached.families:[cached.family]).filter(Boolean);
+    return {...cached,families};
+  }
+
+  // 3. 否则重新读取白底素材/原图主体颜色。
+  const sampled=await sampleItemImageColor(item.aiImage||item.image);
+  const result={
+    family:sampled.family||"other",
+    families:[sampled.family||"other"],
+    shade:Math.max(0,Math.min(100,100-(sampled.lum/255*100))),
+    source:sampled.source,
+    fingerprint
+  };
+  cache[key]=result;
+  atlasCacheWrite(cache);
+  return result;
+}
+
+
+let __atlasAutoClassifyPromise=null;
+async function ensureAllClosetColorsClassified(force=false){
+  if(__atlasAutoClassifyPromise)return __atlasAutoClassifyPromise;
+  __atlasAutoClassifyPromise=(async()=>{
+    try{
+      const all=[...items()];
+      if(!all.length)return [];
+      const cache=atlasCacheRead();
+      let changed=false;
+
+      for(const item of all){
+        if(getAtlasOverride(item)?.length)continue;
+        const key=atlasItemKey(item);
+        const fp=`${item.image?.length||0}:${item.aiImage?.length||0}`;
+        const old=cache[key];
+        const valid=!force &&
+          old &&
+          old.fingerprint===fp &&
+          old.family &&
+          colorGroupById(old.family);
+
+        if(!valid){
+          await classifyAtlasItem(item);
+          changed=true;
+        }
+      }
+      if(changed)await persistAtlasSettings();
+      return all;
+    }finally{
+      __atlasAutoClassifyPromise=null;
+    }
+  })();
+  return __atlasAutoClassifyPromise;
+}
+
+async function buildAtlasData(){
+  await ensureAllClosetColorsClassified(false);
+  const arr=[...items()];
+  return await Promise.all(arr.map(async item=>{
+    const color=await classifyAtlasItem(item);
+    return {item,type:atlasItemType(item),...color};
+  }));
+}
+
+function colorGroupById(id){return ATLAS_COLOR_GROUPS.find(x=>x.id===id)||ATLAS_COLOR_GROUPS.at(-1)}
+function typeGroupById(id){return {id,name:id==="all"?"全部":id}}
+
+function renderAtlasTabs(data){
+  const typeBox=document.getElementById("atlasTypeTabs"),colorBox=document.getElementById("atlasColorTabs");
+  if(typeBox){
+    const cats=atlasCategoryList(data);
+    const allBtn=`<button class="atlas-tab ${atlasType==="all"?"active":""}" onclick="setAtlasType('all')">全部 · ${data.length}</button>`;
+    typeBox.innerHTML=allBtn+cats.map(cat=>{
+      const n=data.filter(x=>x.type===cat).length;
+      const encoded=encodeURIComponent(cat);
+      return `<button class="atlas-tab ${atlasType===cat?"active":""}" onclick="setAtlasType(decodeURIComponent('${encoded}'))">${esc(cat)} · ${n}</button>`;
+    }).join("");
+  }
+  if(colorBox){
+    const scoped=atlasType==="all"?data:data.filter(x=>x.type===atlasType);
+    const present=ATLAS_COLOR_GROUPS.filter(g=>scoped.some(x=>atlasFamiliesOf(x).includes(g.id)));
+    const allActive=atlasSelectedColors.length===0;
+    const allBtn=`<button class="atlas-color-tab ${allActive?"active":""}" onclick="clearAtlasColorFilters()"><span>全部色系</span><small>${scoped.length}</small></button>`;
+    colorBox.innerHTML=allBtn+present.map(g=>{
+      const n=scoped.filter(x=>atlasFamiliesOf(x).includes(g.id)).length;
+      const active=atlasSelectedColors.includes(g.id);
+      return `<button class="atlas-color-tab ${active?"active multi-active":""}" onclick="toggleAtlasColorFilter('${g.id}')"><i style="background:linear-gradient(90deg,${g.from},${g.to})"></i><span>${g.name}</span><small>${n}</small></button>`;
+    }).join("");
+  }
+}
+
+function setAtlasType(v){
+  atlasType=v;
+  renderColorAtlas().then(()=>{
+    document.getElementById("atlasGrid")?.scrollIntoView({behavior:"smooth",block:"start"});
+  });
+}
+
+function setAtlasColor(v){
+  if(v==="all") return clearAtlasColorFilters();
+  atlasSelectedColors=[v];
+  atlasColor=v;
+  renderColorAtlas().then(()=>{
+    document.getElementById("atlasGrid")?.scrollIntoView({behavior:"smooth",block:"start"});
+  });
+}
+
+function toggleAtlasColorFilter(id){
+  if(atlasSelectedColors.includes(id)){
+    atlasSelectedColors=atlasSelectedColors.filter(x=>x!==id);
+  }else{
+    atlasSelectedColors=[...atlasSelectedColors,id];
+  }
+  atlasColor=atlasSelectedColors.length===1?atlasSelectedColors[0]:"all";
+  renderColorAtlas().then(()=>{
+    document.getElementById("atlasGrid")?.scrollIntoView({behavior:"smooth",block:"start"});
+  });
+}
+
+function clearAtlasColorFilters(){
+  atlasSelectedColors=[];
+  atlasColor="all";
+  renderColorAtlas().then(()=>{
+    document.getElementById("atlasGrid")?.scrollIntoView({behavior:"smooth",block:"start"});
+  });
+}
+
+function jumpToAtlasColor(v){
+  atlasSelectedColors=[v];
+  atlasColor=v;
+  atlasType="all";
+  renderColorAtlas().then(()=>{
+    document.getElementById("atlasGrid")?.scrollIntoView({behavior:"smooth",block:"start"});
+  });
+}
+
+function renderShadeScale(){
+  const box=document.getElementById("atlasShadeScale");if(!box)return;
+  if(!atlasSelectedColors.length){
+    box.innerHTML='<span>选择一个或多个色系后，下方会直接按你的衣橱分类展示对应单品。</span>';
+    return;
+  }
+  if(atlasSelectedColors.length===1){
+    const g=colorGroupById(atlasSelectedColors[0]);
+    box.innerHTML=`<span>浅</span><div class="scale" style="background:linear-gradient(90deg,${g.from},${g.to})"></div><span>深</span>`;
+    return;
+  }
+  const names=atlasSelectedColors.map(id=>colorGroupById(id)?.name||id).join(" + ");
+  box.innerHTML=`<span>${esc(names)} · 已组合筛选</span>`;
+}
+
+function atlasItemCard(v){
+  const shadeLabel=v.shade<34?"浅色":v.shade<67?"中等":"深色";
+  const assigned=atlasFamiliesOf(v);
+  const tagNames=assigned.map(id=>colorGroupById(id)?.name||id).join(" / ");
+  return `<div class="atlas-item">
+    <span class="shade-badge">${shadeLabel}</span>
+    <button class="atlas-open" onclick="openItemDetail('${v.item.id}')">
+      <img src="${v.item.aiImage||v.item.image}">
+    </button>
+    <b>${esc(v.item.name)}</b>
+    <small>${tagNames} · ${esc(v.type)}</small>
+    <button class="atlas-color-picker-btn" onclick="event.stopPropagation();openAtlasColorPicker('${v.item.id}')">
+      色系：${tagNames}
+    </button>
+  </div>`;
+}
+
+function renderAtlasGroupedWardrobe(shown){
+  if(!shown.length){
+    return '<div class="atlas-empty">这个筛选暂时没有单品。以后新增衣服会自动进入对应色系和衣橱分类。</div>';
+  }
+
+  // 没有选择色系时维持原来的平铺浏览；
+  // 只要选择了一个或多个色系，就直接变成“该色系下的分类衣橱”。
+  if(!atlasSelectedColors.length){
+    return shown.map(atlasItemCard).join("");
+  }
+
+  const preferred=currentUserCategories();
+  const present=[...new Set(shown.map(x=>x.type).filter(Boolean))];
+  const ordered=[
+    ...preferred.filter(c=>present.includes(c)),
+    ...present.filter(c=>!preferred.includes(c))
+  ];
+
+  // 如果上方已指定某一个品类，就只展示这个品类组。
+  const groups=(atlasType==="all"?ordered:[atlasType]).filter(cat=>shown.some(x=>x.type===cat));
+
+  return `<div class="atlas-category-wardrobe">
+    ${groups.map(cat=>{
+      const itemsInCat=shown
+        .filter(x=>x.type===cat)
+        .sort((a,b)=>a.shade-b.shade);
+      return `<section class="atlas-category-section">
+        <div class="atlas-category-head">
+          <b>${esc(cat)}</b>
+          <span>${itemsInCat.length} 件</span>
+        </div>
+        <div class="atlas-category-grid">
+          ${itemsInCat.map(atlasItemCard).join("")}
+        </div>
+      </section>`;
+    }).join("")}
+  </div>`;
+}
+
+async function renderColorAtlas(){
+  const grid=document.getElementById("atlasGrid");if(!grid)return;
+  grid.innerHTML='<div class="atlas-empty">正在整理你的衣橱色系…</div>';
+  const data=await buildAtlasData();
+  renderAtlasTabs(data);
+  renderShadeScale();
+
+  let shown=data.filter(x=>
+    (atlasType==="all"||x.type===atlasType) &&
+    (!atlasSelectedColors.length||atlasSelectedColors.some(id=>atlasFamiliesOf(x).includes(id)))
+  );
+
+  shown.sort((a,b)=>{
+    if(atlasSelectedColors.length===1) return a.shade-b.shade;
+    const ca=ATLAS_COLOR_GROUPS.findIndex(g=>g.id===a.family);
+    const cb=ATLAS_COLOR_GROUPS.findIndex(g=>g.id===b.family);
+    return ca-cb || a.shade-b.shade;
+  });
+
+  document.getElementById("colorAtlasCount").textContent=`${shown.length} 件`;
+  grid.innerHTML=renderAtlasGroupedWardrobe(shown);
+  renderAtlasSummary(data);
+}
+
+function renderAtlasSummary(data){
+  const box=document.getElementById("atlasSummary");if(!box)return;
+  const total=Math.max(1,data.length);
+  const rows=ATLAS_COLOR_GROUPS.map(g=>({g,n:data.filter(x=>atlasFamiliesOf(x).includes(g.id)).length})).filter(x=>x.n).sort((a,b)=>b.n-a.n);
+  box.innerHTML=rows.length?rows.map(({g,n})=>`<div class="atlas-summary-row">
+    <div class="atlas-summary-head"><b>${g.name}</b><span>${n} 件 · ${Math.round(n/total*100)}%</span></div>
+    <div class="atlas-summary-bar"><i style="width:${Math.max(4,n/total*100)}%"></i></div>
+  </div>`).join(""):'<div class="atlas-empty">衣橱暂无单品</div>';
+}
+
+/* 人物主体优先：参考图仅用于给用户“快速跳色系”，不参与衣橱单品自动归色 */
+function colorDistance(a,b){return Math.hypot((a.r||0)-(b.r||0),(a.g||0)-(b.g||0),(a.b||0)-(b.b||0))}
+function rgbHex(c){return '#'+[c.r,c.g,c.b].map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join('')}
+function isSkinish(r,g,b){const mx=Math.max(r,g,b),mn=Math.min(r,g,b);return r>92&&g>55&&b>35&&r>g&&g>b&&(mx-mn)>15&&Math.abs(r-g)>15}
+function dominantInRect(ctx,w,h,rx,ry,rw,rh){
+  const x0=Math.max(0,Math.floor(w*rx)),y0=Math.max(0,Math.floor(h*ry)),x1=Math.min(w,Math.ceil(w*(rx+rw))),y1=Math.min(h,Math.ceil(h*(ry+rh)));
+  const im=ctx.getImageData(x0,y0,Math.max(1,x1-x0),Math.max(1,y1-y0)).data;const map=new Map();
+  for(let i=0;i<im.length;i+=16){let r=im[i],g=im[i+1],b=im[i+2],a=im[i+3];if(a<220||isSkinish(r,g,b))continue;const lum=.2126*r+.7152*g+.0722*b;if(lum>247)continue;r=Math.round(r/24)*24;g=Math.round(g/24)*24;b=Math.round(b/24)*24;const k=`${r},${g},${b}`;map.set(k,(map.get(k)||0)+1)}
+  let best=null,n=0;for(const [k,v] of map){if(v>n){n=v;best=k}}if(!best)return {r:180,g:180,b:180};const [r,g,b]=best.split(',').map(Number);return {r,g,b};
+}
+function subjectCenterFromSkin(ctx,w,h){
+  const d=ctx.getImageData(0,0,w,h).data,xs=[];for(let y=0;y<h;y+=2){for(let x=0;x<w;x+=2){const i=(y*w+x)*4,r=d[i],g=d[i+1],b=d[i+2];if(isSkinish(r,g,b))xs.push(x)}}
+  if(xs.length<18)return .5;xs.sort((a,b)=>a-b);return Math.max(.28,Math.min(.72,xs[Math.floor(xs.length/2)]/w));
+}
+async function analyzeReferenceGarments(dataURL){
+  const img=await new Promise((res,rej)=>{const im=new Image();im.onload=()=>res(im);im.onerror=rej;im.src=dataURL});
+  const W=220,H=Math.max(280,Math.round(220*img.height/img.width));const c=document.createElement("canvas");c.width=W;c.height=H;
+  const ctx=c.getContext("2d",{willReadFrequently:true});ctx.drawImage(img,0,0,W,H);
+  const cx=subjectCenterFromSkin(ctx,W,H),bodyX=Math.max(.08,Math.min(.62,cx-.16));
+  const samples=[
+    {role:"top",label:"上装",rgb:dominantInRect(ctx,W,H,bodyX,.26,.32,.22)},
+    {role:"bottom",label:"下装",rgb:dominantInRect(ctx,W,H,Math.max(.08,cx-.18),.53,.36,.33)}
+  ];
+  // Shoulder side sample may catch an outer layer. Only keep it if clearly different from top.
+  const side=dominantInRect(ctx,W,H,Math.max(.07,cx-.28),.20,.16,.31);
+  if(colorDistance(side,samples[0].rgb)>72)samples.unshift({role:"outer",label:"外套/叠穿",rgb:side});
+  return samples.map(s=>{
+    const cls=classifyRgbColor(s.rgb),g=colorGroupById(cls.family);
+    return {...s,family:cls.family,color:g.name,hex:rgbHex(s.rgb)};
+  }).filter((g,i,a)=>i===0||g.family!==a[i-1].family||g.role!==a[i-1].role);
+}
+
+function renderLookbookReference(){
+  const box=document.getElementById("lookbookReferencePreview"),status=document.getElementById("lookbookReferenceStatus"),chips=document.getElementById("referenceColorChips");
+  if(box){
+    box.innerHTML=lookbookReference.image?`<img src="${lookbookReference.image}" alt="参考穿搭">`:'<div class="lookbook-placeholder">导入一张穿搭图</div>';
+  }
+  if(status)status.textContent=lookbookReference.image?"已导入":"未导入";
+  if(chips){
+    const gs=lookbookReference.garments||[];
+    chips.innerHTML=gs.length?gs.map(g=>{
+      const cg=colorGroupById(g.family);
+      return `<button class="reference-color-chip" onclick="jumpToAtlasColor('${g.family}')">
+        <i style="background:${g.hex||`linear-gradient(90deg,${cg.from},${cg.to})`}"></i>
+        <span>${g.label} · ${cg.name}<small>点击查看衣橱</small></span>
+      </button>`;
+    }).join(""):'<div class="lookbook-placeholder">识别结果会出现在这里；点击色系即可筛选你的衣橱。</div>';
+  }
+}
+
+async function importLookbookReferenceFile(file){
+  if(!file)return;
+  const btn=document.getElementById("lookbookPickBtn"),old=btn?.textContent||"＋ 导入喜欢的穿搭";
+  try{
+    if(btn){btn.disabled=true;btn.textContent="正在读取图片…"}
+    let dataURL;
+    try{dataURL=await compressManualImage(file,1500,.84)}catch(e){dataURL=await fileToDataURL(file)}
+    if(!dataURL||!String(dataURL).startsWith("data:image/"))throw new Error("图片读取失败");
+    if(btn)btn.textContent="识别人像穿搭…";
+    let garments=[];
+    try{garments=await analyzeReferenceGarments(dataURL)}catch(e){console.warn("reference color recognition skipped",e)}
+    lookbookReference={image:dataURL,createdAt:Date.now(),garments};
+    saveLookbookReference();renderLookbookReference();
+    if(garments[0]?.family)atlasColor=garments[0].family;
+    await renderColorAtlas();
+    toast(garments.length?`已识别 ${garments.map(g=>g.color).join(" / ")}`:"参考图已导入");
+  }catch(err){
+    console.error("reference import failed",err);alert("穿搭图片导入失败："+(err?.message||err));
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent=old}
+    const input=document.getElementById("lookbookInput");if(input)input.value="";
+  }
+}
+function bindLookbookUpload(){
+  const btn=document.getElementById("lookbookPickBtn"),input=document.getElementById("lookbookInput");
+  if(btn&&!btn.dataset.bound){btn.dataset.bound="1";btn.addEventListener("click",()=>input?.click())}
+  if(input&&!input.dataset.bound){input.dataset.bound="1";input.addEventListener("change",e=>importLookbookReferenceFile(e.target.files?.[0]))}
+}
+
+// Compatibility wrappers: old call sites can remain without breaking the page.
+function renderLookbookTarget(){}
+function renderLookbookAnatomy(){}
+function generateLookbookOutfits(){return renderColorAtlas()}
+function renderLookbookWardrobeMap(){return renderColorAtlas()}
+function renderLookbookGaps(){}
+function renderLookbookFormula(){}
+
 
 const BRAND_FAV_KEY="today_wear_luxury_favorites_v25";
 const CUSTOM_BRAND_KEY="today_wear_custom_luxury_brands_v25";
@@ -2566,7 +4298,7 @@ function setTrendMode(mode){
 function renderTrendGrid(){
   const box=document.getElementById("liveTrendGrid");
   if(!box)return;
-  const data=trendMode==="luxury"?getFavoriteBrands():(TREND_DATA.regions||[]);
+  const data=trendMode==="luxury"?getFavoriteBrands():(((typeof TREND_DATA!=="undefined"&&TREND_DATA&&Array.isArray(TREND_DATA.regions))?TREND_DATA.regions:[]));
   const count=document.getElementById("brandCount");
   if(count && trendMode==="luxury") count.textContent=`${data.length} 个品牌`;
 
@@ -2910,6 +4642,7 @@ function getCategoryOrder(){
 function saveCategoryOrder(arr){
   localStorage.setItem(CAT_ORDER_KEY,JSON.stringify(arr));
   localStorage.setItem(CAT_INIT_KEY,"1");
+  persistAtlasSettings();
 }
 
 function moveCategoryOrder(index,dir){
@@ -3436,8 +5169,8 @@ async function exportFullBackup(){
     const styleDNA=getStyleDNA();
     const backup={
       app:"今天穿什么",
-      backupVersion:2,
-      appVersion:"4.9.2",
+      backupVersion:3,
+      appVersion:"5.0.6",
       createdAt:new Date().toISOString(),
       wardrobe,
       styleSamples,
@@ -3449,7 +5182,7 @@ async function exportFullBackup(){
     const a=document.createElement("a");
     const d=new Date();
     const pad=n=>String(n).padStart(2,"0");
-    const name=`今天穿什么_完整备份_V4.9.2_${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}.json`;
+    const name=`今天穿什么_完整备份_V5.0.8_${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}.json`;
     a.href=url;
     a.download=name;
     document.body.appendChild(a);
@@ -3512,9 +5245,10 @@ async function restoreFullBackupFromFile(file){
     activeSeason="全部";
     closeDataSettings();
     render();
-    renderLiveInspiration();
-    renderTrendGrid();
-    renderStyleDNA();
+    try{renderLiveInspiration();}catch(e){console.warn("renderLiveInspiration skipped",e)}
+    try{renderTrendGrid();}catch(e){console.warn("renderTrendGrid skipped",e)}
+    try{renderStyleDNA();}catch(e){console.warn("renderStyleDNA skipped",e)}
+    try{renderColorAtlas();}catch(e){console.warn("color atlas refresh skipped",e)}
     toast(`恢复完成：${__itemsCache.length} 件衣服 + ${restoredStyles.length} 张风格样本`);
   }catch(err){
     console.error("restore failed",err);
@@ -3525,9 +5259,16 @@ async function restoreFullBackupFromFile(file){
   }
 }
 document.addEventListener("DOMContentLoaded", async ()=>{
+  loadLookbookReference();
+  bindLookbookUpload();
+  renderLookbookReference();
   await initAppStorage();
   await loadStyleSamples();
   renderStyleDNA();
+  renderLookbookReference();
+  renderLookbookWardrobeMap();
+  renderLookbookGaps();
+  renderLookbookFormula();
   const m=document.getElementById("dataSettingsModal");
   if(m) m.addEventListener("click",closeDataSettings);
   const input=document.getElementById("fullBackupInput");
@@ -3542,6 +5283,8 @@ document.addEventListener("visibilitychange", async ()=>{
       await __saveQueue;
       __itemsCache = await idbGetAllItems();
       try{ __styleSamplesCache = await idbGetStyleSamples(); }catch(e){ console.warn("style samples resume reload failed",e); }
+      await restoreAtlasSettingsFromMeta();
+      await ensureAllClosetColorsClassified(false);
       render();
       renderStyleDNA();
     }catch(e){ console.error("resume reload failed",e); }
@@ -3552,6 +5295,8 @@ window.addEventListener("pageshow", async e=>{
     try{
       await __saveQueue;
       __itemsCache = await idbGetAllItems();
+      await restoreAtlasSettingsFromMeta();
+      await ensureAllClosetColorsClassified(false);
       render();
     }catch(err){ console.error("pageshow reload failed",err); }
   }
@@ -3574,7 +5319,7 @@ window.addEventListener("pageshow", async e=>{
       <label class="data-restore-btn" for="fullBackupInput" style="text-align:center;cursor:pointer">导入备份并恢复</label>
       <input id="fullBackupInput" type="file" accept=".json,application/json" style="display:none">
     </div>
-    <div class="data-settings-meta" id="backupMetaText">V4.9.1 完整备份会同时保存衣橱、分类、Style DNA 与全部风格样本；文件只保存在你自己选择的位置，不会上传服务器。</div>
+    <div class="data-settings-meta" id="backupMetaText">V5.0.8 完整备份会同时保存衣橱、分类、自定义色系、多色标记、Style DNA 与全部风格样本；文件只保存在你自己选择的位置，不会上传服务器。</div>
   </div>
 </div>
 
